@@ -1,0 +1,1751 @@
+================================================================================
+JORDAN TRAFFIC LAW — RAG KNOWLEDGE BASE
+SmartPath Jordan | Capstone Project
+Source: Traffic Law No. 49 of 2008 (and amendments — Law No. 18 of 2023)
+Issued by: Ministry of Interior / Public Security Directorate (PSD)
+Language: English
+Format: One article per chunk, separated by === delimiters
+================================================================================
+
+CHUNKING GUIDE FOR DEVELOPERS:
+- Split on "===" delimiter lines to get one chunk per article
+- Each chunk contains: ARTICLE_ID, CATEGORY, TITLE, LEGAL_TEXT, PENALTY, KEYWORDS
+- Recommended chunk overlap: 0 (articles are self-contained)
+- Embedding model recommendation: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+- Vector DB: ChromaDB or FAISS
+- Cosine similarity threshold for retrieval: >= 0.65
+================================================================================
+
+===
+ARTICLE_ID: ART-001
+CATEGORY: Definitions
+TITLE: Law Title and Commencement
+LEGAL_TEXT:
+This law is called the "Traffic Law of 2008" (Law No. 49 of 2008). It came into effect thirty days after the date of its publication in the Official Gazette. It was subsequently amended by Law No. 18 of 2023, which came into force on 12 September 2023.
+
+The law governs all aspects of road traffic in the Hashemite Kingdom of Jordan, including vehicle registration and licensing, driver licensing, traffic violations, penalties, and road safety enforcement. It applies to all roads open to public traffic, including urban streets, highways, bridges, and tunnels.
+
+PENALTY: Not applicable (definitional article)
+KEYWORDS: traffic law, Jordan, 2008, 49, commencement, amendment, 2023, law no 18, road safety, PSD, Public Security Directorate
+===
+
+===
+ARTICLE_ID: ART-002
+CATEGORY: Definitions
+TITLE: Key Definitions
+LEGAL_TEXT:
+The following definitions apply throughout the Traffic Law:
+
+- Ministry: The Ministry of Interior.
+- Minister: The Minister of Interior.
+- Directorate: Public Security Directorate (PSD).
+- Director: Director of Public Security.
+- Licensing Department: The department responsible for licensing drivers and vehicles.
+- Technical Office: The Central Technical Office for Traffic Affairs.
+- Vehicle: Every means of land transport operating by mechanical force, including tractors, trailers, and semi-trailers. Does not include rail transport.
+- Passenger Car: A vehicle designed to carry no more than 9 persons including the driver.
+- Medium Bus: A vehicle designed to carry more than 9 and not more than 30 persons including the driver.
+- Bus: A vehicle designed to carry more than 30 persons.
+- Freight Vehicle: A vehicle designed to transport goods.
+- Motorcycle: A two- or three-wheeled vehicle with an automatic engine designed to transport persons or goods.
+- Driver: The person who drives the vehicle.
+- Pedestrian: Any person on foot, including persons pushing strollers, wheelchairs, or handcarts.
+- Passenger: Any person inside the vehicle except the driver.
+- Traffic Accident: An incident caused by at least one moving vehicle resulting in damage to persons or property, or both. Intentionally caused incidents are not considered traffic accidents under this law.
+- Traffic Violation: Infractions and misdemeanours set forth in this law.
+- Safe Following Distance: The distance that must be maintained between a vehicle and the vehicle ahead during movement.
+- Overtaking: Passing any vehicle or obstacle on the road.
+- Road: Any way devoted to public traffic, including vehicular and pedestrian traffic, and includes bridges, tunnels, and parking areas.
+- Highway (Limited Access): A route that does not allow entry or exit except from specific designated locations.
+- Signal Path: Traffic lights, pillars, lines, phrases, words, or symbols on or above the road used to regulate, warn, or guide road users.
+
+PENALTY: Not applicable (definitional article)
+KEYWORDS: definitions, vehicle, driver, pedestrian, motorcycle, bus, freight, road, highway, overtaking, traffic accident, traffic violation, passenger, medium bus
+===
+
+===
+ARTICLE_ID: ART-003
+CATEGORY: Vehicle Registration and Licensing
+TITLE: Vehicle Registration Requirements
+LEGAL_TEXT:
+All vehicles — including those belonging to ministries, departments, official and public institutions, municipalities, and joint services councils — must be registered and licensed in the Licensing Department.
+
+No vehicle may be used in the Kingdom unless it is registered, licensed, and carries the prescribed number plates.
+
+Exemptions apply to:
+1. Vehicles belonging to the Armed Forces, Public Security, Civil Defence, Gendarmerie, and General Intelligence.
+2. Foreign-licensed vehicles authorized to enter the Kingdom legally.
+3. Trailers weighing less than 750 kg carried by farm tractors or designed for recreational, fishing, or tourism purposes.
+4. Vehicles belonging to commercial agents, vehicle manufacturers, or research and development centers.
+
+PENALTY: Impoundment of vehicle (see Article 24). Operating an unregistered vehicle is a primary basis for seizure.
+KEYWORDS: registration, licensing, number plates, vehicle registration, unregistered vehicle, exemption, plates, kingdom of Jordan
+===
+
+===
+ARTICLE_ID: ART-004
+CATEGORY: Vehicle Registration and Licensing
+TITLE: Vehicle Insurance Requirements
+LEGAL_TEXT:
+No vehicle may be registered, licensed, or have its license renewed without providing a valid insurance contract covering the full duration of the license period, issued by an insurance company licensed in the Kingdom.
+
+The insurance must cover civil liability for damage to third parties resulting from the use of the vehicle, in accordance with the law governing insurance operations.
+
+For tractor-trailer combinations, the tractor's insurance covers civil liability for damage caused by use of the attached trailer or semi-trailer.
+
+No vehicle may enter Jordan unless it is covered by a valid civil liability insurance contract for the duration of its stay. Foreign vehicles must also carry a valid license from their country of origin for the duration of their stay in the Kingdom.
+
+PENALTY: Fine of 30 JOD for driving a vehicle with an expired or non-existent insurance contract (Article 36, Item 29 — as amended 2023). License confiscation applies.
+KEYWORDS: insurance, civil liability, third party, vehicle insurance, registration renewal, foreign vehicle, insurance contract, expired insurance
+===
+
+===
+ARTICLE_ID: ART-005
+CATEGORY: Vehicle Registration and Licensing
+TITLE: Vehicle Number Plates
+LEGAL_TEXT:
+Each vehicle is assigned a unique number that distinguishes it from others upon registration and licensing. This number shall not be changed or altered except by the Licensing Department.
+
+The regulations govern vehicle plates, including their exchange, printing, specifications, measurements, costs, and exemption cases.
+
+It is a violation to:
+- Drive a vehicle without front and rear number plates.
+- Use forged, illegal, or non-standard number plates.
+- Place any materials, additions, decorations, or reflectors on the number plates.
+- Install additional number plates of any kind, shape, or content on the vehicle, or install more than one plate on top of another.
+- Install number plates in violation of specifications or install a plate in a place other than its designated location.
+- Manufacture vehicle number plates outside the Licensing Department.
+
+PENALTY:
+- Driving without number plates (front and rear): Fine of 200-300 JOD or imprisonment 1-2 months, or both (2023 amendment).
+- Forged or illegal plates: Arrest without warrant, vehicle seizure (Article 25).
+- Placing materials/decorations on plates: Fine of 50-100 JOD (Article 31, Item 14).
+- Additional or non-standard plates: Fine of 30 JOD (Article 36, Items 21-22).
+- Manufacturing plates outside Licensing Dept: Fine of 250-500 JOD or imprisonment 1-3 months (2023 amendment).
+KEYWORDS: number plates, vehicle plates, forged plates, illegal plates, plate specifications, plate manufacture, decorations on plates, plate violations
+===
+
+===
+ARTICLE_ID: ART-006
+CATEGORY: Driver Licensing
+TITLE: Driver Training and Licensing Requirements
+LEGAL_TEXT:
+No person may drive any vehicle on a public road unless they hold a valid driving license that entitles them to drive the category of that vehicle. The driver must carry the license while driving at all times.
+
+Training to drive a vehicle may only be conducted at licensed driving training centers. Trainees must be at least 18 years of age.
+
+No vehicle owner or holder may allow a person to drive who does not hold a valid driving license appropriate for that vehicle category.
+
+A trainer (driving instructor) must be specifically authorized to conduct driver training by the Licensing Department.
+
+Foreign nationals and Jordanians residing abroad may drive private passenger cars and rental/tourism vehicles using a valid foreign or international driving license, provided they are at least 18 years of age.
+
+The Minister may suspend, confiscate, or cancel a driving license if the holder no longer meets the conditions required to hold it.
+
+PENALTY:
+- Driving without a driving license: Fine of 250-500 JOD or imprisonment 1-3 months, or both (2023 amendment).
+- Allowing an unlicensed person to drive: Fine of 50-100 JOD (Article 31, Item 6).
+- Training without a permit: Fine of 50-100 JOD (Article 31, Item 3 / 2023 amendment).
+- Training a person under legal age: Fine of 50-100 JOD (Article 31, Item 20).
+KEYWORDS: driving license, driver license, license category, unlicensed driving, driver training, training permit, foreign driving license, international license, 18 years, minimum age
+===
+
+===
+ARTICLE_ID: ART-007
+CATEGORY: Driver Licensing
+TITLE: Driving License Points System
+LEGAL_TEXT:
+The Traffic Law establishes a points system for driver licenses. Points are accumulated based on the seriousness of the committed offence.
+
+License suspension thresholds:
+- 10 to fewer than 16 points: Driver must attend a rehabilitation course at the Traffic Institute. Attendance is optional for those below 10 points. Attending the course removes 6 points from the driver's record. This right may be used once per year.
+- 16 to fewer than 20 points: License suspended for 2 months.
+- 20 to fewer than 24 points: License suspended for 3 months.
+- 24 to fewer than 28 points: License suspended for 4 months.
+- 28 to fewer than 32 points: License suspended for 6 months.
+- 32 points or more: License suspended for 1 year.
+
+All points are written off when the suspension period is fully served. No monetary fines are imposed solely as a result of the points system.
+
+PENALTY: Administrative license suspension as detailed above. No additional fines for the points system itself.
+KEYWORDS: points system, driver points, license suspension, rehabilitation course, traffic institute, 16 points, 20 points, 24 points, 32 points, license withdrawal, administrative suspension
+===
+
+===
+ARTICLE_ID: ART-008
+CATEGORY: Traffic Violations — Serious Offences
+TITLE: Grounds for Arrest Without Warrant
+LEGAL_TEXT:
+Any member of the Public Security may arrest without a warrant the driver of any vehicle and seize the driving license, vehicle license, driving permit, and training permit if the driver commits any of the following violations:
+
+A. Causing the death of a person or injury to a person due to driving a vehicle.
+B. Fleeing from the scene of a traffic accident the driver committed.
+C. Driving a vehicle while not licensed to drive.
+D. Driving a vehicle during the period of suspension of the driving license (administrative or judicial).
+E. Driving a vehicle with a forged driving license, forged vehicle license, or forged permit.
+F. Driving a vehicle with forged number plates or illegal number plates.
+G. Driving a vehicle recklessly or showily (exhibition driving) on the road.
+H. Driving a vehicle under the influence of alcohol or any psychotropic substances that cause the driver to lose control, consuming alcohol while driving, or refusing to take the legally prescribed examination for alcohol/narcotics.
+I. Driving a stolen vehicle or one required to be seized for criminal proceedings.
+
+PENALTY: Immediate arrest without warrant. All licenses and documents seized. Criminal prosecution follows under applicable articles (Articles 26, 27, 29).
+KEYWORDS: arrest without warrant, reckless driving, drunk driving, alcohol, forged license, suspended license, fleeing accident, unlicensed driving, stolen vehicle, forged plates, exhibition driving
+===
+
+===
+ARTICLE_ID: ART-009
+CATEGORY: Traffic Violations — Criminal Offences
+TITLE: First-Category Offences (Most Serious Violations)
+LEGAL_TEXT:
+The following constitute first-category (most serious) traffic offences, punishable by imprisonment and/or substantial fines:
+
+GROUP A — Imprisonment 3 months to 6 months, OR fine 500-1,000 JOD, OR both:
+1. A repair shop owner who repaired a vehicle involved in a traffic accident without informing the competent authorities.
+2. Illegally harbouring any vehicle or part thereof with intent to sell or dispose of it without the owner's permission.
+3. Fabricating a traffic accident (proven by judicial ruling).
+4. Agreeing to replace the driver who caused a traffic accident resulting in human injury or death.
+5. The driver fleeing the scene of an accident causing human injury or death, or failure to notify the nearest security station or patrol.
+6. Driving vehicles prohibited from road use (military-exclusive vehicles, etc.) on public roads.
+
+Note: All fines in Group A are doubled if the same violation is repeated within one year.
+
+GROUP B — Imprisonment 1 month to 3 months, OR fine 250-500 JOD, OR both:
+1. Driving under the influence of alcoholic beverages at a rate exceeding the permissible blood alcohol concentration limit (0.04% / 40 mg per 100 ml of blood). Commercial and novice drivers (fewer than 2 years' experience): zero tolerance.
+2. The driver consuming alcoholic beverages while driving.
+3. A driving instructor consuming alcoholic beverages during training.
+4. Driving a vehicle carrying hazardous, explosive, or flammable materials inside populated areas or restricted zones without a permit, or leaving such a vehicle inside them.
+5. Conducting a road race without prior authorization from the competent authorities.
+6. Driving a vehicle without a driving license.
+7. Driving a vehicle that spills or leaks oils, petroleum derivatives, or any hazardous materials on the road.
+8. Driving a vehicle that requires a Class 1, 2, or 7 licence but doing so with a different category licence.
+9. Driving under the influence of drugs or psychotropic substances.
+10. Driving in the opposite direction on roads with separated directions (wrong-way driving).
+11. Driving at night without front or rear lights on an unlit road.
+12. Vehicle load protruding from front or rear by more than 100 cm without a permit.
+13. Increasing the height of the vehicle with its load to 420 cm without a permit.
+14. Manufacturing vehicle number plates outside the Licensing Department.
+15. Replacing the front or rear part of a vehicle without prior approval from the Licensing Department.
+16. Manufacturing trailers or semi-trailers without prior approval or issuing false certificates of origin.
+17. Tampering with vehicle number plates (scratching, inking, gluing, or any method that changes or obscures plate numbers).
+
+Note: All fines in Group B are doubled if the same violation is repeated within one year.
+
+PENALTY: See fine and imprisonment ranges above per group.
+KEYWORDS: first category offence, drunk driving, alcohol, drugs, reckless driving, wrong way driving, road race, hazardous materials, forged plates, fleeing accident, human injury, death, imprisonment, fabricated accident, blood alcohol, BAC
+===
+
+===
+ARTICLE_ID: ART-010
+CATEGORY: Traffic Violations — Criminal Offences
+TITLE: Serious Violations — License Misuse and Impersonation
+LEGAL_TEXT:
+The following violations carry imprisonment of 1-3 months or a fine of 150-300 JOD, or both:
+
+1. Allowing another person to use one's driving license, driving permit, training permit, or detention notice.
+2. Using another person's driving license, permit, or detention notice.
+3. Illegally using vehicle number plates or a vehicle license.
+4. Agreeing to replace the driver who caused a traffic accident resulting in material (property) damage.
+5. Using lanes designated for public transport with vehicles not authorized to do so.
+
+When a vehicle's plates or license is used illegally, the driving license shall be suspended for 2 months.
+All fines are doubled if the violation is repeated within one year.
+
+PENALTY: Fine 150-300 JOD or imprisonment 1-3 months, or both. 2-month license suspension for illegal plate/license use.
+KEYWORDS: license misuse, impersonation, driving permit, false identity, driving license sharing, illegal plates, vehicle license misuse, license suspension, public transport lane
+===
+
+===
+ARTICLE_ID: ART-011
+CATEGORY: Traffic Violations — Criminal Offences
+TITLE: Reckless and Dangerous Driving
+LEGAL_TEXT:
+The following violations carry imprisonment of 1-2 months or a fine of 200-300 JOD, or both:
+
+1. Leaving a broken-down vehicle on a road lane without placing reflectors or warning lights to indicate it.
+2. Vehicle load protruding beyond the width of the vehicle without a permit or violating permit conditions.
+3. Driving a vehicle while the driving license is administratively or judicially suspended.
+4. Driving a vehicle with a foreign or international driving license when the Jordanian driving license has been administratively or judicially suspended.
+5. Using an unauthorized private vehicle to transport passengers for a fee.
+6. Using a copy (photocopy/image) of a vehicle license, driver's license, driving permit, or training permit with the intent to mislead or defraud.
+7. Driving a Jordanian public vehicle (bus, freight vehicle) with a foreign or international driving license.
+8. Throwing or spilling vehicle loads on public roads (stones, dust, construction waste, wastewater, liquid materials, etc.).
+9. Using a vehicle for purposes other than those for which it is licensed (e.g., transporting passengers in rental vehicles, or carrying waste in unlicensed vehicles).
+10. Driving public passenger vehicles, student transport vehicles, or hazardous materials transport vehicles without the required permit, or in violation of permit conditions.
+11. Installing or using a danger alert or multi-sound device on vehicles not authorized to do so.
+12. Installing or using emergency vehicle lights on unauthorized vehicles.
+13. Failing to secure containers with chains or locks designated for this purpose on freight vehicles.
+
+All fines are doubled if the violation is repeated within one year.
+
+PENALTY: Fine 100-200 JOD or imprisonment 1-2 months, or both.
+KEYWORDS: broken down vehicle, lane obstruction, suspended license, public vehicle, foreign license, illegal transport, cargo spill, unauthorized use, emergency lights, freight container, hazardous materials permit, student transport
+===
+
+===
+ARTICLE_ID: ART-012
+CATEGORY: Traffic Violations — Speeding
+TITLE: Speeding Violations and Penalties
+LEGAL_TEXT:
+Speed limits in Jordan are set by regulation and vary by road type. Violations are graded by how much the speed limit is exceeded:
+
+TIER 1 — Exceeding speed limit by more than 50 km/h:
+Punishment: Imprisonment 1-3 months OR fine of 100 JOD, OR both.
+Fine is doubled if the violation is repeated within one year.
+
+TIER 2 — Exceeding speed limit by more than 30 km/h and up to 50 km/h:
+Punishment: Fine of 30 JOD.
+(Under original 2008 law; 2023 amendment may apply escalation)
+
+TIER 3 — Exceeding speed limit by more than 10 km/h and up to 30 km/h:
+Punishment: Fine of 20 JOD.
+(Under original 2008 law; 2023 amendment may apply escalation)
+
+TIER 4 — Exceeding speed limit by more than 20 km/h and up to 40 km/h:
+Results in driving license seizure pending payment.
+
+General speed provisions:
+- Drivers must reduce speed when passing through populated areas, approaching schools, pedestrian crosswalks, curves, or intersections.
+- Driving at a speed less than the minimum speed limit set on roads controlled by signs: Fine of 15 JOD.
+- Freight vehicles whose gross weight exceeds 12 tonnes are subject to restricted times and locations of travel.
+
+PENALTY: See tiers above. License seizure applies in specific ranges. Doubled fines for repeat violations within one year.
+KEYWORDS: speeding, speed limit, excessive speed, 50 km/h, 30 km/h, 10 km/h, speed violation, school zone, pedestrian crossing, minimum speed, freight vehicle speed, speed camera
+===
+
+===
+ARTICLE_ID: ART-013
+CATEGORY: Traffic Violations — Lane Discipline
+TITLE: Lane Violations and Wrong-Way Driving
+LEGAL_TEXT:
+The following lane-related violations and their penalties apply under the Traffic Law (as amended 2023):
+
+WRONG-WAY DRIVING:
+Driving a vehicle in the opposite direction of traffic flow on roads where directions are separated by a central island or median, or in the wrong lane, is a serious criminal offence.
+
+Penalty: Fine 250-500 JOD or imprisonment 1-3 months, or both (2023 amendment, Group B offence). This applies to driving against designated traffic flow on divided roads.
+
+LANE VIOLATIONS (fine of 50-100 JOD):
+1. The driver took the wrong lane (lane misuse).
+2. Driving the vehicle in the opposite direction of traffic or in violation of traffic prohibition signs.
+3. Sudden or abrupt change of lane by the driver.
+4. Freight vehicles, buses, medium buses, construction vehicles, and agricultural vehicles failing to drive on the right lane of a multi-lane road.
+5. The driver's non-compliance with the stop sign or stop line.
+
+LANE VIOLATIONS (fine of 30 JOD):
+6. Driving a vehicle outside the designated lanes on the road.
+7. Double parking on roads.
+8. Stopping on a lane in a way that obstructs traffic.
+
+AVOIDANCE MANOEUVRES (infrastructure diagnostic indicator for SmartPath Jordan):
+When multiple vehicles repeatedly make identical lateral lane deviations or swerves at the same GPS coordinates, this may indicate a road defect (pothole, poor lane markings, damaged signage) rather than driver negligence. SmartPath Jordan classifies such clusters as Infrastructure Alerts rather than pure driver violations.
+
+PENALTY: See amounts above per violation type. Wrong-way driving: 250-500 JOD or imprisonment.
+KEYWORDS: lane violation, wrong-way driving, wrong direction, lane misuse, lane change, abrupt lane change, right lane, multi-lane road, stop sign, stop line, lane discipline, avoidance manoeuvre, pothole, road defect, infrastructure alert, median, central island, divided road
+===
+
+===
+ARTICLE_ID: ART-014
+CATEGORY: Traffic Violations — Traffic Signals
+TITLE: Traffic Signal and Traffic Light Violations
+LEGAL_TEXT:
+Running a Red Light (Traffic Signal Violation):
+Bypassing a red traffic light (signal) is a serious violation.
+
+Penalty under 2023 amendment:
+Fine of 200-300 JOD, OR imprisonment 1-2 months, OR both.
+If repeated within one year, the fine is doubled (i.e., 400-600 JOD).
+
+Under the original 2008 law (Article 29, Item D): Fine of 100-200 JOD or imprisonment 1 week to 1 month.
+
+Failure to comply with mandatory traffic signs:
+- Fine of 20 JOD for failure to comply with mandatory signs (stop, yield, one-way).
+- Breaching priorities (right of way rules) in all provisions: Grounds for driving license seizure.
+- Non-compliance with STOP sign: Grounds for driving license seizure.
+
+Driver's non-compliance with signals from Public Security personnel while on duty:
+Fine of 30 JOD (Article 36, Item 19).
+
+PENALTY:
+- Red light: 200-300 JOD or imprisonment 1-2 months (2023). Doubled if repeated within 1 year.
+- Mandatory signs: 20 JOD.
+- Signals from officer: 30 JOD.
+KEYWORDS: red light, traffic light, traffic signal, stop sign, STOP, right of way, priority, mandatory signs, traffic officer signal, signal violation, bypass red light, running red light
+===
+
+===
+ARTICLE_ID: ART-015
+CATEGORY: Traffic Violations — Overtaking
+TITLE: Overtaking (Passing) Violations
+LEGAL_TEXT:
+Overtaking (passing another vehicle) is governed by specific rules under the Traffic Law:
+
+Wrong overtaking (passing incorrectly in cases and places where overtaking is prohibited):
+Penalty: Fine of 50-100 JOD (Article 34, Item A — 2023 amendment).
+Additionally, driving license may be seized pending payment when wrong overtaking occurs.
+
+Specific overtaking violations:
+- The driver must reduce speed when overtaking buses and medium buses while passengers are descending from them: Fine of 30 JOD (Article 36, Item 3).
+- Overtaking in places or situations where overtaking is prohibited: Grounds for license seizure.
+
+General rule:
+Drivers must not pass other vehicles except where it is safe and legally permitted. Overtaking must be done on the right or left as designated by road signs and markings.
+
+PENALTY:
+- Wrong overtaking: Fine 50-100 JOD. Driving license seized pending payment.
+- Failure to slow when overtaking buses/medium buses boarding/alighting passengers: Fine 30 JOD.
+KEYWORDS: overtaking, wrong overtaking, passing, prohibited passing, overtaking violation, bus, medium bus, passengers, reduce speed, right side, safe overtaking
+===
+
+===
+ARTICLE_ID: ART-016
+CATEGORY: Traffic Violations — Mobile Phone and Distracted Driving
+TITLE: Mobile Phone Use While Driving
+LEGAL_TEXT:
+It is illegal to use a handheld mobile phone while driving a vehicle in motion.
+
+Penalty: Fine of 50 JOD (as amended by Law No. 18 of 2023).
+This is an increase from the original 2008 law fine of 15 JOD.
+
+Using a mobile phone while driving is an infraction for which the license is not seized; instead, an alert/notification is issued to the driver.
+
+Additionally:
+- Use of television screens inside the vehicle in a way that allows the driver to see them while driving: Fine of 50-100 JOD (Article 34, Item D).
+- Eating food or drinking while driving a public vehicle: Fine of 15 JOD.
+- Using audio/visual recording devices inside the vehicle in a way that contravenes public morals or causes noise and inconvenience: Fine of 20 JOD.
+
+PENALTY:
+- Handheld mobile phone while driving: 50 JOD (2023 amendment).
+- Television screen visible to driver: 50-100 JOD.
+- Eating/drinking while driving public vehicle: 15 JOD.
+KEYWORDS: mobile phone, handheld phone, distracted driving, phone while driving, phone violation, television screen, eating while driving, 50 JOD, smartphone
+===
+
+===
+ARTICLE_ID: ART-017
+CATEGORY: Traffic Violations — Seatbelts and Child Safety
+TITLE: Seatbelt and Child Safety Violations
+LEGAL_TEXT:
+It is mandatory for all drivers and front-seat passengers to wear seatbelts while the vehicle is in motion. As per the 2023 amendment, this obligation extends to all passengers in all seats.
+
+Seatbelt Violation:
+- Not using the seatbelt for front seat passengers: Fine of 20 JOD (Article 37, Item 38 — 2023 amendment). The original 2008 law set this at 15 JOD.
+- The seatbelt violation is an infraction for which the license is not seized; an alert is issued.
+
+Child Safety:
+- Children under the age of 10 must use an appropriate child seat or booster seat.
+- Children aged 10 and above must wear a seatbelt.
+- Allowing a child under 10 years of age to sit in the front passenger seat without a child seat/booster seat: Fine applies (Article 38, Item 36.22 of original law).
+- Children must not sit in the front seat if under age 10 unless in a properly fitted child restraint.
+
+Motorcycle Helmet:
+- Riding a motorcycle without wearing a helmet — for both the driver and passenger: Fine of 30 JOD (Article 36, Item 14).
+
+PENALTY:
+- No seatbelt (front seat): 20 JOD.
+- No child seat for under-10s in front: Fine applies.
+- No helmet on motorcycle: 30 JOD.
+KEYWORDS: seatbelt, seat belt, child seat, booster seat, child safety, helmet, motorcycle helmet, front seat, under 10, passenger seatbelt, safety belt violation
+===
+
+===
+ARTICLE_ID: ART-018
+CATEGORY: Traffic Violations — Drunk and Impaired Driving
+TITLE: Driving Under the Influence of Alcohol or Drugs
+LEGAL_TEXT:
+Driving under the influence of alcohol or drugs is one of the most serious offences in Jordan's Traffic Law.
+
+Blood Alcohol Concentration (BAC) Limit:
+- Standard drivers: 0.04% (40 mg alcohol per 100 ml of blood).
+- Commercial drivers and novice drivers (fewer than 2 years of experience): Zero tolerance (0.00% BAC).
+
+Alcohol-Related Violations and Penalties:
+1. Driving under the influence of alcohol at a rate exceeding the permissible BAC limit:
+   Imprisonment 1-3 months OR fine of 250-500 JOD, OR both.
+
+2. Consuming alcoholic beverages while driving:
+   Imprisonment 1-3 months OR fine of 250-500 JOD, OR both.
+
+3. Driving under the influence of drugs or psychotropic substances:
+   Imprisonment 1-3 months OR fine of 250-500 JOD, OR both.
+
+4. Refusing to undergo the legally prescribed alcohol or narcotics test when requested by Public Security:
+   Grounds for arrest without warrant (2023 amendment explicitly grants Public Security authority to use devices to test alcohol and narcotic levels).
+
+5. A driving instructor consuming alcohol during training:
+   Imprisonment 1-3 months OR fine of 250-500 JOD, OR both.
+
+Enforcement:
+Public Security personnel are authorized under the 2023 amendment to use specific devices to gauge levels of alcohol and narcotics in drivers. Arrest without warrant applies when the driver loses control of the vehicle due to influence, or refuses the test.
+
+PENALTY: 250-500 JOD or imprisonment 1-3 months (alcohol/drugs DUI). Arrest without warrant. License seizure.
+KEYWORDS: drunk driving, DUI, alcohol, drugs, BAC, blood alcohol, psychotropic, narcotics, impaired driving, 0.04, zero tolerance, commercial driver, novice driver, breath test, intoxicated
+===
+
+===
+ARTICLE_ID: ART-019
+CATEGORY: Traffic Violations — Pedestrian and Crosswalk Rules
+TITLE: Pedestrian Priority and Crosswalk Violations
+LEGAL_TEXT:
+Drivers must give priority to pedestrians at designated pedestrian crossings and pedestrian crosswalks.
+
+Pedestrian-Related Violations:
+1. Not giving priority to pedestrians on pedestrian crosswalks designated for their crossing:
+   Fine of 30 JOD (Article 36, Item 9).
+
+2. The driver does not stop when he sees the intermittent light coming from buses and medium buses transporting students (school buses):
+   Fine of 20 JOD (Article 37, Item 7).
+
+3. Leaving the vehicle before or after pedestrian crossings at a distance of less than 10 metres:
+   Fine of 20 JOD (Article 37, Item 8).
+
+4. Leave the vehicle at road intersections or junctions at a distance of less than 20 metres:
+   Fine of 20 JOD (Article 37, Item 10).
+
+5. Parking the vehicle on sidewalks or pedestrian paths:
+   Fine of 20 JOD (Article 37, Item 3).
+
+6. Driving motorcycles on sidewalks:
+   Fine of 40 JOD (Article 35, Item 8).
+
+7. The driver does not slow down his vehicle when passing through populated areas or approaching schools, pedestrian walkways, turns, or intersections:
+   Fine of 20 JOD (Article 37, Item 29).
+
+Pedestrian Obligations:
+Pedestrians must use designated pedestrian crossings where available. They must not obstruct traffic flow on roads.
+
+PENALTY: See fine amounts above per violation type.
+KEYWORDS: pedestrian, crosswalk, pedestrian crossing, pedestrian priority, sidewalk, footpath, school zone, student bus, 10 metres, 20 metres, pedestrian right of way, jaywalking, motorcycle on sidewalk
+===
+
+===
+ARTICLE_ID: ART-020
+CATEGORY: Traffic Violations — Parking Violations
+TITLE: Parking Violations
+LEGAL_TEXT:
+The following parking violations and their penalties apply:
+
+1. Parking the vehicle on sidewalks or pedestrian paths:
+   Fine of 20 JOD.
+
+2. Parking large trucks, freight vehicles, or dump trucks in residential neighbourhoods:
+   Fine applies. Driving license may be seized. Specifically:
+   - Freight vehicles with gross weight exceeding 12 tonnes: Fine of 30 JOD for parking in residential areas.
+
+3. Parking or stopping on a road lane in a way that obstructs traffic:
+   Fine of 30 JOD (2023 amendment).
+
+4. Double parking on roads:
+   Fine of 30 JOD (2023 amendment).
+
+5. Parking the vehicle at road intersections or junctions at a distance of less than 20 metres:
+   Fine of 20 JOD.
+
+6. Parking before or after pedestrian crossings at a distance of less than 10 metres:
+   Fine of 20 JOD.
+
+7. Leaving a broken-down vehicle on a road lane without placing reflectors or warning lights:
+   Fine of 100-200 JOD or imprisonment 1-2 months, or both (2023 amendment — serious violation).
+
+8. Parking the vehicle on the sides of roads for excursion purposes in prohibited places:
+   Fine of 15 JOD.
+
+9. Leaving the vehicle at the head of a curve:
+   Fine of 20 JOD.
+
+10. Parking vehicles on bridges and in tunnels without justification:
+    Fine of 40 JOD.
+
+11. Failure to ensure vehicle stability while parked (handbrake not applied):
+    Fine of 20 JOD.
+
+12. Parking the vehicle at the entrances to public or private parking lots:
+    Fine of 30 JOD (2023 amendment).
+
+13. Stopping the vehicle inside a roundabout without justification:
+    Fine of 15 JOD.
+
+PENALTY: See fine amounts above. License seizure applies for some parking violations involving large trucks in residential areas.
+KEYWORDS: parking violation, double parking, residential area, truck parking, sidewalk parking, bridge parking, tunnel parking, roundabout, intersection parking, handbrake, broken down vehicle, reflectors
+===
+
+===
+ARTICLE_ID: ART-021
+CATEGORY: Traffic Violations — Turning and Reversing
+TITLE: U-Turn, Turning, and Reversing Violations
+LEGAL_TEXT:
+The following violations related to turning, U-turns, and reversing apply:
+
+1. Turning the vehicle in places where turning or U-turns are forbidden (prohibited U-turn):
+   Fine of 40 JOD (Article 35, Item 7) — applies even when warning signs are present.
+
+2. Turning or turning the vehicle in a way that obstructs traffic or exposes road users to danger:
+   Fine of 20 JOD (Article 37, Item 2).
+
+3. Reversing a vehicle leading to an accident or obstructing traffic:
+   Fine of 20 JOD (Article 37, Item 26).
+
+4. Sudden, unexplained stopping of the vehicle:
+   Fine of 20 JOD (Article 37, Item 23).
+
+5. Driving the vehicle in the opposite direction of traffic or violating prohibition signs:
+   Fine of 50-100 JOD (Article 34, Item G).
+   (See also Article 13 for wrong-way driving on divided roads — more serious offence.)
+
+Note: For SmartPath Jordan's infrastructure diagnostic function, clusters of abrupt U-turn attempts or sudden lane deviations at the same coordinates may indicate road design flaws (missing U-turn lanes, improper signage, or road obstructions).
+
+PENALTY: See fine amounts above.
+KEYWORDS: U-turn, prohibited U-turn, turning violation, reversing, dangerous turning, obstruct traffic, sudden stop, wrong direction signs, u-turn sign, turn violation
+===
+
+===
+ARTICLE_ID: ART-022
+CATEGORY: Traffic Violations — Vehicle Condition and Equipment
+TITLE: Vehicle Condition, Brakes, Lights, and Equipment Violations
+LEGAL_TEXT:
+Vehicles must be maintained in roadworthy condition. The following violations and penalties apply:
+
+SERIOUS VIOLATIONS (fine 200-300 JOD or imprisonment 1-2 months, or both — 2023 amendment):
+1. Driving a vehicle without functional brakes (brakes invalid or absent).
+
+MODERATE VIOLATIONS (fine 50-100 JOD):
+2. Driving a vehicle without front and rear number plates.
+
+FINE OF 40 JOD:
+3. Installation or use of lights and dazzling (glare) lights not permitted by law.
+4. Adding any additions to the vehicle's front or rear lights.
+5. Opening the door of the vehicle from the sides or rear while the vehicle is in motion.
+
+FINE OF 30 JOD:
+6. Driving without using fog lights or front/rear gauge lights in the presence of fog, heavy dust, or blurred vision.
+7. The vehicle's rear parking lights are not functioning.
+
+FINE OF 20 JOD:
+8. Driving a vehicle without the validity of the hand brake (manual/parking brake).
+9. The driver not using the indicator light when turning left or right, when starting, stopping, overtaking, or when changing lanes.
+10. Driving a vehicle without the vehicle exhaust sound suppressor (muffler) functioning while in motion.
+11. Vehicles do not adhere to their assigned colour, contrary to regulations and instructions.
+
+FINE OF 15 JOD:
+12. Failure to install or invalid warning lights for vehicles required to have them.
+13. One of the vehicle's lights is not functioning.
+14. The vehicle's front or rear windows are not serviceable.
+
+OTHER:
+- Emitting excessive smoke or pollutants beyond permitted limits: Fine of 40 JOD (Article 35, Item 1). Vehicle license confiscated.
+- Using worn or damaged tyres contrary to instructions: Fine of 20 JOD.
+- Installing front or rear shocks (modifications) in violation of regulations: Fine of 15 JOD.
+- Adding any unauthorized additions to the vehicle contrary to regulations: Fine of 30 JOD (2023 amendment).
+- Installing an amplifier on the vehicle's exhaust: Fine of 50-100 JOD.
+- Installing a subwoofer (bass amplifier) in the vehicle: Grounds for vehicle license seizure.
+
+PENALTY: See fine amounts above per violation type.
+KEYWORDS: vehicle condition, brakes, brake failure, lights, indicators, turn signals, muffler, exhaust, smoke emission, tyre, horn, vehicle equipment, fog lights, parking lights, warning lights, subwoofer, exhaust amplifier, vehicle modification
+===
+
+===
+ARTICLE_ID: ART-023
+CATEGORY: Traffic Violations — Cargo and Freight
+TITLE: Cargo, Freight, and Load Violations
+LEGAL_TEXT:
+The following violations apply to the transportation and securing of cargo:
+
+SERIOUS VIOLATIONS (fine 100-200 JOD or imprisonment 1-2 months):
+1. Vehicle load protruding beyond the width of the vehicle without a permit or violating permit conditions.
+2. Throwing or spilling vehicle loads on public roads (stones, dust, construction waste, wastewater, waste, liquid materials, or similar materials).
+
+GROUP B VIOLATIONS (fine 250-500 JOD or imprisonment 1-3 months):
+3. Vehicle load protruding from the front or rear by more than 100 cm without a permit or contrary to permit conditions.
+4. Increasing the height of the vehicle with its load to 420 cm or more without a permit.
+
+FINE OF 50-100 JOD:
+5. Failure to take the necessary precautions to install the payload or tighten its cover on freight vehicles.
+
+FINE OF 30 JOD:
+6. Transporting passengers in excess of the prescribed limit.
+7. Not placing distinctive signs to display the load (oversized load markers) on vehicles in accordance with instructions.
+8. Failure to move a vehicle involved in a traffic accident resulting in material damage when its condition allows it.
+
+FINE OF 20 JOD:
+9. High loading of a freight vehicle contrary to regulations and instructions (general overloading).
+10. Driving a freight vehicle whose gross weight exceeds the prescribed limit.
+11. Placing the load on the roof of public transport vehicles and closed freight vehicles.
+12. Carrying people on a motorcycle if it is not licensed for that, or transporting people in an agricultural or construction vehicle.
+
+OTHER:
+- Not securing containers with chains or locks on freight vehicles: Fine of 100-200 JOD (2023 amendment).
+- Driving a vehicle that spills or leaks oils or petroleum products on the road: Fine 250-500 JOD or imprisonment 1-3 months.
+- Driving a vehicle carrying hazardous, explosive, or flammable materials without a permit: Fine 250-500 JOD or imprisonment 1-3 months.
+- Driving a vehicle transporting hazardous materials without the required permit: Fine 50-100 JOD.
+
+PENALTY: See fine amounts above per violation type.
+KEYWORDS: cargo, freight, load, overload, cargo violation, spill, hazardous materials, petroleum, dangerous goods, load protrusion, oversized load, overloading, cargo spill, freight vehicle, container, heavy load, load height
+===
+
+===
+ARTICLE_ID: ART-024
+CATEGORY: Traffic Violations — Public Transport
+TITLE: Public Passenger Transport Violations
+LEGAL_TEXT:
+The following violations apply specifically to public passenger transport vehicles (buses, medium buses, taxis, school transport):
+
+GROUNDS FOR VEHICLE IMPOUNDMENT (1-30 days):
+1. Public passenger vehicle driving while the permit granted to it is suspended.
+2. Overloading a school/kindergarten transport vehicle beyond the prescribed number.
+
+FINE OF 50-100 JOD (license seizure):
+3. Overloading passengers in excess of the prescribed limit in public passenger transport vehicles, or non-compliance with prescribed fares.
+
+FINE OF 30 JOD:
+4. Public passenger transport vehicle not reaching the end of its line, changing route, or refraining from picking up passengers without a legitimate reason.
+5. Non-compliance with the fares prescribed for transporting passengers.
+6. The taxi meter not operating or being invalid.
+7. The fare collection device not installed or invalid on buses and medium buses.
+8. Not giving priority to pedestrians on designated pedestrian crosswalks.
+
+FINE OF 20 JOD:
+9. Driving a public passenger vehicle without carrying a passenger line permit or if it is expired.
+10. Driving a public passenger vehicle without a fare identification card in the designated place.
+11. The driver of a public passenger vehicle allowing passengers to board or alight from the left side of the vehicle.
+12. Vehicles not adhering to their assigned colour, contrary to regulations.
+13. The upper plate (route indicator) not installed or not valid in public passenger cars or training vehicles.
+14. The absence or illegibility of the side print on public passenger vehicles or its violation of instructions.
+
+FINE OF 15 JOD:
+15. Wearing a uniform that violates the instructions while driving public passenger vehicles.
+16. Not placing the driver's personal information card in the designated place in public passenger vehicles.
+17. Drivers of public passenger transport vehicles not adhering to the turn system at starting centres.
+18. The trainer not complying with the conditions of the permit.
+19. The side windows in public passenger vehicles not being serviceable.
+
+GENERAL:
+- Refusing to transport passengers without justification: Fine 30 JOD.
+- Smoking in student/kindergarten transport vehicles or allowing others to do so: Fine 30 JOD.
+- Smoking in general public transport vehicles: Fine 10 JOD (2023 amendment).
+
+PENALTY: See fine amounts above per violation type.
+KEYWORDS: public transport, bus, medium bus, taxi, passenger transport, school bus, student transport, overloading, route compliance, fare meter, taxi meter, passenger line, permit, left side boarding, smoking on bus, school transport
+===
+
+===
+ARTICLE_ID: ART-025
+CATEGORY: Traffic Violations — Smoking
+TITLE: Smoking in Vehicles
+LEGAL_TEXT:
+The Traffic Law No. 49 of 2008 prohibits smoking in specific types of vehicles:
+
+1. Smoking in vehicles designated for transporting students and kindergarten children, or the driver allowing others to do so:
+   Fine of 30 JOD (Article 36, Item 31).
+
+2. Smoking in general public passenger transport vehicles (buses, medium buses, taxis), or the driver allowing others to smoke:
+   Fine of 10 JOD (2023 amendment — the driver is fined the same amount if they allow passengers to smoke).
+
+3. The driver smoking while driving any vehicle (general):
+   Fine of 10 JOD (2023 amendment — general prohibition for all vehicle types).
+
+Note: The original 2008 law (Article 38) specifically prohibited smoking in school buses, and Article 39 addressed public transport vehicles.
+
+PENALTY:
+- Smoking in student/kindergarten transport: 30 JOD.
+- Smoking in public transport or while driving: 10 JOD.
+KEYWORDS: smoking, no smoking, cigarette, tobacco, vehicle smoking, school bus smoking, public transport smoking, driver smoking, student transport, kindergarten
+===
+
+===
+ARTICLE_ID: ART-026
+CATEGORY: Traffic Violations — Emergency and Official Vehicles
+TITLE: Priority for Emergency and Official Vehicles
+LEGAL_TEXT:
+Drivers must give way to emergency vehicles and official processions while they are performing their duties.
+
+1. Not giving priority to traffic official processions and emergency vehicles while they are carrying out their tasks:
+   Fine of 50-100 JOD (2023 amendment).
+
+2. Installing or using emergency vehicle lights (signboards/sirens) or devices similar to them on unauthorized vehicles:
+   Fine of 50-100 JOD (Article 31, Items 10 and 15 — 2023 amendment).
+
+3. Vehicles moving in convoy/procession form leading to obstruction of traffic, or part of passengers' bodies exiting from those vehicles while moving, or not adhering to the right lane:
+   Fine of 50-100 JOD (2023 amendment).
+
+Emergency vehicles entitled to priority:
+- Ambulances
+- Fire engines
+- Police and public security vehicles on active duty
+- Civil defence vehicles
+- Official government processions
+
+Drivers must pull to the side of the road and allow emergency vehicles to pass unobstructed.
+
+PENALTY:
+- Failure to give priority: 50-100 JOD.
+- Unauthorized emergency lights/sirens: 50-100 JOD.
+- Convoy obstruction: 50-100 JOD.
+KEYWORDS: emergency vehicle, ambulance, fire engine, police vehicle, priority, right of way, official procession, siren, emergency lights, convoy, obstruction, civil defence
+===
+
+===
+ARTICLE_ID: ART-027
+CATEGORY: Traffic Violations — Racing and Reckless Behaviour
+TITLE: Street Racing and Exhibition Driving
+LEGAL_TEXT:
+Street racing and reckless or showy driving are among the most serious traffic violations in Jordan.
+
+1. Conducting a road race on streets or roads without prior authorization from the competent authorities:
+   Imprisonment 1-3 months OR fine 250-500 JOD, OR both (Group B first-category offence).
+   Additionally: Grounds for referral to the Administrative Governor under Crime Prevention Law No. 17 of 1954 for repeat offenders.
+
+2. Driving a vehicle recklessly or in an exhibition manner (showily) on the road:
+   Arrest without warrant. Grounds for vehicle impoundment.
+   Under the 2023 amendment: Fine of 200-300 JOD or imprisonment 1-2 months, or both.
+
+3. Driving a vehicle in such a way as to make noise or cause a nuisance or obstructions:
+   Fine of 50-100 JOD. Grounds for administrative referral.
+
+4. Making noise using alarm clocks, musical tones, or speakers in an annoying manner:
+   Fine of 20 JOD.
+
+5. Using a subwoofer (bass amplifier) in the vehicle:
+   Vehicle license seized.
+
+6. Installing amplifiers of any kind on the vehicle's exhaust:
+   Fine of 50-100 JOD.
+
+PENALTY:
+- Street racing: 250-500 JOD or imprisonment 1-3 months.
+- Reckless/exhibition driving: 200-300 JOD or imprisonment 1-2 months (2023).
+- Noise violations: 20-50 JOD.
+KEYWORDS: street racing, illegal racing, road race, exhibition driving, reckless driving, showing off, drifting, noise violation, subwoofer, amplifier, nuisance driving, dangerous driving
+===
+
+===
+ARTICLE_ID: ART-028
+CATEGORY: Traffic Violations — Accident Reporting
+TITLE: Traffic Accident Obligations and Hit-and-Run
+LEGAL_TEXT:
+Drivers involved in traffic accidents have specific legal obligations under the Traffic Law.
+
+HIT-AND-RUN — Fleeing the scene:
+1. The driver fleeing the scene of an accident causing human injury or death, or failing to notify the nearest security station or police patrol:
+   Imprisonment 3-6 months OR fine 500-1,000 JOD, OR both (Group A first-category offence — 2023 amendment).
+   Arrest without warrant applies.
+
+2. The driver fleeing the scene of an accident causing material (property) damage only, or failing to notify authorities:
+   Imprisonment 2 weeks to 1 month OR fine 50-100 JOD, OR both.
+
+OBLIGATIONS AFTER AN ACCIDENT:
+- The driver must remain at the scene until authorities arrive.
+- The driver must notify the nearest police station or patrol.
+- The driver of a vehicle involved in a traffic accident causing material damage, if the vehicle's condition allows it, must move the vehicle to a safe location.
+   Failure to do so: Fine of 30 JOD.
+
+RELATED VIOLATIONS:
+- Agreeing to replace the actual driver who caused an accident resulting in human injury:
+   Imprisonment 3-6 months OR fine 500-1,000 JOD.
+
+- Agreeing to replace the actual driver who caused an accident resulting in material damage:
+   Imprisonment 1-3 months OR fine 150-300 JOD.
+
+- A repair shop owner repairing a vehicle damaged in a traffic accident without notifying competent authorities:
+   Imprisonment 3-6 months OR fine 500-1,000 JOD.
+
+- Fabricating a traffic accident (proven by court ruling):
+   Imprisonment 3-6 months OR fine 500-1,000 JOD.
+
+- Flat-rate disclosure fee: A driver causing a traffic accident is charged a flat fee of 5 JOD for the investigation at the scene. Exempted if the accident results in a fatality.
+
+PENALTY: See detailed amounts above per situation.
+KEYWORDS: traffic accident, hit and run, fleeing accident, accident reporting, accident scene, notify police, material damage, human injury, death, replace driver, impersonation, fabricated accident, repair shop, scene investigation fee
+===
+
+===
+ARTICLE_ID: ART-029
+CATEGORY: Traffic Violations — Infrastructure and Road Safety
+TITLE: Road Conditions, Maintenance Indicators, and Infrastructure Alerts
+LEGAL_TEXT:
+This article relates to the relationship between traffic violations and road infrastructure conditions — a core component of SmartPath Jordan's dual mission.
+
+ROAD SPILLS AND HAZARDS created by drivers:
+1. Throwing or spilling vehicle loads (stones, dust, construction waste, wastewater, liquid materials, etc.) on public roads:
+   Fine 100-200 JOD or imprisonment 1-2 months (2023 amendment). The driver also bears the cost of removing these materials.
+
+2. Vehicles spilling or leaking oils, petroleum products, or hazardous materials on the road:
+   Fine 250-500 JOD or imprisonment 1-3 months (serious Group B offence).
+
+3. Leaving a broken-down vehicle on a road lane without placing reflectors or warning lights:
+   Fine 100-200 JOD or imprisonment 1-2 months (2023 amendment).
+
+4. Not removing stones or similar objects used to secure a parked broken-down vehicle once no longer needed:
+   Fine of 20 JOD.
+
+INFRASTRUCTURE ALERT METHODOLOGY (SmartPath Jordan):
+Under the system's analytical framework, the following driver behaviours — when repeated by multiple unique vehicles at identical GPS coordinates within a defined time window — are reclassified from individual driver violations to Infrastructure Alerts (Road Defect indicators):
+
+- Repeated sudden swerving or abrupt lateral lane changes at the same location → Likely pothole, road surface damage, or obstruction.
+- Repeated avoidance manoeuvres at the same intersection or road section → Likely poor signage, damaged road markings, or road design defect.
+- Clusters of wrong-lane entries at the same junction → Likely inadequate lane markings or confusing road layout.
+
+These infrastructure alerts are forwarded to the Greater Amman Municipality (GAM) and the Ministry of Public Works and Housing (MoPWH) for proactive maintenance action, consistent with Jordan's Road Asset Management System (RAMS) objectives.
+
+LEGAL BASIS FOR MAINTENANCE OBLIGATION:
+The Ministry of Public Works and Housing is responsible for maintaining the 9,000 km national road network. The Greater Amman Municipality is responsible for over 7,500 km of urban roads in Amman. Both agencies are obligated to maintain roads in safe condition. Failure to address identified road defects that contribute to accidents may expose the state to civil liability under Jordan's Civil Law.
+
+PENALTY: See fine amounts above for driver-side violations.
+KEYWORDS: road defect, pothole, avoidance manoeuvre, infrastructure alert, road maintenance, GAM, Ministry of Public Works, MoPWH, RAMS, road asset management, road spill, broken down vehicle, reflectors, road safety, SmartPath Jordan, maintenance alert, swerve cluster, GPS coordinates
+===
+
+===
+ARTICLE_ID: ART-030
+CATEGORY: Traffic Violations — Foreign Vehicles and International Drivers
+TITLE: Foreign Vehicle and International Driver Violations
+LEGAL_TEXT:
+The following rules apply to foreign vehicles and drivers with international or foreign licenses:
+
+1. Foreign vehicles must have a valid insurance contract covering civil liability for the duration of their stay in Jordan.
+2. Foreign vehicles must carry a valid license from their country of origin for the duration of their stay.
+3. Foreign vehicles in transit must not enter cities (pedestrian areas):
+   Fine of 30 JOD.
+4. Foreign vehicles designated for transporting passengers must not enter cities or roam without a permit, or in violation of their approved route:
+   Fine of 30 JOD.
+5. Foreign vehicles designated for transporting passengers must not depart from their designated departure terminals without a permit:
+   Fine of 30 JOD.
+6. Driving a Jordanian vehicle (public transport or freight over 5 tonnes) with a foreign or international driving license:
+   Fine 100-200 JOD or imprisonment 1-2 months (2023 amendment).
+7. Driving a Jordanian vehicle with a foreign or international driving license in cases other than those permitted by law:
+   Fine of 30 JOD.
+8. Overstaying the permit period granted to foreign vehicles:
+   Grounds for vehicle impoundment.
+9. If the driver of a foreign vehicle does not hold a Jordanian driving license, both the foreign driving license and the vehicle license (ownership document) are seized.
+10. Foreign driving licenses are sent to the source state when the holder drives a Jordanian public passenger or freight vehicle without a permit, or commits any serious violation.
+
+PENALTY: See fine amounts above per situation. Impoundment for overstay. License seizure for serious violations.
+KEYWORDS: foreign vehicle, international license, foreign driver, transit vehicle, foreign plates, Jordanian vehicle with foreign license, overstay, import vehicle, diplomatic vehicle, foreign passenger transport
+===
+
+===
+ARTICLE_ID: ART-031
+CATEGORY: Vehicle Impoundment and License Seizure
+TITLE: Vehicle Impoundment Conditions and Procedures
+LEGAL_TEXT:
+VEHICLE IMPOUNDMENT (24 hours to 30 days):
+The vehicle shall be impounded in any of the following cases:
+
+1. Vehicle not registered in accordance with the Traffic Law.
+2. Vehicle driver not licensed to drive.
+3. Public passenger vehicle driving while its operating permit is suspended.
+4. Using the vehicle for purposes other than those for which it is licensed.
+5. Driving a public vehicle with a Class 1, 2, 3, or 7 driving license (unauthorized category for public use).
+6. Driving the vehicle recklessly or in an exhibition/showy manner on the road.
+7. Installing unauthorized light or sound warning devices on the vehicle.
+8. Driving the vehicle without front and rear number plates, or with forged number plates, or with illegal plates.
+9. If 3 months or more have elapsed since the expiry of the vehicle license period.
+10. Driving a vehicle that needs to be legally seized.
+11. Driving a vehicle that spills or leaks oils, petroleum derivatives, or any dangerous or environment-polluting materials on the road, or without required warning stickers or transport permit.
+12. If the vehicle does not match its license data.
+13. Driving a vehicle at night without its front or rear lights on.
+14. Driving the vehicle in the opposite direction on roads separated by a central island.
+15. Vehicle movement in convoys leading to traffic obstruction, or passengers' bodies exiting vehicles while moving, or not adhering to the right lane.
+16. Using lanes designated for public transport without authorization.
+17. Using an unlicensed private vehicle to transport passengers for a fee.
+18. Overloading school or kindergarten transport vehicles.
+
+CONFISCATION OF VEHICLE LICENSE (sent to Licensing Dept):
+The vehicle license shall be confiscated and referred to the Licensing Department in any of the following cases:
+1. More than 1 month and less than 3 months elapsed since license expiry.
+2. Emitting smoke or pollutants beyond permitted limits.
+3. Installing an amplifier on the exhaust.
+4. Driving at night without front or rear lights (alternate provision).
+5. Failure to install, invalidate, or use a tachograph or speed monitoring device.
+6. Placing materials, additions, or decorations on number plates.
+
+DELIVERY UPON CORRECTION:
+All impounded vehicles, licenses, and documents shall be returned to the owner after correcting the vehicle's conditions, paying all outstanding fines, and settling any amounts due under the law.
+
+PENALTY: Impoundment for periods specified above. All associated fines must be paid for release.
+KEYWORDS: vehicle impoundment, car confiscation, license seizure, license confiscated, towed vehicle, vehicle seizure, registration expired, unlicensed driver, suspended permit, wrong direction, night lights, plate violation, impoundment conditions
+===
+
+===
+ARTICLE_ID: ART-032
+CATEGORY: Higher Council for Traffic Safety
+TITLE: Higher Council for Traffic Safety (2023 Amendment)
+LEGAL_TEXT:
+The 2023 amendment (Law No. 18 of 2023) mandated the establishment of a Higher Council for Traffic Safety in Jordan.
+
+Purpose:
+- To approve the national strategy for traffic safety and its executive plan.
+- To unify the efforts of all parties and agencies concerned with traffic safety and transportation in the Kingdom.
+- To coordinate between approximately two dozen agencies that work independently toward the goal of improving road safety.
+
+Membership:
+The Council includes representatives from all ministries and entities with responsibilities related to road safety, transportation, urban planning, health, education, and law enforcement.
+
+Role in SmartPath Jordan context:
+The Higher Council for Traffic Safety is the strategic body overseeing data-driven road safety initiatives. SmartPath Jordan's infrastructure alert system — transmitting maintenance requests from the PSD to the Greater Amman Municipality and the Ministry of Public Works — is aligned with the Council's mandate to coordinate between security and municipal agencies for proactive road safety improvement.
+
+PENALTY: Not applicable (governance article)
+KEYWORDS: Higher Council for Traffic Safety, national strategy, traffic safety council, 2023 amendment, road safety coordination, ministry coordination, executive plan, GAM, Ministry of Public Works, PSD, urban planning
+===
+
+===
+ARTICLE_ID: ART-033
+CATEGORY: Penalties Summary Table
+TITLE: Consolidated Penalty Reference — All Violation Categories
+LEGAL_TEXT:
+SUMMARY OF PENALTIES BY AMOUNT (as amended by Law No. 18 of 2023):
+
+IMPRISONMENT + FINE (most serious):
+- Causing death by vehicle: 3 months–3 years + 1,000–2,000 JOD + license suspension 6 months–2 years.
+- Group A violations (hit-and-run with human injury, fabricated accident, impersonation after accident): Imprisonment 3–6 months or fine 500–1,000 JOD or both.
+- Group B violations (DUI, drugs, wrong-way driving, racing, driving without license): Imprisonment 1–3 months or fine 250–500 JOD or both.
+- Speeding >50 km/h over limit: Imprisonment 1–3 months or fine 100 JOD or both.
+- Red light (2023): Imprisonment 1–2 months or fine 200–300 JOD or both.
+- Reckless/exhibition driving (2023): Imprisonment 1–2 months or fine 200–300 JOD or both.
+- No brakes (2023): Imprisonment 1–2 months or fine 200–300 JOD or both.
+
+FINE OF 200–300 JOD: Red light, no brakes, no number plates, reckless driving (2023 amendment).
+FINE OF 100–200 JOD: Suspended license driving, cargo protrusion (width), broken-down vehicle on road without warning, cargo spill.
+FINE OF 50–100 JOD: Wrong overtaking, lane violations, stop line, wrong lane, wrong direction, exhaust amplifier, unauthorized emergency lights, failure to give priority to emergency vehicles.
+FINE OF 50 JOD: Mobile phone (handheld) while driving.
+FINE OF 40 JOD: Prohibited U-turn, prohibited lights, open door while moving, smoke emission, bridge/tunnel parking.
+FINE OF 30 JOD: Speeding 30–50 km/h over limit, fog lights violation, large trucks in residential areas, pedestrian priority, double parking, lane obstruction, stopping obstruction, parking at lot entrances, insurance expired, motorcycle without helmet.
+FINE OF 20 JOD: Seatbelt (front seat), indicator failure, hand brake, following distance, parking on sidewalk, improper turn, reversing causing obstruction, failure to slow near schools, pedestrian crossing proximity violation, worn tyres.
+FINE OF 15 JOD: Minimum speed, license expiry (minor), rear/front shock installation violation.
+FINE OF 10 JOD: Smoking while driving (driver), smoking in public transport (2023).
+
+DOUBLED FINES: All fines under Group A and Group B violations, red light, no brakes, no number plates, speeding >50 km/h — all doubled if the same violation is repeated within one year.
+
+LICENSE SUSPENSION PERIODS (administrative):
+- 16–20 points: 2 months.
+- 20–24 points: 3 months.
+- 24–28 points: 4 months.
+- 28–32 points: 6 months.
+- 32+ points: 1 year.
+- License suspended 2 months for illegal use of plates/vehicle license.
+
+PENALTY: Reference table — see individual articles for full context.
+KEYWORDS: penalty summary, fine amounts, JOD, imprisonment, fine schedule, traffic fine, penalty table, doubled fine, repeat violation, license suspension periods, points system, 10 JOD, 15 JOD, 20 JOD, 30 JOD, 40 JOD, 50 JOD, 100 JOD, 200 JOD, 300 JOD, 500 JOD, 1000 JOD
+===
+
+================================================================================
+END OF JORDAN TRAFFIC LAW RAG KNOWLEDGE BASE
+Total Articles: 33 chunks
+Source Law: Traffic Law No. 49 of 2008 (as amended by Law No. 18 of 2023)
+Compiled for: SmartPath Jordan — Capstone Project (Capstone 2)
+Last Updated: 2026
+================================================================================
+================================================================================
+WRONG PARKING — DETAILED KNOWLEDGE BASE
+SmartPath Jordan | Capstone Project
+Source: Jordan Traffic Law No. 49 of 2008 (amended by Law No. 18 of 2023)
+         Greater Amman Municipality (GAM) Parking Regulations
+================================================================================
+
+===
+ARTICLE_ID: PARK-001
+CATEGORY: Wrong Parking — Definition
+TITLE: What is Wrong Parking?
+LEGAL_TEXT:
+Wrong parking (also called illegal parking or parking violation) refers to stopping or leaving a vehicle in any location that is not designated for parking, or in a way that violates traffic law or municipal regulations.
+
+Wrong parking is one of the most common traffic violations in Jordan, particularly in Amman. It causes traffic congestion, blocks pedestrian paths, obstructs emergency vehicle access, and contributes to road accidents.
+
+Wrong parking is detected by:
+1. Traffic police officers on patrol.
+2. Municipal parking enforcement officers.
+3. AI-powered camera systems such as SmartPath Jordan.
+
+When SmartPath Jordan detects a vehicle parked in a prohibited location based on video footage analysis, it generates an automatic violation report and submits it for officer review.
+
+PENALTY: Fines range from 15 JOD to 30 JOD depending on the specific parking violation. Vehicle may be towed or wheel-clamped.
+KEYWORDS: wrong parking, illegal parking, parking violation, prohibited parking, no parking zone, parking fine, SmartPath Jordan, parking detection, Amman parking
+===
+
+===
+ARTICLE_ID: PARK-002
+CATEGORY: Wrong Parking — Specific Violations and Fines
+TITLE: All Wrong Parking Violations and Their Penalties
+LEGAL_TEXT:
+The following wrong parking violations and their fines are defined under Jordan Traffic Law No. 49 of 2008 as amended by Law No. 18 of 2023:
+
+FINE OF 30 JOD:
+1. Double parking — parking directly beside another parked vehicle, blocking it in.
+2. Stopping or parking on a road lane in a way that obstructs traffic flow.
+3. Parking at the entrances to public or private parking lots, blocking access.
+4. Parking large freight vehicles (gross weight exceeding 12 tonnes) in residential neighbourhoods.
+
+FINE OF 20 JOD:
+5. Parking the vehicle on sidewalks or pedestrian paths — preventing pedestrian movement.
+6. Parking within 20 metres before or after a road intersection or junction.
+7. Parking within 10 metres before or after a pedestrian crossing (zebra crossing).
+8. Parking the vehicle at the head of a curve — blocking visibility for oncoming vehicles.
+9. Leaving a vehicle at road intersections and junctions at a distance less than 20 metres.
+10. Leaving the vehicle before or after signal-controlled intersections in a way that obstructs traffic.
+11. Failure to ensure vehicle stability while parked (not applying the handbrake).
+12. Parking the vehicle at accident sites without justification.
+
+FINE OF 15 JOD:
+13. Parking public passenger vehicles for loading or unloading in places other than those designated for that purpose.
+14. Parking the vehicle on the sides of roads for excursion purposes in prohibited places.
+15. The vehicle stopped inside a roundabout without justification.
+16. Parking in spaces designated for vehicles of persons with disabilities (without permit).
+
+FINE OF 40 JOD:
+17. Parking vehicles on bridges or inside tunnels without justification.
+
+SERIOUS VIOLATION (Fine 100–200 JOD or imprisonment 1–2 months):
+18. Leaving a broken-down vehicle on a road lane without placing reflectors or warning lights to indicate it to other drivers.
+
+ADDITIONAL CONSEQUENCES:
+- Vehicle may be towed (impounded) if parked in a way that causes serious obstruction.
+- Wheel clamping may be applied by municipal enforcement officers.
+- License seizure applies for some violations (e.g., large trucks in residential areas).
+
+PENALTY: See fine amounts above per specific violation type.
+KEYWORDS: wrong parking fine, double parking, sidewalk parking, pedestrian path parking, intersection parking, pedestrian crossing parking, curve parking, bridge parking, tunnel parking, roundabout parking, disabled parking, broken down vehicle, towing, wheel clamp, 20 JOD, 30 JOD, 15 JOD, 40 JOD
+===
+
+===
+ARTICLE_ID: PARK-003
+CATEGORY: Wrong Parking — Prohibited Locations
+TITLE: Where is Parking Prohibited in Jordan?
+LEGAL_TEXT:
+Parking is strictly prohibited in the following locations under Jordanian traffic law and GAM regulations:
+
+ABSOLUTELY PROHIBITED LOCATIONS:
+1. On sidewalks and pedestrian paths.
+2. Within 10 metres before or after a pedestrian crossing.
+3. Within 20 metres of a road intersection or junction.
+4. At the head of a curve where vision is obstructed.
+5. On bridges and inside tunnels.
+6. Inside roundabouts.
+7. In front of fire hydrants.
+8. In front of driveways and building entrances.
+9. In front of hospital and clinic entrances.
+10. In bus stop zones (designated bus loading/unloading areas).
+11. In no-parking zones marked by signs or yellow kerb markings.
+12. In spaces designated for people with disabilities (without a valid disability permit displayed).
+13. On road lanes in a way that obstructs the flow of traffic.
+14. At the entrances to parking lots, blocking entry or exit.
+15. In areas where parking bans are in effect during peak hours (as designated by GAM).
+
+AMMAN COLOUR-CODED PARKING ZONES (Greater Amman Municipality):
+- Green zones: Paid parking — 0.75 JOD per hour.
+- Yellow zones: Paid parking — 1.00 JOD per hour.
+- Red zones: Paid parking — 1.50 JOD per hour (busiest commercial areas).
+- Free parking: Available nights (8pm–8am), Sundays, and public/bank holidays.
+- Payment method: Balady Parking app or pay machines at the kerb.
+
+DOWNTOWN AMMAN SPECIAL RULES:
+Parking in downtown Amman streets is permitted only during specific hours set by GAM:
+- Permitted: 10am–1pm and 6pm–7am.
+- Prohibited: During morning and noon peak hours.
+- Maximum stay: 30 minutes where time-limited signs are posted.
+
+PENALTY: Fines range from 15 JOD to 30 JOD. Towing and wheel clamping may apply.
+KEYWORDS: prohibited parking locations, no parking, parking zones, Amman parking zones, green zone, yellow zone, red zone, bus stop parking, fire hydrant, disabled parking, pedestrian crossing, curve, bridge, tunnel, downtown Amman, peak hours, Balady app, paid parking
+===
+
+===
+ARTICLE_ID: PARK-004
+CATEGORY: Wrong Parking — Large Vehicles
+TITLE: Special Parking Rules for Large and Freight Vehicles
+LEGAL_TEXT:
+Large and freight vehicles are subject to stricter parking rules in Jordan:
+
+1. Freight vehicles whose gross weight exceeds 12 tonnes are prohibited from parking in residential neighbourhoods.
+   Fine: 30 JOD. Driving license may be seized.
+
+2. Freight vehicles exceeding 12 tonnes are prohibited from entering restricted areas at prohibited times without a permit.
+   Fine: 30 JOD.
+
+3. Large trucks (dump trucks, freight vehicles) are prohibited from parking in residential areas regardless of time.
+   Fine: 30 JOD. Grounds for driving license seizure.
+
+4. Buses and medium buses are prohibited from parking in locations not designated for public passenger vehicles.
+   Fine: 15 JOD for public passenger vehicles loading/unloading outside designated areas.
+
+5. Cargo vehicles must not park on road lanes or in a way that obstructs traffic.
+   Fine: 30 JOD.
+
+6. Tractor-trailers and semi-trailers must comply with all parking rules. The tractor's insurance covers the trailer during parking.
+
+PENALTY: 30 JOD per violation. License seizure for large trucks in residential areas. Impoundment possible.
+KEYWORDS: large vehicle parking, freight vehicle parking, truck parking residential, 12 tonnes, dump truck, bus parking, semi-trailer parking, heavy vehicle parking, residential neighbourhood, commercial vehicle parking
+===
+
+===
+ARTICLE_ID: PARK-005
+CATEGORY: Wrong Parking — Enforcement and Consequences
+TITLE: What Happens When You Are Caught Wrong Parking in Jordan?
+LEGAL_TEXT:
+When a wrong parking violation is detected — whether by a traffic officer, municipal enforcement officer, or an AI system like SmartPath Jordan — the following enforcement process applies:
+
+STEP 1 — VIOLATION TICKET:
+A violation ticket (fine notice) is issued recording:
+- Violation type
+- Location and timestamp
+- Vehicle license plate number
+- Fine amount in JOD
+
+STEP 2 — PAYMENT DEADLINE:
+The fine must be paid within 30 days of the violation date.
+If not paid within 30 days, the fine is doubled and the case is referred to the competent court.
+
+STEP 3 — LICENSE SEIZURE (for specific violations):
+For certain parking violations (e.g., large trucks in residential areas), the driving license or vehicle license may be seized pending payment.
+
+STEP 4 — TOWING (vehicle impoundment):
+The vehicle may be towed if it:
+- Causes serious obstruction to traffic flow.
+- Is parked in a way that creates a safety hazard.
+- Has accumulated unpaid violations.
+The owner must pay the fine plus towing and storage fees to retrieve the vehicle.
+
+STEP 5 — WHEEL CLAMPING:
+Municipal enforcement officers may apply a wheel clamp to the vehicle. The clamp is removed only after payment of the fine.
+
+SMARTPATH JORDAN PROCESS:
+When SmartPath Jordan detects a wrong parking violation from camera footage:
+1. The AI flags the violation with timestamp, location, and license plate.
+2. A violation report is auto-generated citing the relevant law article and fine amount.
+3. A traffic officer reviews and approves or rejects the violation.
+4. If approved, the violation is recorded in the database and processed for fine issuance.
+
+PENALTY: Fine + possible towing fees + storage fees. Doubled if not paid within 30 days.
+KEYWORDS: parking enforcement, parking ticket, fine payment, 30 days, towing, wheel clamp, license seizure, SmartPath Jordan process, violation detection, officer review, fine doubled, court referral
+===
+
+===
+ARTICLE_ID: PARK-006
+CATEGORY: Wrong Parking — Officer FAQ
+TITLE: Common Officer Questions About Wrong Parking
+LEGAL_TEXT:
+Q: What is the fine for double parking?
+A: 30 JOD under the 2023 amended Traffic Law.
+
+Q: What is the fine for parking on a sidewalk?
+A: 20 JOD.
+
+Q: Can I arrest a driver for wrong parking?
+A: No. Wrong parking is a minor infraction — no arrest without warrant applies. A violation ticket is issued.
+
+Q: What if the vehicle is blocking an emergency vehicle path?
+A: The vehicle should be towed immediately. Contact the nearest traffic centre for towing authorization.
+
+Q: What is the fine for parking in a disabled space without a permit?
+A: 15 JOD.
+
+Q: What if a vehicle is parked on a bridge?
+A: Fine of 40 JOD. The vehicle should be moved immediately as it creates a serious safety hazard.
+
+Q: Can a broken-down vehicle be left on the road?
+A: Only temporarily and ONLY if reflectors or warning lights are placed behind it. Failure to place warning indicators: Fine 100–200 JOD or imprisonment 1–2 months.
+
+Q: What does SmartPath Jordan capture as evidence for a parking violation?
+A: Video footage showing the vehicle parked in the prohibited location, the license plate number, timestamp, and GPS coordinates of the location.
+
+Q: How long does the officer have to review a SmartPath Jordan parking violation?
+A: The officer reviews the AI-generated evidence and approves or rejects it through the dashboard. No time limit is set by law, but prompt review is expected.
+
+Q: Is parking in a no-parking zone during permitted hours still a violation?
+A: Only if the no-parking sign is permanent. Temporary or time-limited signs must be respected according to the hours displayed.
+
+PENALTY: See specific fine amounts in PARK-002 for each scenario.
+KEYWORDS: parking FAQ, officer questions, double parking fine, sidewalk parking fine, disabled parking, emergency vehicle, broken down vehicle, bridge parking, SmartPath Jordan evidence, arrest parking, towing authorization, no parking sign
+===
+================================================================================
+WRONG-WAY DRIVING — DETAILED KNOWLEDGE BASE
+SmartPath Jordan | Capstone Project
+Source: Jordan Traffic Law No. 49 of 2008 (amended by Law No. 18 of 2023)
+         Public Security Directorate (PSD) Traffic Department
+================================================================================
+
+===
+ARTICLE_ID: WWD-001
+CATEGORY: Wrong-Way Driving — Definition
+TITLE: What is Wrong-Way Driving?
+LEGAL_TEXT:
+Wrong-way driving (also called driving in the opposite direction or driving against traffic) refers to operating a vehicle in a direction that is opposite to the designated flow of traffic on a road.
+
+In Jordan, wrong-way driving is classified into two levels of severity:
+
+LEVEL 1 — SERIOUS CRIMINAL OFFENCE:
+Driving in the opposite direction on roads where traffic directions are separated by a central island, median, or physical barrier.
+This is a Group B first-category offence under the 2023 amended Traffic Law.
+Penalty: Fine 250–500 JOD OR imprisonment 1–3 months OR both.
+
+LEVEL 2 — MODERATE VIOLATION:
+Driving in the opposite direction of traffic or violating traffic prohibition signs on roads without a physical separator.
+Penalty: Fine 50–100 JOD.
+
+Wrong-way driving is one of the leading causes of fatal accidents in Jordan. According to Jordan's Traffic Department, wrong lane usage caused 29.3% of road fatalities in 2024. It is the second most common driver error in Jordan, accounting for 22.5% of all violations, yet it is rarely caught by existing threshold-based cameras.
+
+SmartPath Jordan specifically targets wrong-way driving detection using YOLOv11 object detection and ByteTrack trajectory analysis to identify vehicles moving against the designated traffic flow.
+
+PENALTY: 250–500 JOD or imprisonment 1–3 months (divided road). 50–100 JOD (undivided road).
+KEYWORDS: wrong-way driving, opposite direction, against traffic, divided road, central island, median, wrong direction, driving against flow, wrong lane, fatal accident, 29.3%, SmartPath Jordan, trajectory analysis
+===
+
+===
+ARTICLE_ID: WWD-002
+CATEGORY: Wrong-Way Driving — Legal Articles
+TITLE: Legal Basis for Wrong-Way Driving Violations
+LEGAL_TEXT:
+Wrong-way driving is addressed in multiple articles of Jordan Traffic Law No. 49 of 2008 as amended by Law No. 18 of 2023:
+
+ARTICLE 29 (GROUP B — MOST SERIOUS):
+Driving a vehicle in the opposite direction on roads with separated directions (roads divided by a central island or median barrier).
+Penalty: Imprisonment 1–3 months OR fine 250–500 JOD OR both.
+Note: Fine is doubled if the violation is repeated within one year.
+Grounds for arrest without warrant if the driver loses control.
+
+ARTICLE 34 (ITEM G — MODERATE):
+Driving the vehicle in the opposite direction of traffic or violating signs prohibiting traffic in that direction.
+Penalty: Fine 50–100 JOD.
+
+ARTICLE 29 (ITEM D — ORIGINAL 2008 LAW):
+Driving the vehicle in the opposite direction on roads separated by an island or median.
+Penalty: Fine 100–200 JOD or imprisonment 1 week–1 month (original 2008 penalty before 2023 amendment increased it).
+
+ARTICLE 25 (ARREST WITHOUT WARRANT):
+If wrong-way driving results in loss of vehicle control, causes injury or death, or the driver is found to be driving recklessly — arrest without warrant applies and all licenses are seized.
+
+RELATED: VEHICLE IMPOUNDMENT (Article 24 — 2023 amendment):
+Driving the vehicle in the opposite direction on roads separated by a central island is grounds for vehicle impoundment for 24 hours to 30 days.
+
+PENALTY: 250–500 JOD or imprisonment 1–3 months (most serious form). 50–100 JOD (less serious form). Vehicle impoundment. Arrest without warrant if injury/death results.
+KEYWORDS: wrong-way driving law, article 29, article 34, article 25, arrest without warrant, vehicle impoundment, divided road, central island, median, opposite direction, 250 JOD, 500 JOD, imprisonment, 2023 amendment
+===
+
+===
+ARTICLE_ID: WWD-003
+CATEGORY: Wrong-Way Driving — How SmartPath Jordan Detects It
+TITLE: SmartPath Jordan Detection Methodology for Wrong-Way Driving
+LEGAL_TEXT:
+SmartPath Jordan detects wrong-way driving using a computer vision pipeline:
+
+DETECTION PIPELINE:
+1. YOLOv11 (object detection model) identifies all vehicles in each video frame.
+2. ByteTrack (multi-object tracking algorithm) assigns a unique ID to each vehicle and tracks its movement across frames.
+3. Trajectory analysis examines the direction of each vehicle's movement relative to the designated traffic flow direction for that road.
+4. If a vehicle's trajectory is consistently opposite to the designated flow direction, it is classified as a wrong-way driving violation.
+5. PaddleOCR reads the license plate number of the offending vehicle.
+6. The RAG system retrieves the relevant legal article (WWD-002) and generates a violation report.
+7. The report is submitted to a traffic officer for review via the SmartPath Jordan dashboard.
+
+INFRASTRUCTURE ALERT DISTINCTION:
+If multiple unique vehicles (5 or more within a 10-minute window) all deviate from their lane in the same direction at the same GPS coordinates — this is NOT classified as wrong-way driving by multiple drivers. Instead, it is classified as an Infrastructure Alert, indicating a likely road defect, missing lane markings, or confusing road layout. This alert is forwarded to the Greater Amman Municipality (GAM) for maintenance action.
+
+CONFIDENCE THRESHOLD:
+The system only flags a violation when the trajectory confidence score exceeds the defined threshold. Low-confidence detections are discarded to avoid false positives.
+
+PENALTY: 250–500 JOD or imprisonment 1–3 months (if on divided road). Report generated automatically and submitted for officer review.
+KEYWORDS: SmartPath Jordan detection, YOLOv11, ByteTrack, trajectory analysis, wrong-way detection, computer vision, license plate, PaddleOCR, RAG, officer review, infrastructure alert, false positive, confidence threshold, multi-object tracking
+===
+
+===
+ARTICLE_ID: WWD-004
+CATEGORY: Wrong-Way Driving — Statistics and Context
+TITLE: Wrong-Way Driving in Jordan — Statistics and Impact
+LEGAL_TEXT:
+Wrong-way driving is one of the most dangerous and underdetected traffic violations in Jordan:
+
+KEY STATISTICS:
+- Wrong lane usage caused 29.3% of road fatalities in Jordan in 2024 (Jordan Traffic Department).
+- Lane violations account for 22.5% of all driver errors in Jordan (Higher Population Council report).
+- Jordan recorded 190,175 traffic accidents in 2024, resulting in 543 deaths and 18,275 injuries.
+- Human error — including wrong-way driving — is responsible for 98.8% of traffic accidents in Jordan.
+- Traffic accidents cost Jordan approximately 958 million JOD in 2024 (2.8% of GDP).
+- Current automated enforcement systems (speed cameras, red-light cameras) cannot detect wrong-way driving.
+- Existing threshold-based cameras only catch violations when a predefined condition is triggered — they have no behavioural analysis capability.
+- SmartPath Jordan is designed specifically to close this detection gap using AI trajectory analysis.
+
+WHY WRONG-WAY DRIVING IS DANGEROUS:
+- Head-on collisions caused by wrong-way driving are among the most fatal types of road accidents.
+- Drivers entering a road in the wrong direction often do so at speed, leaving no time for other drivers to react.
+- Night-time wrong-way driving is especially dangerous due to reduced visibility.
+- Jordan's road network has many divided highways and urban roads with separated traffic directions, making wrong-way entry a significant risk.
+
+WHY IT IS UNDERDETECTED:
+- Manual enforcement is limited — PSD has approximately 12,000 traffic officers covering a road network of 7,900+ km.
+- Fixed cameras only detect predefined threshold violations (speed, red light) — not directional violations.
+- Wrong-way driving happens rapidly and often in locations not covered by manual patrols.
+
+PENALTY: 250–500 JOD or imprisonment 1–3 months under the 2023 amended law.
+KEYWORDS: wrong-way driving statistics, Jordan fatalities, 29.3%, lane violations, 22.5%, traffic accidents 2024, 543 deaths, human error, detection gap, head-on collision, underdetected, SmartPath Jordan, PSD, road network, 958 million JOD
+===
+
+===
+ARTICLE_ID: WWD-005
+CATEGORY: Wrong-Way Driving — Officer FAQ
+TITLE: Common Officer Questions About Wrong-Way Driving
+LEGAL_TEXT:
+Q: What is the fine for wrong-way driving on a divided road?
+A: Fine of 250–500 JOD OR imprisonment 1–3 months OR both, under the 2023 amended Traffic Law. The fine is doubled if repeated within one year.
+
+Q: What is the fine for wrong-way driving on an undivided road?
+A: Fine of 50–100 JOD (Article 34, Item G).
+
+Q: Can I arrest a driver caught driving the wrong way?
+A: Yes, if the wrong-way driving caused injury or death, or the driver is driving recklessly or is under the influence — arrest without warrant applies under Article 25. For standard wrong-way driving without injury, a violation ticket is issued and the license is seized pending payment.
+
+Q: Is the vehicle impounded for wrong-way driving?
+A: Yes. Under the 2023 amendment, driving in the opposite direction on a road separated by a central island is grounds for vehicle impoundment for 24 hours to 30 days.
+
+Q: What evidence does SmartPath Jordan provide for wrong-way driving?
+A: The system provides video footage showing the vehicle's trajectory moving against the traffic flow, the vehicle's license plate number, the timestamp, and the GPS location of the violation.
+
+Q: What if the driver claims they made a mistake or were confused by road signage?
+A: The violation stands. However, if multiple vehicles made the same error at the same location, SmartPath Jordan will flag it as an Infrastructure Alert, which may indicate poor signage or road markings — this can be used as contextual information during review.
+
+Q: Is wrong-way driving on a one-way street the same violation?
+A: Yes — driving against the designated direction on a one-way street is also classified as wrong-way driving and the same penalties apply.
+
+Q: What if the wrong-way driver causes an accident?
+A: Article 27 applies — causing death by vehicle carries imprisonment 3 months to 3 years and a fine of 1,000–2,000 JOD. License suspended for at least 6 months.
+
+PENALTY: See WWD-002 for full legal article breakdown.
+KEYWORDS: wrong-way driving FAQ, officer questions, fine divided road, fine undivided road, arrest warrant, vehicle impoundment, SmartPath evidence, one-way street, accident caused by wrong-way, road signage, infrastructure alert, license seized
+===
+================================================================================
+SMARTPATH JORDAN — SYSTEM FAQ KNOWLEDGE BASE
+SmartPath Jordan | Capstone Project
+For: Traffic Officers and Municipal Engineers
+================================================================================
+
+===
+ARTICLE_ID: FAQ-001
+CATEGORY: System Overview
+TITLE: What is SmartPath Jordan?
+LEGAL_TEXT:
+SmartPath Jordan is an AI-powered dual-purpose traffic monitoring system developed for the Hashemite Kingdom of Jordan.
+
+PRIMARY FUNCTION — TRAFFIC VIOLATION DETECTION:
+SmartPath Jordan automatically analyses video footage from traffic cameras to detect traffic violations. Currently it detects two violation types:
+1. Wrong-way driving — vehicles moving against the designated traffic flow direction.
+2. Wrong parking — vehicles parked in prohibited locations.
+
+The system assists traffic officers by automatically identifying violations, reading license plates, generating violation reports with relevant legal articles and fine amounts, and submitting them for officer review.
+
+SECONDARY FUNCTION — INFRASTRUCTURE DIAGNOSTICS:
+SmartPath Jordan goes beyond simple violation detection. It analyses patterns of driver behaviour across multiple vehicles to identify locations where road defects — such as potholes, missing lane markings, or poor signage — may be causing drivers to violate traffic rules involuntarily.
+
+When the system detects that 5 or more unique vehicles perform the same abnormal manoeuvre at the same GPS coordinates within a 10-minute window, it generates an Infrastructure Alert and forwards it to the Greater Amman Municipality (GAM) or Ministry of Public Works and Housing (MoPWH) for maintenance action.
+
+WHO DEVELOPED IT:
+SmartPath Jordan was developed as a Capstone Project for the Bachelor of Science in Data Science and Artificial Intelligence degree.
+Team: Leen Shareef Saleh, Zaina Mehyar, Noor Al-Abaddi.
+Supervisor: Dr. Raneem Qadoura.
+
+PENALTY: Not applicable (system overview)
+KEYWORDS: SmartPath Jordan, system overview, AI traffic system, violation detection, wrong-way driving, wrong parking, infrastructure diagnostics, GAM, Ministry of Public Works, officer review, capstone project
+===
+
+===
+ARTICLE_ID: FAQ-002
+CATEGORY: System Overview
+TITLE: How Does SmartPath Jordan Work — Step by Step?
+LEGAL_TEXT:
+SmartPath Jordan processes traffic violations in the following steps:
+
+STEP 1 — VIDEO INPUT:
+A traffic officer uploads a video file captured from a traffic camera through the SmartPath Jordan web interface. The system accepts standard compressed video formats.
+
+STEP 2 — COMPUTER VISION ANALYSIS:
+The system's computer vision pipeline processes the video:
+- YOLOv11 detects all vehicles in each frame.
+- ByteTrack tracks each vehicle across frames, assigning a unique ID.
+- Trajectory analysis determines if any vehicle is moving in the wrong direction (wrong-way driving) or is stationary in a prohibited location (wrong parking).
+- PaddleOCR reads and extracts the license plate number of the offending vehicle.
+
+STEP 3 — VIOLATION CLASSIFICATION:
+The system classifies the detected event as either:
+- A traffic violation (wrong-way driving or wrong parking).
+- An Infrastructure Alert (if multiple vehicles exhibit the same behaviour at the same location).
+- No violation (if confidence score is below the threshold).
+
+STEP 4 — RAG REPORT GENERATION:
+For detected violations, the RAG (Retrieval-Augmented Generation) system:
+- Searches the Jordan Traffic Law knowledge base for the relevant legal article.
+- Retrieves the fine amount, legal article number, and violation description.
+- Passes this to the LLM (language model) to generate a formal violation report.
+
+STEP 5 — OFFICER REVIEW:
+The generated report appears in the traffic officer's dashboard showing:
+- Video footage of the violation.
+- License plate number.
+- Timestamp and GPS location.
+- Legal article cited.
+- Fine amount.
+- AI-generated violation description.
+The officer reviews the evidence and clicks Approve or Reject.
+
+STEP 6 — DATABASE STORAGE:
+Approved violations are saved to the PostgreSQL database and processed for fine issuance.
+
+PENALTY: Not applicable (process description)
+KEYWORDS: SmartPath Jordan how it works, video upload, YOLOv11, ByteTrack, PaddleOCR, RAG report, officer review, approve reject, PostgreSQL, database, violation classification, infrastructure alert, computer vision pipeline
+===
+
+===
+ARTICLE_ID: FAQ-003
+CATEGORY: Officer Interface
+TITLE: What Does the Traffic Officer See on the Dashboard?
+LEGAL_TEXT:
+The SmartPath Jordan Traffic Officer Dashboard displays the following information for each detected violation:
+
+VIOLATION QUEUE:
+- A list of all detected violations pending review.
+- Each entry shows: Case ID, Timestamp, Violation Type, License Plate, Status (Pending/Approved/Rejected).
+
+VIOLATION DETAIL VIEW (when officer opens a case):
+- Video footage: A short video clip showing the violation.
+- License plate zoom: A cropped image of the detected license plate.
+- Violation metadata: Timestamp, GPS location, violation type.
+- Legal report (RAG-generated): The relevant Jordanian traffic law article, the fine amount in JOD, and a plain-language description of why this event constitutes a violation.
+- Action buttons: Large green APPROVE button and red REJECT button.
+
+OFFICER ACTIONS:
+- APPROVE: The violation is confirmed. It is saved to the database and processed for fine issuance.
+- REJECT: The violation is dismissed. It is marked as rejected with a reason if needed.
+
+IMPORTANT: The officer always has the final say. SmartPath Jordan is a decision-support tool — it does not automatically issue fines. Every violation must be reviewed and approved by a human officer before any enforcement action is taken.
+
+PENALTY: Not applicable (interface description)
+KEYWORDS: officer dashboard, violation queue, video footage, license plate, legal report, approve, reject, fine issuance, human review, decision support, case ID, timestamp, GPS location, RAG report, officer interface
+===
+
+===
+ARTICLE_ID: FAQ-004
+CATEGORY: Infrastructure Alerts
+TITLE: What is an Infrastructure Alert and What Should an Officer Do?
+LEGAL_TEXT:
+An Infrastructure Alert is generated by SmartPath Jordan when the system detects that multiple vehicles — not just one — are performing the same abnormal traffic manoeuvre at the same GPS location within a short time window.
+
+TRIGGER CONDITION:
+5 or more unique vehicle IDs exhibit identical lateral swerves, lane deviations, or avoidance manoeuvres at the same GPS coordinates within a 10-minute window.
+
+WHAT IT MEANS:
+When many different drivers make the same unusual manoeuvre at the same spot, the likely cause is NOT driver negligence — it is a physical road problem such as:
+- A pothole or road surface damage.
+- Missing or faded lane markings.
+- Damaged or missing road signs.
+- Poor road design at that junction.
+- An obstacle or debris on the road.
+
+WHAT HAPPENS:
+1. SmartPath Jordan classifies the event as an Infrastructure Alert instead of a traffic violation.
+2. Individual drivers are NOT fined — they are not at fault.
+3. The alert is sent to the Municipal Engineer Dashboard showing the location on a map as a Red Zone.
+4. The Greater Amman Municipality (GAM) or Ministry of Public Works and Housing (MoPWH) is notified to inspect and repair the location.
+
+WHAT THE OFFICER SHOULD DO:
+- If you see an Infrastructure Alert in your dashboard, do not issue fines to the individual drivers.
+- Forward the alert to the relevant municipal authority.
+- If the road defect is causing immediate danger, contact traffic management to place warning signs or close the lane temporarily.
+
+PENALTY: No fines issued for Infrastructure Alerts. Maintenance action by GAM or MoPWH.
+KEYWORDS: infrastructure alert, red zone, road defect, pothole, lane markings, road maintenance, GAM, Ministry of Public Works, MoPWH, avoidance manoeuvre, swerve cluster, GPS coordinates, municipal engineer, no fine, driver not at fault
+===
+
+===
+ARTICLE_ID: FAQ-005
+CATEGORY: RAG Chatbot
+TITLE: How to Use the SmartPath Jordan Law Chatbot
+LEGAL_TEXT:
+SmartPath Jordan includes a built-in law chatbot powered by RAG (Retrieval-Augmented Generation) technology.
+
+WHAT IT DOES:
+The chatbot allows traffic officers to ask questions about Jordanian traffic law in plain English and receive accurate, law-grounded answers instantly.
+
+WHAT YOU CAN ASK:
+- "What is the fine for wrong-way driving?"
+- "Can I arrest someone for wrong parking?"
+- "What does the law say about parking on a sidewalk?"
+- "Is double parking a criminal offence?"
+- "What happens if a driver refuses an alcohol test?"
+- "What is the fine for running a red light?"
+- "How many points does wrong-way driving add to a license?"
+- Any question about Jordan Traffic Law No. 49 of 2008 and its 2023 amendments.
+
+HOW IT WORKS:
+1. You type your question in the chatbot interface.
+2. The system searches the Jordan Traffic Law knowledge base for the most relevant legal articles.
+3. The LLM generates an answer based ONLY on the retrieved legal articles — it does not make up information.
+4. The answer includes the relevant article number and fine amount.
+
+IMPORTANT LIMITATION:
+The chatbot answers based on the knowledge base it was trained on. If you ask about a very specific or unusual situation not covered in the law database, it will tell you it does not have enough information rather than making up an answer.
+
+WHEN TO USE IT:
+- When you are unsure of the exact fine for a violation.
+- When you need to quickly look up a legal article during enforcement.
+- When a driver disputes a violation and you need to cite the exact law.
+
+PENALTY: Not applicable (chatbot guide)
+KEYWORDS: law chatbot, RAG chatbot, traffic law questions, fine lookup, legal article, officer tool, Jordan traffic law, plain English, grounded answers, chatbot how to use, dispute violation, cite law
+===
+================================================================================
+VIOLATION Q&A PAIRS — KNOWLEDGE BASE
+SmartPath Jordan | Capstone Project
+Purpose: Pre-written Q&A pairs to improve RAG retrieval accuracy for the
+         two core violations: Wrong-Way Driving and Wrong Parking
+================================================================================
+
+===
+ARTICLE_ID: QA-001
+CATEGORY: Q&A — Wrong-Way Driving Fines
+TITLE: Questions and Answers About Wrong-Way Driving Fines
+LEGAL_TEXT:
+Q: What is the fine for wrong-way driving in Jordan?
+A: The fine for wrong-way driving on a divided road (separated by a central island or median) is 250–500 JOD or imprisonment of 1–3 months or both, under the 2023 amended Traffic Law. For wrong-way driving on an undivided road or violating a one-way sign, the fine is 50–100 JOD.
+
+Q: How much is the penalty for driving against traffic in Jordan?
+A: Driving against traffic on a divided road carries a fine of 250–500 JOD or imprisonment of 1–3 months. The fine is doubled if the violation is repeated within one year.
+
+Q: What is the punishment for driving in the opposite direction?
+A: Imprisonment 1–3 months OR fine 250–500 JOD OR both (divided road). Fine 50–100 JOD (undivided road or one-way street violation).
+
+Q: Is wrong-way driving a criminal offence in Jordan?
+A: Yes. Wrong-way driving on a divided road is a Group B first-category offence under Jordan Traffic Law No. 49 of 2008 as amended in 2023. It carries potential imprisonment.
+
+Q: What law article covers wrong-way driving?
+A: Article 29 (Group B) of the 2023 amended Traffic Law covers wrong-way driving on divided roads. Article 34 (Item G) covers wrong-way driving on undivided roads.
+
+Q: Is wrong-way driving fine doubled for repeat violations?
+A: Yes. If the driver repeats the wrong-way driving violation within one year, the fine is doubled.
+
+Q: Can the vehicle be impounded for wrong-way driving?
+A: Yes. Driving in the opposite direction on a road separated by a central island is grounds for vehicle impoundment for 24 hours to 30 days under the 2023 amendment.
+
+PENALTY: 250–500 JOD or imprisonment 1–3 months (divided road). 50–100 JOD (undivided road).
+KEYWORDS: wrong-way driving fine, penalty wrong direction, opposite direction fine, against traffic penalty, wrong-way law article, criminal offence wrong-way, impoundment wrong-way, fine doubled, 250 JOD, 500 JOD, imprisonment wrong-way
+===
+
+===
+ARTICLE_ID: QA-002
+CATEGORY: Q&A — Wrong Parking Fines
+TITLE: Questions and Answers About Wrong Parking Fines
+LEGAL_TEXT:
+Q: What is the fine for wrong parking in Jordan?
+A: Wrong parking fines vary by violation type: 30 JOD for double parking or blocking traffic, 20 JOD for parking on a sidewalk or near an intersection, 15 JOD for parking in a disabled space or in a roundabout, 40 JOD for parking on a bridge or in a tunnel.
+
+Q: How much is the fine for double parking?
+A: 30 JOD under the 2023 amended Traffic Law.
+
+Q: What is the penalty for parking on a sidewalk?
+A: 20 JOD.
+
+Q: What is the fine for parking near a pedestrian crossing?
+A: 20 JOD. Parking is prohibited within 10 metres before or after a pedestrian crossing.
+
+Q: What is the fine for parking at an intersection?
+A: 20 JOD. Parking is prohibited within 20 metres of a road intersection or junction.
+
+Q: What is the fine for parking in a disabled parking space?
+A: 15 JOD.
+
+Q: What is the fine for parking on a bridge?
+A: 40 JOD.
+
+Q: Can a vehicle be towed for wrong parking?
+A: Yes. A vehicle may be towed if it causes serious obstruction to traffic flow or creates a safety hazard. The owner must pay the fine plus towing and storage fees to retrieve it.
+
+Q: What law article covers wrong parking?
+A: Article 37 (Items 3, 8, 9, 10, 11) and Article 36 (Items 2, 31) and Article 35 (Item 9) of the Traffic Law cover various wrong parking violations.
+
+Q: Is wrong parking a criminal offence?
+A: No. Wrong parking is a minor infraction (fine only). No arrest without warrant applies for parking violations alone. However, leaving a broken-down vehicle on a road lane without reflectors is a more serious offence (100–200 JOD or imprisonment 1–2 months).
+
+Q: What happens if the parking fine is not paid within 30 days?
+A: The fine is doubled and the case is referred to the competent court.
+
+PENALTY: 15–40 JOD depending on specific violation. Towing possible. Fine doubled if not paid within 30 days.
+KEYWORDS: wrong parking fine, parking penalty Jordan, double parking fine, sidewalk parking fine, disabled parking fine, bridge parking fine, towing Jordan, parking law article, parking criminal offence, 30 days payment, fine doubled, pedestrian crossing parking, intersection parking
+===
+
+===
+ARTICLE_ID: QA-003
+CATEGORY: Q&A — Comparing Both Violations
+TITLE: Comparing Wrong-Way Driving and Wrong Parking
+LEGAL_TEXT:
+Q: Which is more serious — wrong-way driving or wrong parking?
+A: Wrong-way driving is significantly more serious. It is a criminal offence carrying imprisonment of 1–3 months and fines of 250–500 JOD. Wrong parking is a minor infraction with fines of 15–40 JOD and no imprisonment.
+
+Q: Can an officer arrest a driver for wrong parking?
+A: No. Wrong parking does not trigger arrest without warrant provisions. It is a minor infraction — a ticket is issued.
+
+Q: Can an officer arrest a driver for wrong-way driving?
+A: Potentially yes — if the wrong-way driving causes injury or death, is combined with reckless driving, or the driver is under the influence. Article 25 (arrest without warrant) may apply in those cases.
+
+Q: Which violation does SmartPath Jordan detect?
+A: SmartPath Jordan currently detects both wrong-way driving and wrong parking from traffic camera footage using AI computer vision.
+
+Q: What evidence does SmartPath Jordan collect for each violation?
+A: For both violations: video footage, license plate number, timestamp, GPS location, and an AI-generated violation report citing the relevant law article and fine amount.
+
+Q: Which violation is harder to detect without AI?
+A: Wrong-way driving is much harder to detect without AI — it requires monitoring vehicle trajectory over time, which fixed cameras cannot do. Wrong parking is easier to detect manually but AI allows 24/7 monitoring across many locations simultaneously.
+
+Q: What are the fine ranges for each violation?
+A: Wrong-way driving (divided road): 250–500 JOD. Wrong-way driving (undivided): 50–100 JOD. Wrong parking: 15–40 JOD depending on violation type.
+
+PENALTY: Wrong-way driving: 250–500 JOD or imprisonment. Wrong parking: 15–40 JOD.
+KEYWORDS: wrong-way vs wrong parking, comparison violations, most serious violation, arrest warrant parking, arrest warrant wrong-way, SmartPath Jordan both violations, evidence collected, fine comparison, 250 JOD wrong-way, 20 JOD parking, AI detection
+===
+
+===
+ARTICLE_ID: QA-004
+CATEGORY: Q&A — Enforcement Process
+TITLE: Questions About the Enforcement Process for Both Violations
+LEGAL_TEXT:
+Q: What happens after SmartPath Jordan detects a violation?
+A: The system generates a violation report with video evidence, license plate, timestamp, location, the relevant law article, and fine amount. A traffic officer reviews this report and either approves or rejects it. If approved, the violation is recorded in the database.
+
+Q: Does SmartPath Jordan automatically issue fines?
+A: No. A human traffic officer must review and approve every violation before any fine is issued. SmartPath Jordan is a decision-support tool, not an automatic enforcement system.
+
+Q: What if the officer disagrees with the AI detection?
+A: The officer clicks the REJECT button and the violation is dismissed. The officer's judgment always overrides the AI output.
+
+Q: How is the fine collected after approval?
+A: The violation is recorded in the system database. The vehicle owner is notified and must pay the fine within 30 days. If not paid within 30 days, the fine is doubled and referred to court.
+
+Q: What if the license plate is not readable in the footage?
+A: The violation can still be reviewed but enforcement may be limited without a confirmed plate number. The officer can manually enter the plate if it is visible in the video.
+
+Q: How long is violation evidence kept?
+A: Video evidence is stored for 30 days after case resolution under the system's data retention policy.
+
+Q: Can a driver appeal a SmartPath Jordan violation?
+A: Yes. Under Jordanian law, any driver has the right to dispute a violation before the competent court. The video evidence collected by SmartPath Jordan serves as the primary evidence in any dispute.
+
+PENALTY: Not applicable (process Q&A)
+KEYWORDS: enforcement process, fine collection, officer approval, reject violation, dispute violation, appeal violation, 30 days payment, evidence retention, license plate unreadable, automatic fine, human review, decision support
+===
+
+===
+ARTICLE_ID: QA-005
+CATEGORY: Q&A — License and Points Impact
+TITLE: Impact on Driver License and Points for Both Violations
+LEGAL_TEXT:
+Q: Does wrong-way driving affect the driver's points record?
+A: Yes. Wrong-way driving as a serious violation adds points to the driver's record under the points system. Accumulating 16 or more points in a year leads to license suspension.
+
+Q: Is the driving license seized for wrong-way driving?
+A: Yes. For wrong-way driving on a divided road, the driving license is seized pending payment of the fine. For more serious cases (injury/death), the license is suspended by court order for 6 months to 2 years.
+
+Q: Is the driving license seized for wrong parking?
+A: Only for specific parking violations — mainly parking large trucks in residential areas. For regular wrong parking violations (sidewalk, double parking, etc.), the license is generally not seized — only a fine ticket is issued.
+
+Q: Can wrong-way driving lead to license cancellation?
+A: In extreme cases (repeated violations or causing death), the court may order permanent license cancellation in addition to imprisonment and fines.
+
+Q: How many points does wrong-way driving add?
+A: The exact point value for each violation is set by regulation and can change. Officers should verify current point values through the PSD's traffic point system database.
+
+Q: What happens if a driver accumulates 32 or more points?
+A: The driving license is suspended for one full year. All points are written off when the suspension period is served.
+
+PENALTY: License seizure for wrong-way driving. Possible suspension 6 months–2 years (court order). License seizure for large truck wrong parking in residential areas.
+KEYWORDS: license points wrong-way, license seized, points record, license suspension, 16 points, 32 points, license cancellation, wrong parking license, points system, court suspension, license seized wrong-way, license seized parking trucks
+===

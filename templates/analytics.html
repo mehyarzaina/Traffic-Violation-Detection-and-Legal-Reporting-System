@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+{% block title %}Analytics — SmartPath Jordan{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Analytics</h1>
+    <p class="page-sub">Live violation statistics pulled directly from the database.</p>
+  </div>
+  <button class="btn-outline" onclick="window.location.reload()">↻ Refresh</button>
+</div>
+
+<!-- KPI Cards -->
+<div class="stats-grid" style="margin-bottom:28px">
+  <div class="stat-card stat-card--red">
+    <div class="stat-icon">🚨</div>
+    <div class="num" id="kpi-total">—</div>
+    <div class="stat-lbl">Total Violations</div>
+  </div>
+  <div class="stat-card stat-card--amber">
+    <div class="stat-icon">💰</div>
+    <div class="num" id="kpi-fines">—</div>
+    <div class="stat-lbl">Total Fines Issued</div>
+  </div>
+  <div class="stat-card stat-card--blue">
+    <div class="stat-icon">🏙️</div>
+    <div class="num" id="kpi-cities">—</div>
+    <div class="stat-lbl">Cities Covered</div>
+  </div>
+  <div class="stat-card stat-card--green">
+    <div class="stat-icon">⚠️</div>
+    <div class="num" id="kpi-types">—</div>
+    <div class="stat-lbl">Violation Types</div>
+  </div>
+</div>
+
+<!-- Row 1: Map + Hour chart -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+
+  <!-- Map card -->
+  <div class="card" style="padding:0;overflow:hidden;position:relative">
+    <div style="padding:18px 20px 10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div class="card-title" style="margin:0">📍 Violation Hotspots</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:rgba(255,255,255,.5)">
+        <span style="display:flex;align-items:center;gap:4px">
+          <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block"></span>Low
+        </span>
+        <span style="display:flex;align-items:center;gap:4px">
+          <span style="width:10px;height:10px;border-radius:50%;background:#eab308;display:inline-block"></span>Medium
+        </span>
+        <span style="display:flex;align-items:center;gap:4px">
+          <span style="width:10px;height:10px;border-radius:50%;background:#f97316;display:inline-block"></span>High
+        </span>
+        <span style="display:flex;align-items:center;gap:4px">
+          <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block"></span>Critical
+        </span>
+      </div>
+    </div>
+    <div id="violation-map" style="height:340px;width:100%"></div>
+
+    <!-- Floating hover tooltip -->
+    <div id="map-tooltip"
+         style="display:none;position:absolute;z-index:1000;pointer-events:none;
+                background:rgba(10,10,16,0.95);color:#fff;border-radius:10px;
+                padding:10px 14px;font-size:12px;font-family:var(--font-body, sans-serif);
+                box-shadow:0 4px 24px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);
+                min-width:150px;backdrop-filter:blur(8px)">
+      <div id="tt-area"  style="font-weight:700;font-size:13px;margin-bottom:3px"></div>
+      <div id="tt-count" style="color:rgba(255,255,255,.7)"></div>
+      <div id="tt-fine"  style="color:var(--amber, #eab308);font-size:11px;margin-top:2px"></div>
+    </div>
+  </div>
+
+  <!-- Violations by Hour -->
+  <div class="card">
+    <div class="card-title">🕐 Violations by Hour of Day</div>
+    <div style="position:relative;height:360px">
+      <canvas id="chart-hour"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- Row 2: Violation type bar -->
+<div class="card" style="margin-bottom:20px">
+  <div class="card-title">⚠️ Violations by Type</div>
+  <div style="position:relative;height:220px">
+    <canvas id="chart-type"></canvas>
+  </div>
+</div>
+
+<!-- Error state -->
+<div id="chart-status"
+     style="display:none;text-align:center;padding:40px;color:var(--text-muted)">
+  ⚠️ Could not load analytics data. Make sure the server is running and the database is connected.
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+/* ── Palette ───────────────────────────────────────── */
+const RED         = "rgba(239,68,68,.85)";
+const AMBER       = "rgba(245,158,11,.85)";
+const GRID_COLOR  = "rgba(255,255,255,0.06)";
+const LABEL_COLOR = "rgba(255,255,255,0.55)";
+
+const TYPE_COLORS = {
+  "Wrong Way Driving":         "#ef4444",
+  "Running Red Light":         "#f97316",
+  "No Seatbelt":               "#eab308",
+  "Using Phone While Driving": "#a855f7",
+};
+function typeColor(n) { return TYPE_COLORS[n] || "#3b82f6"; }
+
+function hotspotColor(count, max) {
+  const r = count / max;
+  if (r >= 0.75) return { fill: "#ef4444", stroke: "#b91c1c" };
+  if (r >= 0.45) return { fill: "#f97316", stroke: "#c2410c" };
+  if (r >= 0.20) return { fill: "#eab308", stroke: "#a16207" };
+  return               { fill: "#22c55e", stroke: "#15803d" };
+}
+
+function groupByCell(pins, precision = 3) {
+  const cells = {};
+  pins.forEach(p => {
+    const key = `${p.latitude.toFixed(precision)},${p.longitude.toFixed(precision)}`;
+    if (!cells[key]) {
+      cells[key] = { lat: p.latitude, lng: p.longitude,
+                     count: 0, fineTotal: 0, violations: [] };
+    }
+    cells[key].count++;
+    cells[key].fineTotal += p.fine_amount || 0;
+    cells[key].violations.push(p);
+  });
+  return Object.values(cells);
+}
+
+/* ── Tooltip helpers ───────────────────────────────── */
+const tooltip  = document.getElementById("map-tooltip");
+const ttArea   = document.getElementById("tt-area");
+const ttCount  = document.getElementById("tt-count");
+const ttFine   = document.getElementById("tt-fine");
+const mapCard  = document.getElementById("violation-map").parentElement;
+
+function showTooltip(e, cell) {
+  const area  = cell.violations[0]?.area  || "Unknown Area";
+  const city  = cell.violations[0]?.city  || "";
+  const label = city ? `${area}, ${city}` : area;
+  ttArea.textContent  = label;
+  ttCount.textContent = `${cell.count} violation${cell.count > 1 ? "s" : ""}`;
+  ttFine.textContent  = cell.fineTotal > 0 ? `Total fines: ${cell.fineTotal} JD` : "";
+  tooltip.style.display = "block";
+  positionTooltip(e.originalEvent);
+}
+
+function positionTooltip(mouseEvent) {
+  const rect   = mapCard.getBoundingClientRect();
+  const ttW    = 160;
+  let   left   = mouseEvent.clientX - rect.left + 14;
+  let   top    = mouseEvent.clientY - rect.top  - 10;
+  if (left + ttW > rect.width - 10) left = mouseEvent.clientX - rect.left - ttW - 14;
+  tooltip.style.left = left + "px";
+  tooltip.style.top  = top  + "px";
+}
+
+function hideTooltip() { tooltip.style.display = "none"; }
+
+/* ── Main ──────────────────────────────────────────── */
+async function loadAnalytics() {
+  let stats, pins;
+  try {
+    const [sRes, pRes] = await Promise.all([
+      fetch("/api/stats"),
+      fetch("/api/violations/map"),
+    ]);
+    if (!sRes.ok || !pRes.ok) throw new Error(`HTTP ${sRes.status}/${pRes.status}`);
+    stats = await sRes.json();
+    pins  = await pRes.json();
+  } catch (err) {
+    console.error("Analytics load failed:", err);
+    document.getElementById("chart-status").style.display = "block";
+    return;
+  }
+
+  /* KPI */
+  document.getElementById("kpi-total").textContent  = stats.total_violations;
+  document.getElementById("kpi-fines").textContent  = stats.total_fines_jd + " JD";
+  document.getElementById("kpi-cities").textContent = stats.by_city.length;
+  document.getElementById("kpi-types").textContent  = stats.by_type.length;
+
+  const validPins = pins.filter(p => p.latitude && p.longitude);
+
+  /* ── Leaflet ────────────────────────────────────── */
+  const map = L.map("violation-map", { zoomControl: true })
+               .setView([31.9516, 35.9342], 11);
+
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    attribution: '© OpenStreetMap © CARTO',
+    maxZoom: 19,
+  }).addTo(map);
+
+  const cells  = groupByCell(validPins);
+  const maxCnt = Math.max(...cells.map(c => c.count), 1);
+
+  cells.forEach(cell => {
+    const { fill, stroke } = hotspotColor(cell.count, maxCnt);
+    const radius = 18 + Math.round((cell.count / maxCnt) * 34);
+
+    const rows = cell.violations.map(v =>
+      `<tr>
+        <td style="padding:3px 8px;color:${typeColor(v.violation_name)};font-weight:600">${v.violation_name || "—"}</td>
+        <td style="padding:3px 8px">${v.plate_number || "—"}</td>
+        <td style="padding:3px 8px">${v.fine_amount != null ? v.fine_amount + " JD" : "—"}</td>
+        <td style="padding:3px 8px;color:#888">${v.timestamp}</td>
+      </tr>`
+    ).join("");
+
+    const popup = `
+      <div style="min-width:300px;max-height:240px;overflow-y:auto;font-family:sans-serif">
+        <div style="font-weight:700;font-size:13px;margin-bottom:8px">
+          📍 ${cell.violations[0]?.area || "Area"}, ${cell.violations[0]?.city || ""}
+          <span style="font-weight:400;color:#888">(${cell.count} violation${cell.count>1?"s":""})</span>
+        </div>
+        <table style="width:100%;font-size:12px;border-collapse:collapse">
+          <thead>
+            <tr style="color:#aaa;border-bottom:1px solid #333">
+              <th style="padding:3px 8px;text-align:left">Type</th>
+              <th style="padding:3px 8px;text-align:left">Plate</th>
+              <th style="padding:3px 8px;text-align:left">Fine</th>
+              <th style="padding:3px 8px;text-align:left">Time</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div style="margin-top:8px;font-size:12px;color:#aaa">
+          💰 Total fines: <b style="color:#eab308">${cell.fineTotal} JD</b>
+        </div>
+      </div>`;
+
+    const circle = L.circleMarker([cell.lat, cell.lng], {
+      radius, fillColor: fill, color: stroke,
+      weight: 2, opacity: 1, fillOpacity: 0.75,
+    })
+    .addTo(map)
+    .bindPopup(popup, { maxWidth: 380, className: "dark-popup" });
+
+    circle.on("mouseover", function(e) {
+      this.setStyle({ fillOpacity: 0.95, weight: 3 });
+      showTooltip(e, cell);
+    });
+    circle.on("mousemove", function(e) { positionTooltip(e.originalEvent); });
+    circle.on("mouseout", function() {
+      this.setStyle({ fillOpacity: 0.75, weight: 2 });
+      hideTooltip();
+    });
+  });
+
+  if (validPins.length > 0) {
+    map.fitBounds(
+      L.latLngBounds(validPins.map(p => [p.latitude, p.longitude])),
+      { padding: [50, 50], maxZoom: 14 }
+    );
+  }
+
+  /* ── Hour bar ─────────────────────────────────────── */
+  const hourCounts = {};
+  stats.by_hour.forEach(d => { hourCounts[d.hour] = d.count; });
+  const hourLabels = [], hourValues = [], hourColors = [];
+  for (let h = 0; h < 24; h++) {
+    hourLabels.push(h + ":00");
+    hourValues.push(hourCounts[h] || 0);
+    hourColors.push((h >= 7 && h <= 9) || (h >= 16 && h <= 19) ? RED : AMBER);
+  }
+
+  new Chart(document.getElementById("chart-hour"), {
+    type: "bar",
+    data: {
+      labels: hourLabels,
+      datasets: [{
+        label: "Violations", data: hourValues,
+        backgroundColor: hourColors, borderRadius: 5,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: LABEL_COLOR } },
+        tooltip: {
+          backgroundColor: "rgba(10,10,20,0.9)",
+          borderColor: "rgba(255,255,255,0.1)",
+          borderWidth: 1,
+        }
+      },
+      scales: {
+        x: { grid:{color:GRID_COLOR}, ticks:{color:LABEL_COLOR, maxRotation:45, font:{size:10}} },
+        y: { grid:{color:GRID_COLOR}, ticks:{color:LABEL_COLOR}, beginAtZero:true },
+      },
+    },
+  });
+
+  /* ── Violation type horizontal bar ───────────────── */
+  new Chart(document.getElementById("chart-type"), {
+    type: "bar",
+    data: {
+      labels: stats.by_type.map(d => d.type),
+      datasets: [{
+        label: "Count", data: stats.by_type.map(d => d.count),
+        backgroundColor: stats.by_type.map(d => typeColor(d.type)),
+        borderRadius: 5,
+      }],
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: "rgba(10,10,20,0.9)",
+          borderColor: "rgba(255,255,255,0.1)",
+          borderWidth: 1,
+        }
+      },
+      scales: {
+        x: { grid:{color:GRID_COLOR}, ticks:{color:LABEL_COLOR}, beginAtZero:true },
+        y: { grid:{color:GRID_COLOR}, ticks:{color:LABEL_COLOR} },
+      },
+    },
+  });
+}
+
+loadAnalytics();
+</script>
+{% endblock %}

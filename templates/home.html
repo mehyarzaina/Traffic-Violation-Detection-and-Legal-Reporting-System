@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+{% block title %}Home — SmartPath Jordan{% endblock %}
+
+{% block content %}
+<style>
+:root{
+  --sky1:#0d1b2a;--sky2:#1a2f4a;--road:#1c1c24;--lane:#eab308;
+  --building1:#1a1a28;--building2:#141420;
+}
+body.light{
+  --sky1:#bcd4f0;--sky2:#8ab4e0;--road:#555566;--lane:#f7c948;
+  --building1:#c5cfe0;--building2:#b0bcd0;
+}
+.h-tab{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;letter-spacing:.3px;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .2s}
+.h-tab:hover{background:var(--border);color:var(--text)}
+.h-tab.active{background:var(--red);color:#fff}
+.star{position:absolute;width:2px;height:2px;border-radius:1px;background:#fff;opacity:.6}
+body.light .star{opacity:0}
+.celestial{position:absolute;top:20px;right:60px;width:28px;height:28px;border-radius:50%;transition:all .4s;background:#dce8ff;box-shadow:0 0 12px #dce8ff44}
+body.light .celestial{background:radial-gradient(circle,#ffe066 30%,#fbbf24 80%);box-shadow:0 0 16px #fbbf2488}
+.building{background:var(--building1);flex-shrink:0}
+.b-window{position:absolute;width:4px;height:4px;border-radius:1px;background:var(--amber);opacity:.7}
+body.light .b-window{opacity:.5}
+.lane-line{position:absolute;bottom:42px;height:3px;border-radius:2px;background:var(--lane);animation:road-scroll 1.2s linear infinite}
+.road-edge{position:absolute;bottom:82px;left:0;right:0;height:4px;background:var(--amber);opacity:.5}
+@keyframes road-scroll{0%{transform:translateX(0)}100%{transform:translateX(-120px)}}
+.lamp{position:absolute;bottom:82px}
+.lamp-pole{width:3px;height:48px;background:#555;margin:0 auto}
+body.light .lamp-pole{background:#aaa}
+.lamp-head{width:22px;height:7px;border-radius:3px;background:#333;margin-left:-10px;position:relative}
+body.light .lamp-head{background:#888}
+.lamp-glow{width:10px;height:10px;border-radius:5px;background:var(--amber);position:absolute;bottom:0;left:6px;box-shadow:0 0 10px 3px var(--amber);opacity:.9}
+body.light .lamp-glow{opacity:.6}
+.car-track{position:absolute;bottom:44px;left:-160px;animation:drive 5s linear infinite}
+.car{position:relative;width:88px;height:38px}
+.car-body{position:absolute;bottom:0;left:3px;right:3px;height:26px;background:#ef4444;border-radius:5px}
+.car-roof{position:absolute;bottom:20px;left:16px;right:18px;height:18px;background:#c0392b;border-radius:4px 4px 2px 2px}
+.win-front{position:absolute;bottom:23px;right:19px;width:16px;height:13px;background:#b8d4ee;border-radius:2px 3px 0 0;opacity:.85}
+body.light .win-front{background:#5a8fbb}
+.win-rear{position:absolute;bottom:23px;left:17px;width:13px;height:11px;background:#b8d4ee;border-radius:2px 2px 0 0;opacity:.7}
+body.light .win-rear{background:#5a8fbb}
+.headlight{position:absolute;right:2px;bottom:6px;width:8px;height:6px;background:#fef08a;border-radius:2px;box-shadow:0 0 14px 5px rgba(254,240,138,.4)}
+.taillight{position:absolute;left:2px;bottom:6px;width:7px;height:6px;background:#f97316;border-radius:2px}
+.wheel{position:absolute;bottom:-4px;width:15px;height:15px;border-radius:8px;background:#1f1f2e;border:2px solid #555;animation:spin 0.5s linear infinite}
+body.light .wheel{border-color:#888}
+.wheel-f{right:10px}.wheel-r{left:10px}
+.exhaust{position:absolute;left:-2px;bottom:5px}
+.puff{width:5px;height:5px;border-radius:3px;background:#aaa;position:absolute;animation:puff 0.9s ease-out infinite;opacity:0}
+body.light .puff{background:#999}
+.p2{animation-delay:.3s}.p3{animation-delay:.6s}
+.speed-line{position:absolute;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);border-radius:1px;animation:speedline 0.7s linear infinite;opacity:0}
+body.light .speed-line{background:linear-gradient(90deg,transparent,rgba(0,0,0,.1),transparent)}
+.sl1{bottom:56px;width:100px;animation-delay:0s}.sl2{bottom:50px;width:65px;animation-delay:.2s}.sl3{bottom:64px;width:50px;animation-delay:.4s}
+.scan-beam{position:absolute;bottom:44px;width:50px;height:32px;background:linear-gradient(180deg,rgba(59,130,246,.18) 0%,transparent 100%);transform-origin:bottom center;border-radius:0 0 25px 25px;animation:scan-sweep 3s ease-in-out infinite;pointer-events:none}
+@keyframes drive{0%{left:-160px}100%{left:110%}}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(-360deg)}}
+@keyframes puff{0%{transform:translateX(0) scale(1);opacity:.5}100%{transform:translateX(-20px) scale(2.5);opacity:0}}
+@keyframes speedline{0%{left:70%;opacity:0}20%{opacity:1}80%{opacity:1}100%{left:-5%;opacity:0}}
+@keyframes scan-sweep{0%,100%{transform:rotate(-14deg);opacity:.4}50%{transform:rotate(14deg);opacity:.8}}
+.hero{position:relative;overflow:hidden;height:280px;background:var(--sky1)}
+.sky{position:absolute;inset:0;background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 70%,var(--road) 70%,var(--road) 100%)}
+.hero-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;padding:20px 32px;pointer-events:none;z-index:5}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.35);border-radius:20px;padding:4px 12px;font-size:10px;letter-spacing:1.5px;color:#ef4444;margin-bottom:10px;font-weight:600}
+.hero-h1{font-size:26px;font-weight:800;line-height:1.15;text-shadow:0 2px 10px rgba(0,0,0,.5);font-family:'Syne',sans-serif}
+body.light .hero-h1{text-shadow:0 2px 8px rgba(0,0,0,.2)}
+.hero-h1 .accent{color:#ef4444}
+.hero-sub{margin-top:6px;font-size:12px;color:var(--muted);max-width:300px;line-height:1.6;font-family:'Inter',sans-serif;font-weight:400}
+.status-dot{width:7px;height:7px;border-radius:4px;background:var(--green);display:inline-block;box-shadow:0 0 5px var(--green)}
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border)}
+.stat-cell{background:var(--bg2);padding:12px 16px;text-align:center}
+.stat-num{font-size:18px;font-weight:800;color:var(--text)}
+.stat-num.red{color:var(--red)}.stat-num.amber{color:var(--amber)}.stat-num.blue{color:var(--blue)}.stat-num.green{color:var(--green)}
+.stat-lbl{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.5px}
+.tab-content{padding:20px 0;min-height:160px}
+.feat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,400px));gap:14px;justify-content:center}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 12px;transition:border-color .2s,transform .2s;cursor:default}
+.feat-card:hover{border-color:var(--red);transform:translateY(-2px)}
+.feat-icon{font-size:18px;margin-bottom:8px}
+.feat-name{font-size:12px;font-weight:700;margin-bottom:3px}
+.feat-fine{font-size:10px;color:var(--amber);margin-bottom:6px;font-weight:600}
+.feat-desc{font-size:10px;color:var(--muted);line-height:1.55;font-family:'Inter',sans-serif}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+.step{text-align:center;padding:8px 12px;position:relative}
+.step-num{font-size:9px;color:var(--red);font-weight:800;letter-spacing:2px;margin-bottom:6px}
+.step-circle{width:40px;height:40px;border-radius:20px;background:var(--card);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;margin:0 auto 8px;transition:border-color .2s}
+.step-circle:hover{border-color:var(--red)}
+.step-title{font-size:11px;font-weight:700;margin-bottom:4px}
+.step-desc{font-size:10px;color:var(--muted);line-height:1.5;font-family:'Inter',sans-serif}
+.step-arrow{position:absolute;right:-6px;top:32px;font-size:16px;color:var(--red);z-index:2}
+.cta-section{text-align:center;padding:24px 0}
+.cta-title{font-size:18px;font-weight:800;margin-bottom:6px}
+.cta-sub{font-size:12px;color:var(--muted);margin-bottom:16px;font-family:'Inter',sans-serif}
+.btn-cta{display:inline-block;background:var(--red);color:#fff;border:none;border-radius:7px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:opacity .2s,transform .2s;text-decoration:none}
+.btn-cta:hover{opacity:.88;transform:translateY(-1px)}
+.btn-outline-cta{display:inline-block;background:transparent;color:var(--text);border:1.5px solid var(--border);border-radius:7px;padding:9px 20px;font-size:12px;font-weight:600;cursor:pointer;margin-left:10px;transition:border-color .2s;text-decoration:none}
+.btn-outline-cta:hover{border-color:var(--red)}
+.analytics-preview{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mini-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px}
+.mini-card-title{font-size:11px;font-weight:700;margin-bottom:10px;color:var(--muted);letter-spacing:.5px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-label{font-size:10px;color:var(--muted);width:80px;flex-shrink:0;font-family:'Inter',sans-serif}
+.bar-track{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.bar-val{font-size:9px;color:var(--muted);width:30px;text-align:right;flex-shrink:0}
+.kpi-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.kpi-mini{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:10px;text-align:center}
+.kpi-mini-num{font-size:16px;font-weight:800}
+.kpi-mini-lbl{font-size:9px;color:var(--muted);margin-top:2px}
+/* pull hero flush to nav edges */
+.home-full{margin:-28px -24px 0}
+</style>
+
+<!-- HERO (flush, outside main padding) -->
+<div class="home-full">
+  <div class="hero">
+    <div class="sky"></div>
+    <div class="star" style="top:16px;left:50px"></div>
+    <div class="star" style="top:28px;left:140px"></div>
+    <div class="star" style="top:10px;left:240px"></div>
+    <div class="star" style="top:36px;left:340px"></div>
+    <div class="star" style="top:14px;left:440px;width:3px;height:3px"></div>
+    <div class="star" style="top:44px;left:540px"></div>
+    <div class="star" style="top:22px;left:640px"></div>
+    <div class="celestial"></div>
+    <div style="position:absolute;bottom:82px;left:0;right:0;display:flex;align-items:flex-end;z-index:1">
+      <div class="building" style="width:44px;height:72px;background:var(--building2);position:relative"><div class="b-window" style="top:11px;left:7px"></div><div class="b-window" style="top:11px;left:18px"></div><div class="b-window" style="top:23px;left:7px;opacity:.3"></div><div class="b-window" style="top:35px;left:18px"></div></div>
+      <div class="building" style="width:32px;height:52px;background:var(--building1);position:relative"><div class="b-window" style="top:10px;left:6px"></div><div class="b-window" style="top:22px;left:6px;opacity:.4"></div></div>
+      <div class="building" style="width:56px;height:96px;background:var(--building2);position:relative"><div class="b-window" style="top:9px;left:7px"></div><div class="b-window" style="top:9px;left:19px"></div><div class="b-window" style="top:21px;left:7px;opacity:.3"></div><div class="b-window" style="top:21px;left:19px"></div><div class="b-window" style="top:33px;left:7px"></div><div class="b-window" style="top:45px;left:19px;opacity:.3"></div></div>
+      <div class="building" style="width:40px;height:64px;background:var(--building1);position:relative"><div class="b-window" style="top:10px;left:7px"></div><div class="b-window" style="top:24px;left:7px;opacity:.4"></div></div>
+      <div class="building" style="width:72px;height:80px;background:var(--building2);position:relative"><div class="b-window" style="top:9px;left:7px"></div><div class="b-window" style="top:9px;left:21px"></div><div class="b-window" style="top:9px;left:35px"></div><div class="b-window" style="top:23px;left:21px;opacity:.3"></div></div>
+      <div class="building" style="width:36px;height:60px;background:var(--building1);position:relative"><div class="b-window" style="top:10px;left:7px"></div><div class="b-window" style="top:24px;left:7px;opacity:.5"></div></div>
+      <div class="building" style="width:52px;height:88px;background:var(--building2);position:relative"><div class="b-window" style="top:9px;left:7px"></div><div class="b-window" style="top:9px;left:19px"></div><div class="b-window" style="top:23px;left:7px;opacity:.3"></div><div class="b-window" style="top:37px;left:19px"></div></div>
+      <div class="building" style="width:64px;height:70px;background:var(--building1);position:relative"><div class="b-window" style="top:10px;left:7px"></div><div class="b-window" style="top:10px;left:19px"></div><div class="b-window" style="top:24px;left:7px;opacity:.4"></div><div class="b-window" style="top:38px;left:19px"></div></div>
+      <div class="building" style="width:80px;height:104px;background:var(--building2);position:relative"><div class="b-window" style="top:9px;left:7px"></div><div class="b-window" style="top:9px;left:21px"></div><div class="b-window" style="top:9px;left:35px"></div><div class="b-window" style="top:23px;left:21px;opacity:.3"></div><div class="b-window" style="top:37px;left:7px"></div><div class="b-window" style="top:37px;left:35px"></div></div>
+      <div class="building" style="width:160px;height:48px;background:var(--building2)"></div>
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:85px;background:var(--road)">
+      <div class="road-edge"></div>
+      <div class="lane-line" style="width:64px;left:0"></div>
+      <div class="lane-line" style="width:64px;left:120px;animation-delay:-.4s"></div>
+      <div class="lane-line" style="width:64px;left:240px;animation-delay:-.8s"></div>
+      <div class="lane-line" style="width:64px;left:360px;animation-delay:-1.2s"></div>
+      <div class="lane-line" style="width:64px;left:480px;animation-delay:-1.6s"></div>
+      <div class="lane-line" style="width:64px;left:600px;animation-delay:-2.0s"></div>
+      <div class="lane-line" style="width:64px;left:720px;animation-delay:-2.4s"></div>
+    </div>
+    <div class="lamp" style="left:100px"><div class="lamp-head"><div class="lamp-glow"></div></div><div class="lamp-pole"></div></div>
+    <div class="lamp" style="left:300px"><div class="lamp-head"><div class="lamp-glow"></div></div><div class="lamp-pole"></div></div>
+    <div class="lamp" style="left:500px"><div class="lamp-head"><div class="lamp-glow"></div></div><div class="lamp-pole"></div></div>
+    <div class="speed-line sl1"></div>
+    <div class="speed-line sl2"></div>
+    <div class="speed-line sl3"></div>
+    <div class="car-track" style="z-index:4">
+      <div class="car">
+        <div class="car-body"></div><div class="car-roof"></div>
+        <div class="win-front"></div><div class="win-rear"></div>
+        <div class="headlight"></div><div class="taillight"></div>
+        <div class="wheel wheel-f"></div><div class="wheel wheel-r"></div>
+        <div class="exhaust"><div class="puff"></div><div class="puff p2"></div><div class="puff p3"></div></div>
+      </div>
+    </div>
+    <div class="scan-beam" style="left:220px;z-index:6"></div>
+    <div class="hero-overlay">
+      <div class="hero-badge"><span class="status-dot"></span> LIVE DETECTION · AI POWERED</div>
+      <div class="hero-h1">Smart Traffic<br><span class="accent">Enforcement</span><br>For Jordan</div>
+      <div class="hero-sub">Upload a frame → detect violations → get a legal report in seconds.</div>
+    </div>
+  </div>
+
+  <!-- STATS STRIP -->
+  <div class="stats-strip">
+    <div class="stat-cell"><div class="stat-num red" id="hs-total">—</div><div class="stat-lbl">VIOLATIONS DETECTED</div></div>
+    <div class="stat-cell"><div class="stat-num amber" id="hs-fines">—</div><div class="stat-lbl">FINES ISSUED (JD)</div></div>
+    <div class="stat-cell"><div class="stat-num blue">2</div><div class="stat-lbl">VIOLATION TYPES</div></div>
+    <div class="stat-cell"><div class="stat-num green">Live</div><div class="stat-lbl">DETECTION MODE</div></div>
+  </div>
+</div><!-- end .home-full -->
+
+<!-- IN-PAGE TAB BAR -->
+<div style="display:flex;gap:2px;padding:16px 0 0" id="home-tabs">
+  <button class="h-tab active" data-tab="home">Home</button>
+  <button class="h-tab" data-tab="detect">Detect</button>
+  <button class="h-tab" data-tab="how">How it works</button>
+  <button class="h-tab" data-tab="analytics">Analytics</button>
+</div>
+
+<!-- TAB PANELS -->
+<div id="panel-home" class="tab-content">
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon">🚗</div>
+      <div class="feat-name">Wrong Way Driving</div>
+      <div class="feat-fine">Fine: 70 JD</div>
+      <div class="feat-desc">Detects vehicles traveling against the designated flow of traffic — one of the most dangerous violations.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🅿️</div>
+      <div class="feat-name">Wrong Parking</div>
+      <div class="feat-fine">Fine: 30 JD</div>
+      <div class="feat-desc">Detects illegal or improper parking behavior that obstructs traffic flow, pedestrian access, or designated no-parking zones.</div>
+    </div>
+  </div>
+</div>
+
+<div id="panel-detect" class="tab-content" style="display:none">
+  <div style="text-align:center;padding:16px 0">
+    <div style="font-size:40px;margin-bottom:12px">📷</div>
+    <div style="font-size:18px;font-weight:800;margin-bottom:6px">Traffic Violation Detection</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:20px;max-width:380px;margin-left:auto;margin-right:auto;font-family:'Inter',sans-serif;line-height:1.6">Upload a traffic camera image to detect violations, extract vehicle info via Gemini Vision, and generate a RAG-powered legal report.</div>
+    <a href="{{ url_for('dashboard') }}" class="btn-cta">🔍 Open Detection Dashboard →</a>
+  </div>
+</div>
+
+<div id="panel-how" class="tab-content" style="display:none">
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><div class="step-circle">📷</div><div class="step-title">Upload Frame</div><div class="step-desc">Drag & drop a traffic camera screenshot or select a file from disk.</div><div class="step-arrow">→</div></div>
+    <div class="step"><div class="step-num">02</div><div class="step-circle">🤖</div><div class="step-title">AI Analysis</div><div class="step-desc">YOLO detects violations; Gemini Vision extracts plate, color, and car type.</div><div class="step-arrow">→</div></div>
+    <div class="step"><div class="step-num">03</div><div class="step-circle">⚖️</div><div class="step-title">Legal Report</div><div class="step-desc">RAG engine retrieves the exact Jordanian traffic law article and generates an official report.</div><div class="step-arrow">→</div></div>
+    <div class="step"><div class="step-num">04</div><div class="step-circle">📄</div><div class="step-title">Download PDF</div><div class="step-desc">Export a professionally formatted violation report with vehicle info, image, and legal references.</div></div>
+  </div>
+</div>
+
+<div id="panel-analytics" class="tab-content" style="display:none">
+  <div class="analytics-preview">
+    <div class="mini-card">
+      <div class="mini-card-title">VIOLATIONS BY TYPE</div>
+      <div class="bar-row">
+        <div class="bar-label">Wrong Way</div>
+        <div class="bar-track"><div class="bar-fill" id="fill-ww" style="width:0%;background:#ef4444"></div></div>
+        <div class="bar-val" id="pct-ww">—</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Wrong Parking</div>
+        <div class="bar-track"><div class="bar-fill" id="fill-wp" style="width:0%;background:#eab308"></div></div>
+        <div class="bar-val" id="pct-wp">—</div>
+      </div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-card-title">LIVE KPIs</div>
+      <div class="kpi-mini-grid">
+        <div class="kpi-mini"><div class="kpi-mini-num" style="color:#ef4444" id="kpi-v">—</div><div class="kpi-mini-lbl">Total Violations</div></div>
+        <div class="kpi-mini"><div class="kpi-mini-num" style="color:#eab308" id="kpi-f">—</div><div class="kpi-mini-lbl">Fines (JD)</div></div>
+        <div class="kpi-mini"><div class="kpi-mini-num" style="color:#3b82f6" id="kpi-c">—</div><div class="kpi-mini-lbl">Cities</div></div>
+        <div class="kpi-mini"><div class="kpi-mini-num" style="color:#22c55e">2</div><div class="kpi-mini-lbl">Types</div></div>
+      </div>
+      <div style="margin-top:12px">
+        <a href="{{ url_for('analytics') }}" class="btn-cta" style="width:100%;display:block;padding:9px;text-align:center">📊 View Full Analytics →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section" id="cta-section">
+  <div class="cta-title">Ready to detect violations?</div>
+  <div class="cta-sub">Upload your first image and get a full legal report in seconds.</div>
+  <a href="{{ url_for('dashboard') }}" class="btn-cta">🔍 Open Detection Dashboard →</a>
+  <a href="{{ url_for('analytics') }}" class="btn-outline-cta">📊 View Analytics</a>
+</div>
+
+<script>
+const htabs = document.querySelectorAll('#home-tabs .h-tab');
+const panels = {
+  home:      document.getElementById('panel-home'),
+  detect:    document.getElementById('panel-detect'),
+  how:       document.getElementById('panel-how'),
+  analytics: document.getElementById('panel-analytics'),
+};
+const cta = document.getElementById('cta-section');
+
+htabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    htabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const key = tab.dataset.tab;
+    Object.keys(panels).forEach(k => {
+      panels[k].style.display = k === key ? 'block' : 'none';
+    });
+    cta.style.display = key === 'home' ? 'block' : 'none';
+  });
+});
+
+fetch('/api/stats')
+  .then(r => r.json())
+  .then(data => {
+    const tv = data.total_violations ?? '—';
+    const tf = data.total_fines_jd   ?? '—';
+    const bc = data.by_city ? data.by_city.length : '—';
+
+    document.getElementById('hs-total').textContent = tv;
+    document.getElementById('hs-fines').textContent = tf;
+    document.getElementById('kpi-v').textContent    = tv;
+    document.getElementById('kpi-f').textContent    = tf;
+    document.getElementById('kpi-c').textContent    = bc;
+
+    // Dynamic bars — only 2 violation types
+    const types = data.by_type || [];
+    const map   = {};
+    types.forEach(t => { map[t.type] = t.count; });
+
+    const wwCount = map['Wrong Way Driving'] || 0;
+    const wpCount = map['Wrong Parking']     || 0;
+    const total   = wwCount + wpCount || 1;
+
+    const wwPct = Math.round(wwCount / total * 100);
+    const wpPct = Math.round(wpCount / total * 100);
+
+    document.getElementById('fill-ww').style.width = wwPct + '%';
+    document.getElementById('fill-wp').style.width = wpPct + '%';
+    document.getElementById('pct-ww').textContent  = wwPct + '%';
+    document.getElementById('pct-wp').textContent  = wpPct + '%';
+  })
+  .catch(() => {});
+</script>
+{% endblock %}
