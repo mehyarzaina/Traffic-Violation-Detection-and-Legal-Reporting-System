@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>{% block title %}SmartPath Jordan{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -59,7 +59,7 @@ html, body {
   border-bottom: 1px solid var(--border);
 }
 .nav-inner {
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 0 24px;
   height: 56px;
@@ -159,9 +159,9 @@ body.light .toggle-track::after { transform: translateX(18px); }
 /* ── Main content ─────────────────────────────────────────────────────── */
 .main-content {
   width: 100%;
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 28px 24px 60px;
+  padding: 28px 32px 60px;
 }
 
 /* ── Page header ──────────────────────────────────────────────────────── */

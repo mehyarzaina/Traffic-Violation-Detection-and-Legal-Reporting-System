@@ -25,7 +25,7 @@ def seed_fines():
     from database.models import Fine
 
     default_fines = [
-        Fine(violation_name="Wrong Way Driving", fine_amount=200),
+        Fine(violation_name="Wrong Way Driving", fine_amount=250),
         Fine(violation_name="Wrong Parking",     fine_amount=30),
     ]
     with Session(engine) as session:
