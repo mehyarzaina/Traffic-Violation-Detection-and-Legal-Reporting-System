@@ -192,6 +192,7 @@ Create a `.env` file:
 
 ```env
 GEMINI_API_KEY=your_api_key
+GROQ_API_KEY = your_api_key # for the chatbot
 DB_USER=postgres
 DB_PASSWORD=password
 DB_HOST=localhost
