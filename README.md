@@ -216,11 +216,4 @@ python app.py
 * Violation prediction using machine learning
 * Government system integration
 
----
 
-## 👩‍💻 Authors
-
-**Zaina Mehyar**
-Data Science & Artificial Intelligence Student
-
-Developed as a graduation project focused on intelligent traffic monitoring, legal assistance, and smart city technologies.
