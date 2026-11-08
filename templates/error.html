@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} — SmartPath Jordan{% endblock %}
+
+{% block content %}
+<div class="card empty-state" style="max-width:520px;margin:40px auto">
+  <div class="empty-icon">{{ '🧭' if code == 404 else '⚠️' }}</div>
+  <div class="empty-title">{{ code }} — {{ message }}</div>
+  <div class="empty-sub" style="margin-bottom:18px">Go back to the main page and try again.</div>
+  <a class="btn btn-inline" href="{{ url_for('index') }}">← Back to SmartPath</a>
+</div>
+{% endblock %}

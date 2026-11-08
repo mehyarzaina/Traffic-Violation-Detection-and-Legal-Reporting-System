@@ -3,34 +3,29 @@ SmartPath Jordan — Traffic Violation Detection System
 Run: python app.py
 
 Setup:
-  1. Copy .env.example → .env and fill in values
-  2. pip install flask pillow werkzeug sqlalchemy psycopg2-binary requests python-dotenv reportlab
-  3. python app.py
+  1. Fill in .env (DB_*, GEMINI_API_KEY, GROQ_API_KEY, FLASK_SECRET_KEY,
+     ADMIN_USERNAME, ADMIN_PASSWORD)
+  2. pip install -r requirements.txt
+  3. python app.py   → http://localhost:5000
 """
-
 import os
 import io
-import base64
-import requests as http_req
-from datetime import datetime
+import time
+import uuid
+import hashlib
+import secrets
+import threading
+from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor
+from urllib.parse import urlparse
 
 from flask import (
-    Flask, render_template, request, jsonify,
-    redirect, url_for, send_from_directory, send_file, Response,
+    Flask, render_template, request, jsonify, redirect, url_for,
+    send_from_directory, send_file, Response, g, flash, abort,
 )
 from PIL import Image
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
-
-# ── ReportLab imports for PDF generation ──────────────────────────────────
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import mm
-from reportlab.lib import colors
-from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
-    HRFlowable, Image as RLImage, KeepTogether,
-)
 
 load_dotenv()
 
@@ -38,304 +33,144 @@ from database.database import init_db
 from gemini.gemini_function import extract_vehicle_info
 from detector import detect_violations
 from times import get_time_label
-from crud import (
-    get_all_fines,
-    save_violation,
-    get_all_violations,
-    get_violations_only,
-    get_stats,
-    get_violation_by_filename,
-)
-from rag.rag_engine import run_rag_for_violations, chatbot as rag_chatbot
+from reports import reverse_geocode, build_violation_pdf, build_table_pdf
+import auth
+from auth import login_required, admin_required, login_user, logout_user
+import crud
+from crud import UserError
+import chatbot
 
 # ---------------------------------------------------------------------------
 # App setup
 # ---------------------------------------------------------------------------
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB
+app.config.update(
+    MAX_CONTENT_LENGTH=16 * 1024 * 1024,           # 16 MB uploads
+    SECRET_KEY=os.getenv("FLASK_SECRET_KEY") or secrets.token_hex(32),
+    PERMANENT_SESSION_LIFETIME=timedelta(days=7),
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+)
+if not os.getenv("FLASK_SECRET_KEY"):
+    print("[Auth] FLASK_SECRET_KEY not set — sessions will reset on every restart.")
 
 UPLOAD_FOLDER = "images"
+ALLOWED_EXT = {"jpg", "jpeg", "png", "webp"}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+app.before_request(auth.load_current_user)
+app.before_request(auth.check_csrf)
 
-# ---------------------------------------------------------------------------
-# PDF palette
-# ---------------------------------------------------------------------------
-PDF_DARK    = colors.HexColor("#0f0f14")
-PDF_RED     = colors.HexColor("#ef4444")
-PDF_AMBER   = colors.HexColor("#eab308")
-PDF_BLUE    = colors.HexColor("#3b82f6")
-PDF_MUTED   = colors.HexColor("#888888")
-PDF_BORDER  = colors.HexColor("#2a2a38")
-PDF_LIGHT   = colors.HexColor("#f4f4f8")
+
+@app.context_processor
+def inject_globals():
+    return {"current_user": g.get("user"), "csrf_token": auth.csrf_token}
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
-def reverse_geocode(latitude: float, longitude: float) -> dict:
-    """GPS → city / area / street via OpenStreetMap Nominatim."""
-    try:
-        resp = http_req.get(
-            "https://nominatim.openstreetmap.org/reverse",
-            params={"lat": latitude, "lon": longitude, "format": "json"},
-            headers={"User-Agent": "SmartPathJordan/1.0"},
-            timeout=5,
-        )
-        resp.raise_for_status()
-        addr = resp.json().get("address", {})
-        city   = addr.get("city") or addr.get("town") or addr.get("village") or "Unknown"
-        area   = addr.get("suburb") or addr.get("neighbourhood") or addr.get("county") or "Unknown"
-        street = addr.get("road") or "Unknown"
-        return {"city": city, "area": area, "street": street}
-    except Exception as exc:
-        print(f"[Geocode] Reverse geocode failed: {exc}")
-        return {"city": "Unknown", "area": "Unknown", "street": "Unknown"}
+def _safe_next(target: str) -> str:
+    """Only allow redirects back to a path on this site."""
+    if target and target.startswith("/") and not target.startswith("//") and not urlparse(target).netloc:
+        return target
+    return url_for("index")
 
 
-def build_violation_pdf(data: dict) -> bytes:
-    """
-    Build a formatted A4 PDF violation report and return its bytes.
-
-    `data` keys:
-      plate, car_color, car_type, city, area, street,
-      timestamp, time_label, latitude, longitude,
-      total_fine, violations (list of {name, fine}),
-      rag_reports (list), image_path (optional local path)
-    """
-    buf = io.BytesIO()
-    doc = SimpleDocTemplate(
-        buf, pagesize=A4,
-        leftMargin=18*mm, rightMargin=18*mm,
-        topMargin=18*mm, bottomMargin=18*mm,
-    )
-
-    styles = getSampleStyleSheet()
-    base   = styles["Normal"]
-
-    def P(text, **kw):
-        style = ParagraphStyle("dyn", parent=base, **kw)
-        return Paragraph(text, style)
-
-    story = []
-
-    # ── Header ─────────────────────────────────────────────────────────────
-    story.append(P(
-        "🚔  SmartPath Jordan — Official Violation Report",
-        fontSize=16, fontName="Helvetica-Bold",
-        textColor=colors.white,
-        backColor=PDF_DARK,
-        borderPadding=(10, 14, 10, 14),
-        leading=22,
-    ))
-    story.append(Spacer(1, 6*mm))
-    story.append(P(
-        f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  |  "
-        f"Plate: <b>{data.get('plate','—')}</b>  |  "
-        f"Timestamp: {data.get('timestamp','—')}",
-        fontSize=8, textColor=PDF_MUTED,
-    ))
-    story.append(Spacer(1, 4*mm))
-    story.append(HRFlowable(width="100%", thickness=1, color=PDF_RED))
-    story.append(Spacer(1, 6*mm))
-
-    # ── Vehicle & Location table ────────────────────────────────────────────
-    story.append(P("Vehicle & Location", fontSize=11, fontName="Helvetica-Bold"))
-    story.append(Spacer(1, 3*mm))
-
-    vl_data = [
-        ["License Plate", data.get("plate","—"),
-         "Car Color",     data.get("car_color","—")],
-        ["Car Type",      data.get("car_type","—"),
-         "City",          data.get("city","—")],
-        ["Area",          data.get("area","—"),
-         "Street",        data.get("street","—")],
-        ["Latitude",      str(data.get("latitude","—")),
-         "Longitude",     str(data.get("longitude","—"))],
-        ["Timestamp",     data.get("timestamp","—"),
-         "Period",        data.get("time_label","—")],
-    ]
-
-    vl_table = Table(vl_data, colWidths=[35*mm, 55*mm, 35*mm, 55*mm])
-    vl_table.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (0,-1), PDF_LIGHT),
-        ("BACKGROUND", (2,0), (2,-1), PDF_LIGHT),
-        ("FONTNAME",   (0,0), (0,-1), "Helvetica-Bold"),
-        ("FONTNAME",   (2,0), (2,-1), "Helvetica-Bold"),
-        ("FONTSIZE",   (0,0), (-1,-1), 8),
-        ("ROWBACKGROUNDS", (0,0), (-1,-1), [colors.white, colors.HexColor("#f9f9fb")]),
-        ("GRID",       (0,0), (-1,-1), 0.5, PDF_BORDER),
-        ("VALIGN",     (0,0), (-1,-1), "MIDDLE"),
-        ("TOPPADDING", (0,0), (-1,-1), 4),
-        ("BOTTOMPADDING", (0,0), (-1,-1), 4),
-        ("LEFTPADDING",  (0,0), (-1,-1), 6),
-    ]))
-    story.append(vl_table)
-    story.append(Spacer(1, 6*mm))
-
-    # ── Captured image ──────────────────────────────────────────────────────
-    image_path = data.get("image_path")
-    if image_path and os.path.exists(image_path):
-        try:
-            img = RLImage(image_path, width=80*mm, height=54*mm, kind="bound")
-            story.append(P("Captured Frame", fontSize=11, fontName="Helvetica-Bold"))
-            story.append(Spacer(1, 2*mm))
-            story.append(img)
-            story.append(Spacer(1, 5*mm))
-        except Exception as exc:
-            print(f"[PDF] Could not embed image: {exc}")
-
-    # ── Violations & fines ─────────────────────────────────────────────────
-    violations = data.get("violations", [])
-    if violations:
-        story.append(HRFlowable(width="100%", thickness=0.5, color=PDF_BORDER))
-        story.append(Spacer(1, 4*mm))
-        story.append(P("Violations & Fines", fontSize=11, fontName="Helvetica-Bold"))
-        story.append(Spacer(1, 3*mm))
-
-        fine_rows = [["Violation Type", "Fine (JD)"]]
-        for v in violations:
-            fine_rows.append([v.get("name","—"), str(v.get("fine","—")) + " JD"])
-        fine_rows.append(["TOTAL", str(data.get("total_fine","—")) + " JD"])
-
-        ft = Table(fine_rows, colWidths=[130*mm, 40*mm])
-        ft.setStyle(TableStyle([
-            ("BACKGROUND",   (0,0),  (-1,0),  PDF_DARK),
-            ("TEXTCOLOR",    (0,0),  (-1,0),  colors.white),
-            ("FONTNAME",     (0,0),  (-1,0),  "Helvetica-Bold"),
-            ("BACKGROUND",   (0,-1), (-1,-1), PDF_RED),
-            ("TEXTCOLOR",    (0,-1), (-1,-1), colors.white),
-            ("FONTNAME",     (0,-1), (-1,-1), "Helvetica-Bold"),
-            ("FONTSIZE",     (0,0),  (-1,-1), 9),
-            ("GRID",         (0,0),  (-1,-1), 0.5, PDF_BORDER),
-            ("ALIGN",        (1,0),  (1,-1),  "CENTER"),
-            ("VALIGN",       (0,0),  (-1,-1), "MIDDLE"),
-            ("TOPPADDING",   (0,0),  (-1,-1), 5),
-            ("BOTTOMPADDING",(0,0),  (-1,-1), 5),
-            ("LEFTPADDING",  (0,0),  (-1,-1), 8),
-            ("ROWBACKGROUNDS",(0,1), (-1,-2), [colors.white, colors.HexColor("#fff8f8")]),
-        ]))
-        story.append(ft)
-        story.append(Spacer(1, 6*mm))
-
-    # ── RAG legal reports ──────────────────────────────────────────────────
-    rag_reports = data.get("rag_reports", [])
-    if rag_reports:
-        story.append(HRFlowable(width="100%", thickness=0.5, color=PDF_BORDER))
-        story.append(Spacer(1, 4*mm))
-        story.append(P("Legal References (Jordan Traffic Law)", fontSize=11, fontName="Helvetica-Bold"))
-
-        for rr in rag_reports:
-            story.append(Spacer(1, 4*mm))
-            story.append(KeepTogether([
-                P(f"<b>{rr.get('article_id','—')}</b> — {rr.get('title','—')}",
-                  fontSize=9, textColor=PDF_BLUE),
-                Spacer(1, 1*mm),
-                P(f"Penalty: {rr.get('penalty','—')}", fontSize=8,
-                  textColor=PDF_RED, fontName="Helvetica-Bold"),
-                Spacer(1, 2*mm),
-                P(rr.get("report",""), fontSize=8, leading=12, textColor=colors.HexColor("#333333")),
-            ]))
-
-    # ── Footer ─────────────────────────────────────────────────────────────
-    story.append(Spacer(1, 8*mm))
-    story.append(HRFlowable(width="100%", thickness=0.5, color=PDF_BORDER))
-    story.append(Spacer(1, 3*mm))
-    story.append(P(
-        "This report was automatically generated by SmartPath Jordan · "
-        "Jordan Traffic Authority · Confidential",
-        fontSize=7, textColor=PDF_MUTED, alignment=1,
-    ))
-
-    doc.build(story)
-    buf.seek(0)
-    return buf.getvalue()
+def _fines_map() -> dict:
+    return {f.violation_name: f.fine_amount for f in crud.get_all_fines()}
 
 
-def build_table_pdf(records) -> bytes:
-    """Build a summary table PDF of all violation records."""
-    buf = io.BytesIO()
-    doc = SimpleDocTemplate(
-        buf, pagesize=A4,
-        leftMargin=12*mm, rightMargin=12*mm,
-        topMargin=14*mm, bottomMargin=14*mm,
-    )
-    styles = getSampleStyleSheet()
-    base = styles["Normal"]
+def _result_from_upload(upload) -> dict:
+    fines = _fines_map()
+    violations = [{"name": v, "fine": fines.get(v, 0)} for v in upload.violation_list]
+    return {
+        "upload_id":  upload.id,
+        "violations": violations,
+        "total_fine": upload.total_fine,
+        "plate":      upload.plate_number or "Unreadable",
+        "car_color":  upload.car_color or "Unknown",
+        "car_type":   upload.car_type or "Unknown",
+        "city":       upload.city or "Unknown",
+        "area":       upload.area or "Unknown",
+        "street":     upload.street or "Unknown",
+        "latitude":   upload.latitude,
+        "longitude":  upload.longitude,
+        "timestamp":  upload.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
+        "time_label": get_time_label(upload.uploaded_at.hour),
+        "image_url":  url_for("serve_image", filename=upload.image_filename),
+        "original_name": upload.original_name,
+    }
 
-    def P(text, **kw):
-        style = ParagraphStyle("dyn", parent=base, **kw)
-        return Paragraph(text, style)
 
-    story = []
+def _can_view_upload(upload) -> bool:
+    return upload is not None and (g.user.is_admin or upload.user_id == g.user.id)
 
-    story.append(P(
-        "SmartPath Jordan — Violation History Report",
-        fontSize=14, fontName="Helvetica-Bold",
-        textColor=colors.white, backColor=PDF_DARK,
-        borderPadding=(8,12,8,12), leading=20,
-    ))
-    story.append(Spacer(1, 3*mm))
-    story.append(P(
-        f"Exported: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  |  "
-        f"Total Records: {len(records)}",
-        fontSize=8, textColor=PDF_MUTED,
-    ))
-    story.append(Spacer(1, 4*mm))
-    story.append(HRFlowable(width="100%", thickness=1, color=PDF_RED))
-    story.append(Spacer(1, 4*mm))
 
-    # Table header
-    header = ["#", "Plate", "Timestamp", "Violation", "Fine (JD)", "City", "Area"]
-    rows   = [header]
-    for rec, fine in records:
-        rows.append([
-            str(rec.id),
-            rec.plate_number or "—",
-            rec.timestamp.strftime("%Y-%m-%d %H:%M") if rec.timestamp else "—",
-            fine.violation_name if fine else "—",
-            str(fine.fine_amount) + " JD" if fine else "—",
-            rec.city or "—",
-            rec.area or "—",
-        ])
-
-    col_widths = [10*mm, 28*mm, 32*mm, 50*mm, 22*mm, 28*mm, 26*mm]
-    tbl = Table(rows, colWidths=col_widths, repeatRows=1)
-    tbl.setStyle(TableStyle([
-        ("BACKGROUND",   (0,0),  (-1,0),  PDF_DARK),
-        ("TEXTCOLOR",    (0,0),  (-1,0),  colors.white),
-        ("FONTNAME",     (0,0),  (-1,0),  "Helvetica-Bold"),
-        ("FONTSIZE",     (0,0),  (-1,-1), 7.5),
-        ("GRID",         (0,0),  (-1,-1), 0.4, PDF_BORDER),
-        ("ROWBACKGROUNDS",(0,1), (-1,-1), [colors.white, colors.HexColor("#f4f4f8")]),
-        ("VALIGN",       (0,0),  (-1,-1), "MIDDLE"),
-        ("TOPPADDING",   (0,0),  (-1,-1), 3),
-        ("BOTTOMPADDING",(0,0),  (-1,-1), 3),
-        ("LEFTPADDING",  (0,0),  (-1,-1), 5),
-    ]))
-    story.append(tbl)
-    story.append(Spacer(1, 6*mm))
-    story.append(HRFlowable(width="100%", thickness=0.5, color=PDF_BORDER))
-    story.append(Spacer(1, 3*mm))
-    story.append(P(
-        "SmartPath Jordan · Jordan Traffic Authority · Confidential",
-        fontSize=7, textColor=PDF_MUTED, alignment=1,
-    ))
-
-    doc.build(story)
-    buf.seek(0)
-    return buf.getvalue()
+def _dashboard_error(msg: str):
+    return render_template("dashboard.html", active="dashboard", result=None, error=msg), 400
 
 
 # ---------------------------------------------------------------------------
-# Routes
+# Auth routes
+# ---------------------------------------------------------------------------
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if g.user:
+        return redirect(url_for("index"))
+    error = None
+    if request.method == "POST":
+        user = crud.authenticate(request.form.get("username", ""), request.form.get("password", ""))
+        if user:
+            login_user(user)
+            return redirect(_safe_next(request.args.get("next", "")))
+        error = "Wrong username or password, or the account is disabled."
+    return render_template("login.html", error=error, auth_page=True)
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if g.user:
+        return redirect(url_for("index"))
+    error = None
+    form = {}
+    if request.method == "POST":
+        form = request.form
+        if form.get("password") != form.get("confirm"):
+            error = "The two passwords don't match."
+        else:
+            try:
+                # Self sign-up always creates a normal user account.
+                user = crud.create_user(
+                    form.get("username", ""), form.get("password", ""),
+                    full_name=form.get("full_name", ""), email=form.get("email", ""),
+                    role="user",
+                )
+                login_user(user)
+                flash(f"Welcome, {user.full_name or user.username}! Your account is ready.", "success")
+                return redirect(url_for("index"))
+            except UserError as e:
+                error = str(e)
+    return render_template("register.html", error=error, form=form, auth_page=True)
+
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    logout_user()
+    flash("You have been signed out.", "success")
+    return redirect(url_for("login"))
+
+
+# ---------------------------------------------------------------------------
+# Pages
 # ---------------------------------------------------------------------------
 
 @app.route("/api/health")
 def health():
     try:
-        stats = get_stats()
+        stats = crud.get_stats()
         return jsonify({"status": "ok", "total": stats.total_violations})
     except Exception as e:
         return jsonify({"status": "error", "detail": str(e)}), 500
@@ -343,382 +178,370 @@ def health():
 
 @app.route("/")
 def index():
-    return redirect(url_for("home"))
+    if not g.user:
+        return redirect(url_for("login"))
+    return redirect(url_for("home" if g.user.is_admin else "dashboard"))
 
-
-# ── Home page ───────────────────────────────────────────────────────────────
 
 @app.route("/home")
+@admin_required
 def home():
     return render_template("home.html", active="home")
 
 
-# ── Dashboard / upload ──────────────────────────────────────────────────────
-
 @app.route("/dashboard")
+@login_required
 def dashboard():
     return render_template("dashboard.html", active="dashboard", result=None, error=None)
 
 
 @app.route("/analyze", methods=["POST"])
+@login_required
 def analyze():
-    import time
-    from concurrent.futures import ThreadPoolExecutor
-
     # 1. Validate upload
-    if "image" not in request.files or request.files["image"].filename == "":
-        return render_template(
-            "dashboard.html", active="dashboard", result=None,
-            error="No image uploaded."
-        )
+    file = request.files.get("image")
+    if not file or not file.filename:
+        return _dashboard_error("No image uploaded.")
+    original = secure_filename(file.filename) or "image.jpg"
+    ext = original.rsplit(".", 1)[-1].lower() if "." in original else ""
+    if ext not in ALLOWED_EXT:
+        return _dashboard_error("Please upload a JPG, PNG or WEBP image.")
 
-    file      = request.files["image"]
-    filename  = secure_filename(file.filename)
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(file_path)
-
-    # 2. Open image
+    raw = file.read()
     try:
-        image = Image.open(file_path).convert("RGB")
+        image = Image.open(io.BytesIO(raw)).convert("RGB")
     except Exception:
-        return render_template(
-            "dashboard.html", active="dashboard", result=None,
-            error="Could not read the uploaded image."
-        )
+        return _dashboard_error("Could not read the uploaded image.")
 
-    # 3. Parse GPS coordinates
+    # 2. GPS coordinates (fallback: Amman centre)
     try:
-        latitude  = float(request.form.get("latitude",  ""))
+        latitude  = float(request.form.get("latitude", ""))
         longitude = float(request.form.get("longitude", ""))
     except (TypeError, ValueError):
         latitude, longitude = 31.9516, 35.9342
-        print("[GPS] No coordinates received — using Amman centre as fallback.")
 
-    # 4. Timestamp + time label
-    timestamp  = datetime.now()
-    time_label = get_time_label(timestamp.hour)
+    # 3. Same image analysed before? Reuse that result instead of calling the models again.
+    image_hash = hashlib.sha256(raw).hexdigest()
+    cached = crud.get_upload_by_hash(image_hash)
+    if cached and os.path.exists(os.path.join(UPLOAD_FOLDER, cached.image_filename)):
+        if cached.user_id == g.user.id:
+            flash("You already analysed this image — showing the saved result.", "info")
+            return redirect(url_for("view_upload", upload_id=cached.id))
+        copy = crud.create_upload(
+            user_id=g.user.id, image_filename=cached.image_filename, original_name=original,
+            image_hash=image_hash, plate_number=cached.plate_number, car_color=cached.car_color,
+            car_type=cached.car_type, city=cached.city, area=cached.area, street=cached.street,
+            latitude=cached.latitude, longitude=cached.longitude,
+            violations=cached.violations, total_fine=cached.total_fine,
+        )
+        flash("This image was analysed before — showing the saved result.", "info")
+        return redirect(url_for("view_upload", upload_id=copy.id))
 
-    # 5. Return cached result if already analysed
-    existing = get_violation_by_filename(filename)
-    if existing:
-        rec, fine = existing
-        violations = [{"name": fine.violation_name, "fine": fine.fine_amount}] if fine else []
-        rag_reports = []
-        if violations:
-            try:
-                rag_reports = run_rag_for_violations(
-                    violation_names=[v["name"] for v in violations],
-                    plate_number=rec.plate_number,
-                    timestamp=rec.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-                    city=rec.city, area=rec.area, street=rec.street,
-                )
-            except Exception as exc:
-                print(f"[RAG] Cached report generation failed: {exc}")
+    # 4. Save with a unique name so different users' files never overwrite each other
+    filename  = f"{uuid.uuid4().hex[:12]}_{original}"
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    image.save(file_path)
+    timestamp = datetime.now()
 
-        result = {
-            "violations":  violations,
-            "total_fine":  fine.fine_amount if fine else 0,
-            "plate":       rec.plate_number,
-            "car_color":   rec.car_color or "Unknown",
-            "car_type":    rec.car_type  or "Unknown",
-            "city":        rec.city,
-            "area":        rec.area,
-            "street":      rec.street,
-            "latitude":    rec.latitude,
-            "longitude":   rec.longitude,
-            "timestamp":   rec.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-            "time_label":  get_time_label(rec.timestamp.hour),
-            "rag_reports": rag_reports,
-            "image_url":   url_for("serve_image", filename=filename),
-            "from_cache":  True,
-        }
-        return render_template("dashboard.html", active="dashboard", result=result, error=None)
+    # 5. Geocode + YOLO + Gemini in parallel
+    t0 = time.time()
+    with ThreadPoolExecutor(max_workers=3) as ex:
+        f_geo = ex.submit(reverse_geocode, latitude, longitude)
+        f_det = ex.submit(detect_violations, image)
+        f_veh = ex.submit(extract_vehicle_info, image)
+        geo = f_geo.result()
+        violation_names, annotated = f_det.result()
+        vehicle = f_veh.result()
+    print(f"[TIMER] Geocode + YOLO + Gemini (parallel): {time.time() - t0:.2f}s")
 
-    # ── PARALLEL: Geocode + YOLO + Gemini all at once ──────────────────────
-    t_total = time.time()
+    if annotated:
+        annotated.save(file_path)
 
-    with ThreadPoolExecutor(max_workers=3) as executor:
-        t0 = time.time()
-        future_geo        = executor.submit(reverse_geocode, latitude, longitude)
-        future_violations = executor.submit(detect_violations, image)
-        future_vehicle    = executor.submit(extract_vehicle_info, image)
+    plate    = (vehicle.get("license_plate") or "Unreadable")[:20]
+    color    = vehicle.get("car_color") or "Unknown"
+    car_type = vehicle.get("car_type") or "Unknown"
+    fines    = _fines_map()
+    total    = sum(fines.get(v, 0) for v in violation_names)
 
-        geo                              = future_geo.result()
-        violation_names, annotated_image = future_violations.result()
-        vehicle                          = future_vehicle.result()
+    for v_name in violation_names:
+        crud.save_violation(
+            violation_name=v_name, plate_number=plate, car_color=color, car_type=car_type,
+            city=geo["city"], area=geo["area"], street=geo["street"],
+            latitude=latitude, longitude=longitude, timestamp=timestamp,
+            image_filename=filename, user_id=g.user.id,
+        )
 
-    print(f"[TIMER] Geocode + YOLO + Gemini (parallel): {time.time()-t0:.2f}s")
-
-    city   = geo["city"]
-    area   = geo["area"]
-    street = geo["street"]
-
-    # Save annotated image
-    if annotated_image:
-        annotated_image.save(file_path)
-
-    plate    = vehicle.get("license_plate") or "Unreadable"
-    color    = vehicle.get("car_color")     or "Unknown"
-    car_type = vehicle.get("car_type")      or "Unknown"
-
-    # Fine details
-    fines_map  = {f.violation_name: f for f in get_all_fines()}
-    violations = []
-    total_fine = 0
-
-    if violation_names:
-        for v_name in violation_names:
-            fine_obj = fines_map.get(v_name)
-            fine_amt = fine_obj.fine_amount if fine_obj else 0
-            violations.append({"name": v_name, "fine": fine_amt})
-            total_fine += fine_amt
-            save_violation(
-                violation_name=v_name,
-                plate_number=plate,
-                car_color=color,
-                car_type=car_type,
-                city=city, area=area, street=street,
-                latitude=latitude, longitude=longitude,
-                timestamp=timestamp,
-                image_filename=filename,
-            )
-
-    # RAG legal reports
-    rag_reports = []
-    if violation_names:
-        try:
-            t0 = time.time()
-            rag_reports = run_rag_for_violations(
-                violation_names=violation_names,
-                plate_number=plate,
-                timestamp=timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-                city=city, area=area, street=street,
-            )
-            print(f"[TIMER] RAG: {time.time()-t0:.2f}s")
-        except Exception as exc:
-            print(f"[RAG] Report generation failed: {exc}")
-
-    print(f"[TIMER] Total analyze: {time.time()-t_total:.2f}s")
-
-    result = {
-        "violations":  violations,
-        "total_fine":  total_fine,
-        "plate":       plate,
-        "car_color":   color,
-        "car_type":    car_type,
-        "city":        city,
-        "area":        area,
-        "street":      street,
-        "latitude":    latitude,
-        "longitude":   longitude,
-        "timestamp":   timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-        "time_label":  time_label,
-        "rag_reports": rag_reports,
-        "image_url":   url_for("serve_image", filename=filename),
-        "from_cache":  False,
-    }
-    return render_template("dashboard.html", active="dashboard", result=result, error=None)
+    upload = crud.create_upload(
+        user_id=g.user.id, image_filename=filename, original_name=original, image_hash=image_hash,
+        plate_number=plate, car_color=color, car_type=car_type,
+        city=geo["city"], area=geo["area"], street=geo["street"],
+        latitude=latitude, longitude=longitude,
+        violations=",".join(violation_names), total_fine=total, uploaded_at=timestamp,
+    )
+    # Redirect (POST → GET) so refreshing the page doesn't re-upload the image
+    return redirect(url_for("view_upload", upload_id=upload.id))
 
 
-# ── Serve uploaded images ───────────────────────────────────────────────────
+@app.route("/uploads/<int:upload_id>")
+@login_required
+def view_upload(upload_id):
+    upload = crud.get_upload(upload_id)
+    if not _can_view_upload(upload):
+        abort(404)
+    return render_template("dashboard.html", active="dashboard",
+                           result=_result_from_upload(upload), error=None)
+
+
+@app.route("/my-uploads")
+@login_required
+def my_uploads():
+    uploads = crud.get_uploads_for_user(g.user.id)
+    n_violations = sum(1 for u in uploads if u.violation_list)
+    return render_template(
+        "my_uploads.html", active="my_uploads", uploads=uploads,
+        n_violations=n_violations, total_fines=sum(u.total_fine for u in uploads),
+    )
+
+
+@app.route("/my-uploads/<int:upload_id>/delete", methods=["POST"])
+@login_required
+def delete_my_upload(upload_id):
+    if crud.delete_upload(upload_id, g.user.id):
+        flash("Upload removed from your history.", "success")
+    else:
+        flash("Upload not found.", "error")
+    return redirect(url_for("my_uploads"))
+
+
+# ── Images ──────────────────────────────────────────────────────────────────
 
 @app.route("/images/<filename>")
+@login_required
 def serve_image(filename):
+    # Admins see every image; users only the images they uploaded.
+    if not g.user.is_admin and not crud.user_owns_image(g.user.id, filename):
+        abort(404)
     return send_from_directory(UPLOAD_FOLDER, filename)
 
 
-# ── PDF report for a single violation (by plate + timestamp) ────────────────
+# ── PDF reports ─────────────────────────────────────────────────────────────
+
+def _pdf_response(data: dict, plate: str):
+    pdf = build_violation_pdf(data)
+    safe_plate = (plate or "unknown").replace(" ", "_").replace("/", "-")
+    return send_file(
+        io.BytesIO(pdf), mimetype="application/pdf", as_attachment=True,
+        download_name=f"violation_{safe_plate}_{datetime.now():%Y%m%d%H%M%S}.pdf",
+    )
+
+
+@app.route("/uploads/<int:upload_id>/pdf")
+@login_required
+def upload_pdf(upload_id):
+    upload = crud.get_upload(upload_id)
+    if not _can_view_upload(upload) or not upload.violation_list:
+        abort(404)
+    r = _result_from_upload(upload)
+    img = os.path.join(UPLOAD_FOLDER, upload.image_filename)
+    r["image_path"] = img if os.path.exists(img) else None
+    return _pdf_response(r, r["plate"])
+
 
 @app.route("/report/pdf")
+@admin_required
 def report_pdf():
-    """
-    Generate and stream a violation report PDF.
-    Query params: plate, ts (timestamp string)
-    """
+    """Single-record PDF from the History table (query params: plate, ts)."""
     plate = request.args.get("plate", "")
     ts    = request.args.get("ts", "")
-
-    # Fetch matching record from DB
-    records = get_all_violations()
-    target_rec  = None
-    target_fine = None
-
-    for rec, fine in records:
-        if rec.plate_number == plate and rec.timestamp.strftime("%Y-%m-%d %H:%M:%S") == ts:
-            target_rec  = rec
-            target_fine = fine
-            break
-
-    if not target_rec:
+    found = crud.find_violation(plate, ts)
+    if not found:
         return Response("Record not found", status=404)
-
-    violations = []
-    total_fine = 0
-    if target_fine:
-        violations = [{"name": target_fine.violation_name, "fine": target_fine.fine_amount}]
-        total_fine = target_fine.fine_amount
-
-    # Generate RAG for PDF
-    rag_reports = []
-    if violations:
-        try:
-            rag_reports = run_rag_for_violations(
-                violation_names=[v["name"] for v in violations],
-                plate_number=plate,
-                timestamp=ts,
-                city=target_rec.city,
-                area=target_rec.area,
-                street=target_rec.street,
-            )
-        except Exception as exc:
-            print(f"[PDF/RAG] {exc}")
-
-    image_path = None
-    if target_rec.image_filename:
-        candidate = os.path.join(UPLOAD_FOLDER, target_rec.image_filename)
-        if os.path.exists(candidate):
-            image_path = candidate
-
+    rec, fine = found
+    violations = [{"name": fine.violation_name, "fine": fine.fine_amount}] if fine else []
+    img = os.path.join(UPLOAD_FOLDER, rec.image_filename) if rec.image_filename else None
     data = {
-        "plate":       target_rec.plate_number,
-        "car_color":   target_rec.car_color or "Unknown",
-        "car_type":    target_rec.car_type  or "Unknown",
-        "city":        target_rec.city,
-        "area":        target_rec.area,
-        "street":      target_rec.street,
-        "latitude":    target_rec.latitude,
-        "longitude":   target_rec.longitude,
-        "timestamp":   ts,
-        "time_label":  get_time_label(target_rec.timestamp.hour),
-        "total_fine":  total_fine,
-        "violations":  violations,
-        "rag_reports": rag_reports,
-        "image_path":  image_path,
+        "plate": rec.plate_number, "car_color": rec.car_color or "Unknown",
+        "car_type": rec.car_type or "Unknown", "city": rec.city, "area": rec.area,
+        "street": rec.street, "latitude": rec.latitude, "longitude": rec.longitude,
+        "timestamp": ts, "time_label": get_time_label(rec.timestamp.hour),
+        "total_fine": fine.fine_amount if fine else 0, "violations": violations,
+        "image_path": img if img and os.path.exists(img) else None,
     }
+    return _pdf_response(data, plate)
 
-    pdf_bytes = build_violation_pdf(data)
-    safe_plate = plate.replace(" ", "_").replace("/", "-")
-    filename   = f"violation_{safe_plate}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
-
-    return send_file(
-        io.BytesIO(pdf_bytes),
-        mimetype="application/pdf",
-        as_attachment=True,
-        download_name=filename,
-    )
-
-
-# ── PDF export of the full violation history table ──────────────────────────
 
 @app.route("/report/table/pdf")
+@admin_required
 def report_table_pdf():
-    """Export all violation records as a summary table PDF."""
-    records   = get_all_violations()
-    pdf_bytes = build_table_pdf(records)
-    filename  = f"smartpath_violations_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
-
+    pdf = build_table_pdf(crud.get_all_violations())
     return send_file(
-        io.BytesIO(pdf_bytes),
-        mimetype="application/pdf",
-        as_attachment=True,
-        download_name=filename,
+        io.BytesIO(pdf), mimetype="application/pdf", as_attachment=True,
+        download_name=f"smartpath_violations_{datetime.now():%Y%m%d%H%M%S}.pdf",
     )
 
 
-# ── History ─────────────────────────────────────────────────────────────────
+# ── History & analytics (admin) ─────────────────────────────────────────────
 
 @app.route("/history")
+@admin_required
 def history():
-    records = get_violations_only()
-    stats   = get_stats()
-    return render_template(
-        "history.html",
-        active="history",
-        records=records,
-        stats=stats,
-    )
+    return render_template("history.html", active="history",
+                           records=crud.get_violations_only(), stats=crud.get_stats())
 
-
-# ── Analytics ───────────────────────────────────────────────────────────────
 
 @app.route("/analytics")
+@admin_required
 def analytics():
     return render_template("analytics.html", active="analytics")
 
 
 @app.route("/api/stats")
+@admin_required
 def api_stats():
-    stats   = get_stats()
-    records = get_violations_only()
-
-    by_hour:    dict[int, int]  = {}
-    by_city:    dict[str, int]  = {}
-    by_type:    dict[str, int]  = {}
-    timeline:   dict[str, int]  = {}
-
+    records = crud.get_violations_only()
+    by_hour, by_city, by_type, timeline = {}, {}, {}, {}
     for rec, fine in records:
-        h = rec.timestamp.hour
-        by_hour[h] = by_hour.get(h, 0) + 1
-
+        by_hour[rec.timestamp.hour] = by_hour.get(rec.timestamp.hour, 0) + 1
         by_city[rec.city] = by_city.get(rec.city, 0) + 1
-
-        name = fine.violation_name if fine else "Unknown"
-        by_type[name] = by_type.get(name, 0) + 1
-
+        by_type[fine.violation_name] = by_type.get(fine.violation_name, 0) + 1
         day = rec.timestamp.strftime("%Y-%m-%d")
         timeline[day] = timeline.get(day, 0) + 1
-
     return jsonify({
-        "total_violations": stats.total_violations,
-        "total_fines_jd":   stats.total_fines_jd,
+        "total_violations": len(records),
+        "total_fines_jd":   sum(f.fine_amount for _, f in records),
         "by_hour":  [{"hour": k, "count": v} for k, v in sorted(by_hour.items())],
-        "by_city":  [{"city": k,  "count": v} for k, v in sorted(by_city.items(),  key=lambda x: -x[1])],
-        "by_type":  [{"type": k,  "count": v} for k, v in sorted(by_type.items(),  key=lambda x: -x[1])],
-        "timeline": [{"date": k,  "count": v} for k, v in sorted(timeline.items())],
+        "by_city":  [{"city": k, "count": v} for k, v in sorted(by_city.items(), key=lambda x: -x[1])],
+        "by_type":  [{"type": k, "count": v} for k, v in sorted(by_type.items(), key=lambda x: -x[1])],
+        "timeline": [{"date": k, "count": v} for k, v in sorted(timeline.items())],
     })
 
 
 @app.route("/api/violations/map")
+@admin_required
 def api_violations_map():
-    records = get_violations_only()
     pins = []
-    for rec, fine in records:
+    for rec, fine in crud.get_violations_only():
         if rec.latitude is None or rec.longitude is None:
             continue
         pins.append({
-            "latitude":       rec.latitude,
-            "longitude":      rec.longitude,
-            "violation_name": fine.violation_name if fine else "Unknown",
-            "fine_amount":    fine.fine_amount    if fine else None,
-            "plate_number":   rec.plate_number,
-            "city":           rec.city,
-            "area":           rec.area,
-            "street":         rec.street,
-            "timestamp":      rec.timestamp.strftime("%Y-%m-%d %H:%M"),
+            "latitude": rec.latitude, "longitude": rec.longitude,
+            "violation_name": fine.violation_name, "fine_amount": fine.fine_amount,
+            "plate_number": rec.plate_number, "city": rec.city, "area": rec.area,
+            "street": rec.street, "timestamp": rec.timestamp.strftime("%Y-%m-%d %H:%M"),
         })
     return jsonify(pins)
 
+
+# ── User management (admin) ─────────────────────────────────────────────────
+
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    q = request.args.get("q", "").strip()
+    return render_template("admin_users.html", active="users",
+                           users=crud.list_users(q), counts=crud.user_counts(), q=q)
+
+
+@app.route("/admin/users/create", methods=["POST"])
+@admin_required
+def admin_create_user():
+    f = request.form
+    try:
+        user = crud.create_user(
+            f.get("username", ""), f.get("password", ""),
+            full_name=f.get("full_name", ""), email=f.get("email", ""),
+            role=f.get("role", "user"), is_active=f.get("is_active") == "on",
+        )
+        flash(f"User '{user.username}' created.", "success")
+    except UserError as e:
+        flash(str(e), "error")
+    return redirect(url_for("admin_users"))
+
+
+@app.route("/admin/users/<int:user_id>/update", methods=["POST"])
+@admin_required
+def admin_update_user(user_id):
+    f = request.form
+    try:
+        user = crud.update_user(
+            user_id, g.user.id,
+            full_name=f.get("full_name", ""), email=f.get("email", ""),
+            role=f.get("role"), is_active=f.get("is_active") == "on",
+            password=f.get("password") or None,
+        )
+        flash(f"User '{user.username}' updated.", "success")
+    except UserError as e:
+        flash(str(e), "error")
+    return redirect(url_for("admin_users", q=request.args.get("q", "")))
+
+
+@app.route("/admin/users/<int:user_id>/delete", methods=["POST"])
+@admin_required
+def admin_delete_user(user_id):
+    try:
+        crud.delete_user(user_id, g.user.id)
+        flash("User deleted. Their uploads and violation records were kept.", "success")
+    except UserError as e:
+        flash(str(e), "error")
+    return redirect(url_for("admin_users"))
 
 
 # ── Chatbot ─────────────────────────────────────────────────────────────────
 
 @app.route("/chatbot", methods=["POST"])
+@login_required
 def chatbot_route():
-    data     = request.get_json()
-    question = (data or {}).get("question", "").strip()
+    data = request.get_json(silent=True) or {}
+    question = str(data.get("question", "")).strip()
     if not question:
         return jsonify({"answer": "Please ask a question."})
+    history = data.get("history") if isinstance(data.get("history"), list) else []
     try:
-        answer = rag_chatbot(question)
+        answer = chatbot.ask(g.user, question, history)
     except Exception as exc:
-        answer = f"Sorry, the assistant encountered an error: {exc}"
+        print(f"[Chatbot] {exc}")
+        answer = "Sorry, the assistant ran into an error. Please try again."
     return jsonify({"answer": answer})
 
 
+# ── Errors ──────────────────────────────────────────────────────────────────
+
+@app.errorhandler(413)
+def too_large(_):
+    if g.get("user"):
+        return _dashboard_error("That image is larger than 16 MB.")
+    return Response("File too large", status=413)
+
+
+@app.errorhandler(404)
+def not_found(_):
+    return render_template("error.html", code=404, message="That page doesn't exist."), 404
+
+
+@app.errorhandler(400)
+def bad_request(e):
+    return render_template("error.html", code=400,
+                           message=getattr(e, "description", "Bad request.")), 400
+
+
 # ---------------------------------------------------------------------------
-# Entry point
+# Background warm-up: load the heavy models while the server is already up,
+# so the first upload doesn't wait for them.
 # ---------------------------------------------------------------------------
+
+def _warm_up():
+    t0 = time.time()
+    try:
+        from gemini.gemini_function import warm_up as warm_gemini
+        from detector import warm_up as warm_detector
+        warm_gemini()
+        warm_detector()
+        print(f"[Warm-up] Models ready in {time.time() - t0:.1f}s")
+    except Exception as exc:
+        print(f"[Warm-up] Failed (models will load on first use): {exc}")
+
 
 if __name__ == "__main__":
     init_db()
-    app.run(debug=False, port=5000)
+    threading.Thread(target=_warm_up, daemon=True).start()
+    app.run(debug=False, host=os.getenv("HOST", "127.0.0.1"), port=int(os.getenv("PORT", 5000)))

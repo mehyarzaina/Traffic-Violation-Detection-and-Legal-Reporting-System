@@ -107,7 +107,21 @@ body.light .hero-h1{text-shadow:0 2px 8px rgba(0,0,0,.2)}
 .kpi-mini-num{font-size:16px;font-weight:800}
 .kpi-mini-lbl{font-size:9px;color:var(--muted);margin-top:2px}
 /* pull hero flush to nav edges */
-.home-full{margin:-28px -24px 0}
+.home-full{margin:-28px -32px 0}
+@media (max-width:900px){
+  .home-full{margin:-20px -16px 0}
+  .steps{grid-template-columns:1fr 1fr;row-gap:20px}
+  .step-arrow{display:none}
+  .analytics-preview{grid-template-columns:1fr}
+  .feat-grid{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  .stats-strip{grid-template-columns:1fr 1fr}
+  .hero{height:240px}
+  .hero-overlay{padding:16px}
+  .hero-h1{font-size:22px}
+  .celestial{right:20px}
+}
 </style>
 
 <!-- HERO (flush, outside main padding) -->
@@ -163,7 +177,7 @@ body.light .hero-h1{text-shadow:0 2px 8px rgba(0,0,0,.2)}
     <div class="hero-overlay">
       <div class="hero-badge"><span class="status-dot"></span> LIVE DETECTION · AI POWERED</div>
       <div class="hero-h1">Smart Traffic<br><span class="accent">Enforcement</span><br>For Jordan</div>
-      <div class="hero-sub">Upload a frame → detect violations → get a legal report in seconds.</div>
+      <div class="hero-sub">Upload a frame → detect violations → get a PDF report in seconds.</div>
     </div>
   </div>
 
@@ -190,7 +204,7 @@ body.light .hero-h1{text-shadow:0 2px 8px rgba(0,0,0,.2)}
     <div class="feat-card">
       <div class="feat-icon">🚗</div>
       <div class="feat-name">Wrong Way Driving</div>
-      <div class="feat-fine">Fine: 70 JD</div>
+      <div class="feat-fine">Fine: 250 JD</div>
       <div class="feat-desc">Detects vehicles traveling against the designated flow of traffic — one of the most dangerous violations.</div>
     </div>
     <div class="feat-card">
@@ -206,7 +220,7 @@ body.light .hero-h1{text-shadow:0 2px 8px rgba(0,0,0,.2)}
   <div style="text-align:center;padding:16px 0">
     <div style="font-size:40px;margin-bottom:12px">📷</div>
     <div style="font-size:18px;font-weight:800;margin-bottom:6px">Traffic Violation Detection</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:20px;max-width:380px;margin-left:auto;margin-right:auto;font-family:'Inter',sans-serif;line-height:1.6">Upload a traffic camera image to detect violations, extract vehicle info via Gemini Vision, and generate a RAG-powered legal report.</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:20px;max-width:380px;margin-left:auto;margin-right:auto;font-family:'Inter',sans-serif;line-height:1.6">Upload a traffic camera image to detect violations, extract vehicle info via Gemini Vision, and download an official PDF report.</div>
     <a href="{{ url_for('dashboard') }}" class="btn-cta">🔍 Open Detection Dashboard →</a>
   </div>
 </div>
@@ -215,8 +229,8 @@ body.light .hero-h1{text-shadow:0 2px 8px rgba(0,0,0,.2)}
   <div class="steps">
     <div class="step"><div class="step-num">01</div><div class="step-circle">📷</div><div class="step-title">Upload Frame</div><div class="step-desc">Drag & drop a traffic camera screenshot or select a file from disk.</div><div class="step-arrow">→</div></div>
     <div class="step"><div class="step-num">02</div><div class="step-circle">🤖</div><div class="step-title">AI Analysis</div><div class="step-desc">YOLO detects violations; Gemini Vision extracts plate, color, and car type.</div><div class="step-arrow">→</div></div>
-    <div class="step"><div class="step-num">03</div><div class="step-circle">⚖️</div><div class="step-title">Legal Report</div><div class="step-desc">RAG engine retrieves the exact Jordanian traffic law article and generates an official report.</div><div class="step-arrow">→</div></div>
-    <div class="step"><div class="step-num">04</div><div class="step-circle">📄</div><div class="step-title">Download PDF</div><div class="step-desc">Export a professionally formatted violation report with vehicle info, image, and legal references.</div></div>
+    <div class="step"><div class="step-num">03</div><div class="step-circle">⚖️</div><div class="step-title">PDF Report</div><div class="step-desc">The plate, location, violation and fine are saved and an official PDF report is generated.</div><div class="step-arrow">→</div></div>
+    <div class="step"><div class="step-num">04</div><div class="step-circle">📄</div><div class="step-title">Download PDF</div><div class="step-desc">Export a professionally formatted violation report with vehicle info, image, and fines.</div></div>
   </div>
 </div>
 
@@ -253,7 +267,7 @@ body.light .hero-h1{text-shadow:0 2px 8px rgba(0,0,0,.2)}
 <!-- CTA -->
 <div class="cta-section" id="cta-section">
   <div class="cta-title">Ready to detect violations?</div>
-  <div class="cta-sub">Upload your first image and get a full legal report in seconds.</div>
+  <div class="cta-sub">Upload your first image and get a full PDF report in seconds.</div>
   <a href="{{ url_for('dashboard') }}" class="btn-cta">🔍 Open Detection Dashboard →</a>
   <a href="{{ url_for('analytics') }}" class="btn-outline-cta">📊 View Analytics</a>
 </div>

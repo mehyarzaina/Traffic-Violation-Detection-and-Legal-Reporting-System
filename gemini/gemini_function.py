@@ -5,19 +5,32 @@ Extracts license plate number, car color, and car type from an image.
 
 import json
 import os
+import threading
 from PIL import Image
-import google.generativeai as genai
-
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# google.generativeai takes ~4 s to import, so it is imported lazily on the
+# first call (or by the background warm-up) instead of at server start.
+_genai = None
+_genai_lock = threading.Lock()
 
 
-def configure_gemini(api_key: str):
-    """Call once at startup with your Gemini API key."""
-    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+def _get_genai():
+    global _genai
+    if _genai is None:
+        with _genai_lock:
+            if _genai is None:
+                import google.generativeai as genai
+                genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+                _genai = genai
+    return _genai
+
+
+def warm_up():
+    """Import the Gemini SDK ahead of the first request."""
+    _get_genai()
 
 
 
@@ -30,7 +43,7 @@ def extract_vehicle_info(image: Image.Image) -> dict:
 
     Returns a dict with those keys (values may be None if not found).
     """
-    model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
+    model = _get_genai().GenerativeModel("gemini-3.1-flash-lite-preview")
 
     prompt = """        
         You are a traffic violation detection AI. Analyze this image. 

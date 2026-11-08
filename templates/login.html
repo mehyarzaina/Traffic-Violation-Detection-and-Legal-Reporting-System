@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Sign in — SmartPath Jordan{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <div class="auth-brand"><span class="logo-icon">🚔</span> SmartPath <em style="color:var(--red);font-style:normal">Jordan</em></div>
+  <p class="auth-sub">Sign in to detect traffic violations</p>
+
+  {% if error %}<div class="flash flash-error" style="margin-bottom:16px">{{ error }}</div>{% endif %}
+
+  <form method="POST" action="{{ url_for('login', next=request.args.get('next', '')) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="username">Username</label>
+      <input class="input" id="username" name="username" autocomplete="username" autocapitalize="none"
+             value="{{ request.form.get('username', '') }}" required autofocus>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input class="input" id="password" name="password" type="password" autocomplete="current-password" required>
+    </div>
+    <button class="btn" type="submit">Sign in</button>
+  </form>
+
+  <div class="auth-foot">New here? <a href="{{ url_for('register') }}">Create an account</a></div>
+</div>
+{% endblock %}

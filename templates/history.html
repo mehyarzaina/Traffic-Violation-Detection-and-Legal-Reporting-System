@@ -5,10 +5,10 @@
 <div class="page-header">
   <div>
     <h1 class="page-title">Violation History</h1>
-    <p class="page-sub">All recorded violations and a live traffic law assistant for officers.</p>
+    <p class="page-sub">All recorded violations. Search, open images, and download PDF reports.</p>
   </div>
   <div style="display:flex;gap:10px;align-items:center">
-    <a href="/report/table/pdf" class="btn-outline" target="_blank">⬇ Export Full Table PDF</a>
+    <a href="/report/table/pdf" class="btn-outline">⬇ Export Full Table PDF</a>
   </div>
 </div>
 
@@ -33,20 +33,23 @@
   {% endfor %}
 </div>
 
-<div class="history-grid">
+<div>
 
   <!-- Table -->
   <div class="card" style="overflow:hidden">
     <div class="card-title-row" style="margin-bottom:14px">
       <div class="card-title" style="margin:0">📂 All Violation Records</div>
       {% if records %}
-      <span class="record-count">{{ records|length }} records</span>
+      <div class="table-search">
+        <input class="input" type="search" id="tbl-filter" placeholder="Filter by plate, city, type…">
+        <span class="record-count" id="tbl-count" style="align-self:center">{{ records|length }} records</span>
+      </div>
       {% endif %}
     </div>
 
     {% if records %}
     <div class="tbl-wrap">
-      <table>
+      <table id="history-table">
         <thead>
           <tr>
             <th>#</th>
@@ -116,7 +119,7 @@
             <td>
               {% if fine %}
               <a href="/report/pdf?plate={{ rec.plate_number | urlencode }}&ts={{ rec.timestamp.strftime('%Y-%m-%d %H:%M:%S') | urlencode }}"
-                 class="btn-xs btn-pdf" target="_blank" title="Download PDF Report">⬇ PDF</a>
+                 class="btn-xs btn-pdf" title="Download PDF Report">⬇ PDF</a>
               {% else %}
               <span class="muted">—</span>
               {% endif %}
@@ -135,33 +138,15 @@
     {% endif %}
   </div>
 
-  <!-- Chatbot -->
-  <div class="card chatbot-card">
-    <div class="card-title">🤖 Traffic Law Assistant</div>
-    <div class="chat-wrap">
-      <div class="chat-messages" id="chat-messages">
-        <div class="chat-bubble bot">
-          👮 Hello! I'm the SmartPath Jordan legal assistant. Ask me anything about
-          Jordan's traffic laws, fines, or violations.
-        </div>
-      </div>
-      <div class="chat-input-row">
-        <input class="chat-input" id="chat-input" type="text"
-          placeholder="e.g. What is the fine for wrong-way driving?" />
-        <button class="chat-send" id="chat-send">Send</button>
-      </div>
-    </div>
-  </div>
-
 </div>
 
 <!-- Lightbox overlay -->
 <div id="lightbox"
      style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);
-            z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;"
+            z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;padding:16px;"
      onclick="closeLightbox()">
   <img id="lightbox-img"
-       style="max-width:90vw;max-height:90vh;border-radius:10px;box-shadow:0 0 60px rgba(0,0,0,.8);">
+       style="max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 0 60px rgba(0,0,0,.8);">
 </div>
 
 <script>
@@ -175,42 +160,18 @@ function closeLightbox() {
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
 
-/* Chatbot */
-const sendBtn = document.getElementById("chat-send");
-const inputEl = document.getElementById("chat-input");
-const msgBox  = document.getElementById("chat-messages");
+/* Table filter */
+const filterInput = document.getElementById("tbl-filter");
+if (filterInput) filterInput.addEventListener("input", () => {
+  const q = filterInput.value.toLowerCase();
+  let n = 0;
+  document.querySelectorAll("#history-table tbody tr").forEach(tr => {
+    const ok = tr.textContent.toLowerCase().includes(q);
+    tr.style.display = ok ? "" : "none";
+    if (ok) n++;
+  });
+  document.getElementById("tbl-count").textContent = n + " records";
+});
 
-function appendBubble(text, cls) {
-  const div = document.createElement("div");
-  div.className = "chat-bubble " + cls;
-  div.textContent = text;
-  msgBox.appendChild(div);
-  msgBox.scrollTop = msgBox.scrollHeight;
-}
-
-async function sendMessage() {
-  const q = inputEl.value.trim();
-  if (!q) return;
-  appendBubble(q, "user");
-  inputEl.value = "";
-  sendBtn.disabled = true;
-  try {
-    const res  = await fetch("/chatbot", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: q }),
-    });
-    const data = await res.json();
-    appendBubble(data.answer, "bot");
-  } catch {
-    appendBubble("⚠️ Network error. Please try again.", "bot");
-  } finally {
-    sendBtn.disabled = false;
-    inputEl.focus();
-  }
-}
-
-sendBtn.addEventListener("click", sendMessage);
-inputEl.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
 </script>
 {% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}My Uploads — SmartPath Jordan{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My Uploads</h1>
+    <p class="page-sub">Every image you've analysed, with its result.</p>
+  </div>
+  <div><a class="btn btn-inline" href="{{ url_for('dashboard') }}">📷 Upload new image</a></div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card stat-card--blue"><div class="stat-icon">🖼️</div><div class="num blue">{{ uploads|length }}</div><div class="stat-lbl">Images uploaded</div></div>
+  <div class="stat-card stat-card--red"><div class="stat-icon">🚨</div><div class="num red">{{ n_violations }}</div><div class="stat-lbl">With a violation</div></div>
+  <div class="stat-card stat-card--green"><div class="stat-icon">✅</div><div class="num green">{{ uploads|length - n_violations }}</div><div class="stat-lbl">Clean</div></div>
+  <div class="stat-card stat-card--amber"><div class="stat-icon">💰</div><div class="num amber">{{ total_fines }} JD</div><div class="stat-lbl">Total fines</div></div>
+</div>
+
+{% if uploads %}
+<div class="card-title-row">
+  <div class="filter-tabs" role="tablist">
+    <button class="filter-tab active" data-filter="all">All</button>
+    <button class="filter-tab" data-filter="violation">Violations</button>
+    <button class="filter-tab" data-filter="clean">Clean</button>
+  </div>
+</div>
+
+<div class="upload-grid" id="upload-grid">
+  {% for u in uploads %}
+  <div class="upload-card" data-kind="{{ 'violation' if u.violation_list else 'clean' }}">
+    <img src="{{ url_for('serve_image', filename=u.image_filename) }}" alt="Uploaded image {{ u.original_name or '' }}"
+         loading="lazy" onclick="openLightbox(this.src)">
+    <div class="upload-body">
+      <div class="upload-top">
+        {% if u.violation_list %}
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+          {% for v in u.violation_list %}<span class="badge badge-red">{{ v }}</span>{% endfor %}
+          </div>
+          <span class="fine-amount">{{ u.total_fine }} JD</span>
+        {% else %}
+          <span class="badge badge-green">No violation</span>
+        {% endif %}
+      </div>
+      <div><span class="mono amber-text bold">{{ u.plate_number or 'Unreadable' }}</span>
+        <span class="upload-meta"> · {{ u.car_color or '?' }} {{ u.car_type or '' }}</span></div>
+      <div class="upload-meta">📍 {{ u.street or '—' }}, {{ u.area or '—' }}, {{ u.city or '—' }}</div>
+      <div class="upload-meta">🕒 {{ u.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</div>
+      <div class="upload-actions">
+        <a class="btn-sm" href="{{ url_for('view_upload', upload_id=u.id) }}">View</a>
+        {% if u.violation_list %}<a class="btn-outline" style="padding:5px 12px;font-size:12px" href="{{ url_for('upload_pdf', upload_id=u.id) }}">⬇ PDF</a>{% endif %}
+        <form method="POST" action="{{ url_for('delete_my_upload', upload_id=u.id) }}"
+              onsubmit="return confirm('Remove this upload from your history?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="icon-btn" type="submit" title="Remove from my history" aria-label="Remove">🗑</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="card empty-state" id="filter-empty" style="display:none"><div class="empty-title">Nothing in this filter</div></div>
+{% else %}
+<div class="card empty-state">
+  <div class="empty-icon">🗂️</div>
+  <div class="empty-title">No uploads yet</div>
+  <div class="empty-sub" style="margin-bottom:18px">Upload a traffic image and its result will be saved here.</div>
+  <a class="btn btn-inline" href="{{ url_for('dashboard') }}">📷 Upload an image</a>
+</div>
+{% endif %}
+
+<div id="lightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;padding:16px" onclick="this.style.display='none'">
+  <img id="lightbox-img" alt="" style="max-width:100%;max-height:100%;border-radius:10px">
+</div>
+<script>
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').style.display = 'flex';
+}
+document.querySelectorAll('.filter-tab').forEach(tab => tab.addEventListener('click', () => {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t === tab));
+  let shown = 0;
+  document.querySelectorAll('#upload-grid .upload-card').forEach(c => {
+    const ok = tab.dataset.filter === 'all' || c.dataset.kind === tab.dataset.filter;
+    c.style.display = ok ? '' : 'none';
+    if (ok) shown++;
+  });
+  document.getElementById('filter-empty').style.display = shown ? 'none' : '';
+}));
+</script>
+{% endblock %}

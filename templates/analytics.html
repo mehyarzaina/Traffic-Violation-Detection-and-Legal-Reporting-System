@@ -35,7 +35,7 @@
 </div>
 
 <!-- Row 1: Map + Hour chart -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+<div class="grid-2" style="margin-bottom:20px">
 
   <!-- Map card -->
   <div class="card" style="padding:0;overflow:hidden;position:relative">
@@ -196,9 +196,11 @@ async function loadAnalytics() {
   const map = L.map("violation-map", { zoomControl: true })
                .setView([31.9516, 35.9342], 11);
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-    attribution: '© OpenStreetMap © CARTO',
+  // OpenStreetMap tiles need no API key; dark mode darkens them with a CSS filter.
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
+    className: "osm-tiles",
   }).addTo(map);
 
   const cells  = groupByCell(validPins);
