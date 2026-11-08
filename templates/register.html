@@ -3,15 +3,16 @@
 
 {% block content %}
 <div class="auth-card">
-  <div class="auth-brand"><span class="logo-icon">🚔</span> SmartPath <em style="color:var(--red);font-style:normal">Jordan</em></div>
-  <p class="auth-sub">Create an account to upload images and track your results</p>
+  <a class="auth-brand" href="{{ url_for('index') }}">{{ logo_mark(34) }}<span>SmartPath <span class="logo-sub">Jordan</span></span></a>
+  <h1 class="auth-title">Create an account</h1>
+  <p class="auth-sub">Report traffic violations to help reviewers keep roads safe</p>
 
-  {% if error %}<div class="flash flash-error" style="margin-bottom:16px">{{ error }}</div>{% endif %}
+  {% if error %}<div class="flash flash-error" role="alert" style="margin-bottom:16px">{{ error }}</div>{% endif %}
 
   <form method="POST" action="{{ url_for('register') }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="field">
-      <label for="full_name">Full name</label>
+      <label for="full_name">Full name (optional)</label>
       <input class="input" id="full_name" name="full_name" autocomplete="name" value="{{ form.get('full_name', '') }}">
     </div>
     <div class="field">
@@ -32,6 +33,12 @@
       <label for="confirm">Confirm password</label>
       <input class="input" id="confirm" name="confirm" type="password" autocomplete="new-password" required minlength="6">
     </div>
+    <label class="check check-top" for="agree">
+      <input type="checkbox" id="agree" name="agree" required {% if form.get('agree') %}checked{% endif %}>
+      <span>I am 18 or older and I accept the
+        <a href="{{ url_for('terms') }}" target="_blank" rel="noopener">Terms and Conditions</a> and the
+        <a href="{{ url_for('privacy') }}" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+    </label>
     <button class="btn" type="submit">Create account</button>
   </form>
 

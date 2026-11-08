@@ -1,0 +1,23 @@
+<div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged photo" hidden>
+  <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close enlarged photo">{{ icon("x", 22) }}</button>
+  <img id="lightbox-img" alt="Enlarged photo">
+</div>
+<script>
+(function () {
+  const box = document.getElementById('lightbox');
+  const img = document.getElementById('lightbox-img');
+  const closeBtn = document.getElementById('lightbox-close');
+  let opener = null;
+  function open(src, alt, from) {
+    img.src = src; img.alt = alt || 'Enlarged photo'; opener = from;
+    box.hidden = false; closeBtn.focus();
+  }
+  function close() { box.hidden = true; img.src = ''; if (opener) opener.focus(); }
+  document.querySelectorAll('[data-lightbox]').forEach(btn => btn.addEventListener('click', () => {
+    const inner = btn.querySelector('img');
+    open(btn.dataset.lightbox, inner ? inner.alt : '', btn);
+  }));
+  box.addEventListener('click', e => { if (e.target !== img) close(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !box.hidden) close(); });
+})();
+</script>

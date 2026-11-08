@@ -34,6 +34,7 @@ def _load_model(path: str):
 
 
 _model_lock = threading.Lock()
+_infer_lock = threading.Lock()
 
 
 def _get_wrong_way_model():
@@ -68,7 +69,8 @@ def warm_up():
     for model in (_get_wrong_way_model(), _get_wrong_parking_model()):
         if model is not None:
             try:
-                model(dummy, verbose=False)
+                with _infer_lock:
+                    model(dummy, verbose=False)
             except Exception as e:
                 print(f"[Detector] Warm-up inference failed: {e}")
 
@@ -81,7 +83,10 @@ def _run_model(model, image: Image.Image, label: str) -> Tuple[bool, list]:
         print(f"[Detector] {label} model unavailable — skipping.")
         return False, []
     try:
-        results = model(image, verbose=False) # detection
+        # Ultralytics models are not thread-safe (the first call fuses layers),
+        # so the warm-up thread and requests must not run them at the same time.
+        with _infer_lock:
+            results = model(image, verbose=False)  # detection
         boxes = []
         detected = False
         for result in results:

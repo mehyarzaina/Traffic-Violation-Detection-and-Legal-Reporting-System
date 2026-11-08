@@ -1,0 +1,54 @@
+{% extends "legal/_layout.html" %}
+{% block title %}{{ 'سياسة ملفات تعريف الارتباط' if lang == 'ar' else 'Cookie Policy' }} — SmartPath Jordan{% endblock %}
+
+{% block en %}
+<h1>Cookie Policy</h1>
+<p class="legal-lead">SmartPath Jordan uses <strong>one cookie</strong> and two small browser storage items, all needed for the site to work. We use no analytics, advertising or tracking cookies, so we don't show a cookie banner.</p>
+
+<div class="table-scroll">
+<table class="legal-table">
+  <caption class="sr-only">Cookies and browser storage used by this site</caption>
+  <thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">Purpose</th><th scope="col">How long</th></tr></thead>
+  <tbody>
+    <tr><td><code>session</code></td><td>Cookie (strictly necessary)</td><td>Keeps you signed in and protects forms against forged requests. Not readable by page scripts.</td><td>Until you sign out, or 7 days</td></tr>
+    <tr><td><code>sp_theme</code></td><td>Local storage (preference)</td><td>Remembers light/dark mode — only saved when you press the theme switch.</td><td>Until you clear your browser data</td></tr>
+    <tr><td><code>sp_chat_…</code></td><td>Session storage (functional)</td><td>Keeps your assistant conversation while the tab is open.</td><td>Until you close the tab</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Third-party services</h2>
+<p>Pages load fonts from Google Fonts, and reviewers' analytics page loads code from jsDelivr and unpkg and maps from OpenStreetMap. These services receive your IP address when the page loads. We don't use them to track you; their own privacy policies apply.</p>
+
+<h2>Do I need to consent?</h2>
+<p>No. Strictly necessary cookies and storage you trigger yourself don't need consent. If we ever add analytics or other optional cookies, we will ask for your consent first and update this page.</p>
+
+<h2>Controlling cookies</h2>
+<p>You can delete or block cookies in your browser settings. If you block the <code>session</code> cookie you won't be able to sign in.</p>
+{% endblock %}
+
+{% block ar %}
+<h1>سياسة ملفات تعريف الارتباط</h1>
+<p class="legal-lead">يستخدم SmartPath Jordan <strong>ملف تعريف ارتباط واحدًا</strong> وعنصرَي تخزين صغيرين في المتصفح، وجميعها ضرورية لعمل الموقع. لا نستخدم ملفات تحليلات أو إعلانات أو تتبّع، لذلك لا نعرض شريط موافقة على ملفات تعريف الارتباط.</p>
+
+<div class="table-scroll">
+<table class="legal-table">
+  <caption class="sr-only">ملفات تعريف الارتباط والتخزين المستخدمة في هذا الموقع</caption>
+  <thead><tr><th scope="col">الاسم</th><th scope="col">النوع</th><th scope="col">الغرض</th><th scope="col">المدة</th></tr></thead>
+  <tbody>
+    <tr><td><code>session</code></td><td>ملف تعريف ارتباط (ضروري)</td><td>يُبقيك مسجّل الدخول ويحمي النماذج من الطلبات المزوّرة. لا يمكن لبرمجيات الصفحة قراءته.</td><td>حتى تسجيل الخروج أو 7 أيام</td></tr>
+    <tr><td><code>sp_theme</code></td><td>تخزين محلي (تفضيل)</td><td>يتذكر الوضع الفاتح أو الداكن — يُحفظ فقط عند ضغطك على زر تبديل المظهر.</td><td>حتى تمسح بيانات المتصفح</td></tr>
+    <tr><td><code>sp_chat_…</code></td><td>تخزين الجلسة (وظيفي)</td><td>يحتفظ بمحادثتك مع المساعد ما دام التبويب مفتوحًا.</td><td>حتى إغلاق التبويب</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>خدمات الطرف الثالث</h2>
+<p>تُحمّل الصفحات الخطوط من Google Fonts، وتُحمّل صفحة التحليلات الخاصة بالمراجعين مكتبات برمجية من jsDelivr وunpkg وخرائط من OpenStreetMap. تستلم هذه الخدمات عنوان IP الخاص بك عند تحميل الصفحة. لا نستخدمها لتتبّعك، وتنطبق عليها سياسات الخصوصية الخاصة بها.</p>
+
+<h2>هل أحتاج إلى الموافقة؟</h2>
+<p>لا. ملفات تعريف الارتباط الضرورية والتخزين الذي تُفعّله بنفسك لا تحتاج إلى موافقة. إذا أضفنا يومًا أدوات تحليلات أو ملفات اختيارية فسنطلب موافقتك أولًا ونحدّث هذه الصفحة.</p>
+
+<h2>التحكم في ملفات تعريف الارتباط</h2>
+<p>يمكنك حذف ملفات تعريف الارتباط أو حظرها من إعدادات المتصفح. إذا حظرت ملف <code>session</code> فلن تتمكن من تسجيل الدخول.</p>
+{% endblock %}

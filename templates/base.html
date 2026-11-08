@@ -1,40 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang|default('en') }}">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}SmartPath Jordan{% endblock %}</title>
+<meta name="description" content="{% block description %}SmartPath Jordan — a university prototype where people report traffic violations with a photo and authorised reviewers check them with AI assistance.{% endblock %}">
+<meta name="theme-color" content="#0a0a10">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M11 25 14.6 7h2.8L21 25' fill='none' stroke='white' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cpath d='M16 10v2.4M16 15.2v2.6M16 20.8v3' stroke='white' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
 
 /* ── Reset & Root ─────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:      #0a0a10;
-  --bg2:     #111118;
-  --card:    #16161f;
-  --text:    #f0f2f8;
-  --muted:   #888;
-  --border:  #2a2a38;
-  --red:     #ef4444;
-  --amber:   #eab308;
-  --blue:    #3b82f6;
-  --green:   #22c55e;
-  --mono:    'JetBrains Mono', monospace;
-  --font-body: 'Inter', sans-serif;
-  --font-head: 'Syne', sans-serif;
+  --bg:      #0b0e14;
+  --bg2:     #10141c;
+  --card:    #141924;
+  --text:    #e7eaf0;
+  --muted:   #9aa3b2;
+  --border:  #242b38;
+  --red:     #f87171;
+  --amber:   #fbbf24;
+  --blue:    #60a5fa;
+  --green:   #4ade80;
+  --brand:   #2563eb;
+  --brand-hover: #1d4ed8;
+  --brand-soft: rgba(37,99,235,.14);
+  --shadow:  0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.18);
+  --radius:  12px;
+  --mono:    'JetBrains Mono', ui-monospace, monospace;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-head: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 /* ── Light mode overrides ─────────────────────────────────────────────── */
 body.light {
-  --bg:        #f0f2f5;
-  --bg2:       #e8eaed;
+  --bg:        #f6f7f9;
+  --bg2:       #eef1f5;
   --card:      #ffffff;
-  --text:      #0f0f1a;
-  --muted:     #666;
-  --border:    #dde0e8;
+  --text:      #111827;
+  --muted:     #4b5563;
+  --border:    #e2e6ec;
+  --shadow:    0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.06);
 }
 
 html, body {
@@ -601,65 +611,78 @@ table.data-table tr:hover td { background: rgba(255,255,255,.03); }
 try { if (localStorage.getItem('sp_theme') === 'light') document.body.classList.add('light'); } catch (e) {}
 window.CSRF_TOKEN = "{{ csrf_token() }}";
 </script>
+<a class="skip-link" href="#main">Skip to main content</a>
 
 {% if not auth_page %}
-<nav class="navbar">
+<header class="navbar">
   <div class="nav-inner">
-    <a href="{{ url_for('index') }}" class="nav-logo">
-      <span class="logo-icon">🚔</span>
-      <span class="logo-text">SmartPath <em>Jordan</em></span>
+    <a href="{{ url_for('index') }}" class="nav-logo" aria-label="SmartPath Jordan — home">
+      {{ logo_mark(30) }}
+      <span class="logo-text">SmartPath <span class="logo-sub">Jordan</span></span>
     </a>
 
     {% if current_user %}
-    <button class="nav-burger" id="nav-burger" aria-label="Open menu" aria-expanded="false">
+    <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-controls="nav-menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
 
     <div class="nav-menu" id="nav-menu">
-      <div class="nav-links">
+      <nav class="nav-links" aria-label="Main">
+        {% macro navlink(endpoint, key, ico, label, badge=0) %}
+        <a href="{{ url_for(endpoint) }}" class="nav-link {% if active == key %}active{% endif %}"
+           {% if active == key %}aria-current="page"{% endif %}>{{ icon(ico, 17) }}<span>{{ label }}</span>{% if badge %}<span class="nav-badge"><span class="sr-only">, </span>{{ badge }}<span class="sr-only"> waiting</span></span>{% endif %}</a>
+        {% endmacro %}
         {% if current_user.is_admin %}
-        <a href="{{ url_for('home') }}"        class="nav-link {% if active == 'home' %}active{% endif %}"><span class="nav-icon">⬡</span> Home</a>
-        <a href="{{ url_for('dashboard') }}"   class="nav-link {% if active == 'dashboard' %}active{% endif %}"><span class="nav-icon">📷</span> Detect</a>
-        <a href="{{ url_for('history') }}"     class="nav-link {% if active == 'history' %}active{% endif %}"><span class="nav-icon">📂</span> History</a>
-        <a href="{{ url_for('analytics') }}"   class="nav-link {% if active == 'analytics' %}active{% endif %}"><span class="nav-icon">📊</span> Analytics</a>
-        <a href="{{ url_for('admin_users') }}" class="nav-link {% if active == 'users' %}active{% endif %}"><span class="nav-icon">👥</span> Users</a>
+        {{ navlink('home', 'home', 'home', 'Overview') }}
+        {{ navlink('admin_reports', 'reports', 'inbox', 'Reports', pending_reviews) }}
+        {{ navlink('dashboard', 'dashboard', 'upload', 'Upload') }}
+        {{ navlink('history', 'history', 'list', 'Records') }}
+        {{ navlink('analytics', 'analytics', 'chart', 'Analytics') }}
+        {{ navlink('admin_users', 'users', 'users', 'Users') }}
         {% else %}
-        <a href="{{ url_for('dashboard') }}"   class="nav-link {% if active == 'dashboard' %}active{% endif %}"><span class="nav-icon">📷</span> Upload</a>
-        <a href="{{ url_for('my_uploads') }}"  class="nav-link {% if active == 'my_uploads' %}active{% endif %}"><span class="nav-icon">🗂️</span> My Uploads</a>
+        {{ navlink('dashboard', 'dashboard', 'camera', 'New report') }}
+        {{ navlink('my_reports', 'my_reports', 'folder', 'My reports') }}
         {% endif %}
-        <button type="button" class="nav-link nav-chat-link" data-open-chat><span class="nav-icon">💬</span> Assistant</button>
-      </div>
+        <button type="button" class="nav-link nav-chat-link" data-open-chat aria-controls="chat-panel">{{ icon('chat', 17) }}<span>Assistant</span></button>
+      </nav>
 
       <div class="nav-right">
-        <div class="theme-toggle">
-          <span class="theme-icon">🌙</span>
-          <button class="toggle-track" id="theme-btn" aria-label="Toggle dark/light mode"></button>
-          <span class="theme-icon">☀️</span>
-        </div>
+        <button class="icon-btn theme-btn" id="theme-btn" type="button" aria-label="Light mode" aria-pressed="false">
+          <span class="theme-dark">{{ icon('sun', 18) }}</span><span class="theme-light">{{ icon('moon', 18) }}</span>
+        </button>
         <div class="nav-user">
-          <span class="user-avatar">{{ (current_user.full_name or current_user.username)[:1]|upper }}</span>
-          <span class="user-meta">
-            <span class="user-name">{{ current_user.full_name or current_user.username }}</span>
-            <span class="role-pill role-{{ current_user.role }}">{{ current_user.role }}</span>
-          </span>
+          <a class="nav-account {% if active == 'account' %}active{% endif %}" href="{{ url_for('account') }}" aria-label="My account">
+            <span class="user-avatar" aria-hidden="true">{{ (current_user.full_name or current_user.username)[:1]|upper }}</span>
+            <span class="user-meta">
+              <span class="user-name">{{ current_user.full_name or current_user.username }}</span>
+              <span class="role-pill role-{{ current_user.role }}">{{ 'officer' if current_user.is_admin else 'reporter' }}</span>
+            </span>
+          </a>
           <form action="{{ url_for('logout') }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button class="btn-outline btn-logout" type="submit">Sign out</button>
+            <button class="icon-btn" type="submit" aria-label="Sign out" title="Sign out">{{ icon('log-out', 18) }}</button>
           </form>
         </div>
       </div>
     </div>
+    {% else %}
+    <nav class="public-nav" aria-label="Main">
+      <a class="public-link hide-sm" href="{{ url_for('index') }}#how">How it works</a>
+      <a class="public-link hide-sm" href="{{ url_for('privacy') }}">Privacy</a>
+      <a class="public-link" href="{{ url_for('login') }}">Sign in</a>
+      <a class="button button--primary button--sm" href="{{ url_for('register') }}">Create account</a>
+    </nav>
     {% endif %}
   </div>
-</nav>
+</header>
 {% endif %}
 
-<main class="main-content {% if auth_page %}auth-main{% endif %}">
+<main class="main-content {% if auth_page %}auth-main{% endif %} {% block main_class %}{% endblock %}" id="main" tabindex="-1">
   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
   <div class="flash-stack">
     {% for cat, msg in messages %}
-    <div class="flash flash-{{ cat }}">{{ msg }}<button class="flash-close" aria-label="Dismiss" onclick="this.parentElement.remove()">✕</button></div>
+    <div class="flash flash-{{ cat }}" role="{{ 'alert' if cat == 'error' else 'status' }}">{{ icon({'success': 'check-circle', 'error': 'alert', 'info': 'info'}.get(cat, 'info'), 18) }}<span class="flash-text">{{ msg }}</span><button class="flash-close" aria-label="Dismiss message" onclick="this.parentElement.remove()">{{ icon('x', 16) }}</button></div>
     {% endfor %}
   </div>
   {% endif %}
@@ -667,50 +690,65 @@ window.CSRF_TOKEN = "{{ csrf_token() }}";
   {% block content %}{% endblock %}
 </main>
 
+<footer class="site-footer">
+  <nav aria-label="Legal and information">
+    <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+    <a href="{{ url_for('terms') }}">Terms</a>
+    <a href="{{ url_for('cookies') }}">Cookies</a>
+    <a href="{{ url_for('privacy', lang='ar') }}" lang="ar">الخصوصية والشروط بالعربية</a>
+    {% if site.contact_email %}<a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>{% endif %}
+  </nav>
+  <p>© {{ current_year }} {{ site.name }} — a student capstone project at {{ site.university }}.
+     An academic prototype; not affiliated with the Public Security Directorate or any government body.
+     Emergency: <a href="tel:911">911</a>.</p>
+</footer>
+
 {% if current_user and not auth_page %}
 {% set display_name = current_user.full_name or current_user.username %}
 <!-- ── Website assistant ── -->
-<button class="chat-fab" id="chat-fab" title="Website Assistant" aria-label="Open assistant" data-open-chat>
-  <span class="fab-icon">💬</span>
+<button class="chat-fab" id="chat-fab" aria-label="Open assistant" aria-controls="chat-panel" data-open-chat>
+  {{ icon("chat", 24) }}
 </button>
 
-<div class="chat-panel" id="chat-panel" role="dialog" aria-label="Website Assistant">
+<div class="chat-panel" id="chat-panel" role="dialog" aria-labelledby="chat-title">
   <div class="chat-panel-header">
-    <div class="avatar">🤖</div>
+    <div class="avatar" aria-hidden="true">{{ icon("bot", 18) }}</div>
     <div class="info">
-      <div class="name">SmartPath Assistant</div>
-      <div class="status">● Knows {{ 'all site data' if current_user.is_admin else 'your uploads' }}</div>
+      <h2 class="name" id="chat-title">SmartPath Assistant</h2>
+      <div class="status">{{ 'Knows all site data' if current_user.is_admin else 'Helps with reporting' }} · answers by AI (Groq)</div>
     </div>
-    <button class="icon-btn" id="chat-clear" title="New chat" aria-label="New chat">↺</button>
-    <button class="icon-btn" id="chat-panel-close" aria-label="Close">✕</button>
+    <button class="icon-btn" id="chat-clear" aria-label="Start a new chat" title="New chat">{{ icon("refresh", 17) }}</button>
+    <button class="icon-btn" id="chat-panel-close" aria-label="Close assistant">{{ icon("x", 18) }}</button>
   </div>
   <div class="chat-wrap">
-    <div class="chat-messages" id="fab-chat-messages"></div>
+    <div class="chat-messages" id="fab-chat-messages" role="log" aria-live="polite" aria-label="Conversation"></div>
     <div class="chat-suggestions" id="chat-suggestions">
       {% if current_user.is_admin %}
-      <button type="button" class="chip">How many violations are there?</button>
+      <button type="button" class="chip">How many reports are waiting for review?</button>
       <button type="button" class="chip">Where do most violations happen?</button>
       <button type="button" class="chip">Which plates are repeat offenders?</button>
       <button type="button" class="chip">What time of day is worst?</button>
       {% else %}
-      <button type="button" class="chip">How many images have I uploaded?</button>
-      <button type="button" class="chip">Which of my uploads had violations?</button>
-      <button type="button" class="chip">What are the fines?</button>
-      <button type="button" class="chip">How do I upload an image?</button>
+      <button type="button" class="chip">How do I send a report?</button>
+      <button type="button" class="chip">How many reports have I sent?</button>
+      <button type="button" class="chip">What happens after I send a photo?</button>
+      <button type="button" class="chip">How is my data used?</button>
       {% endif %}
     </div>
     <form class="chat-input-row" id="fab-chat-form">
+      <label for="fab-chat-input" class="sr-only">Your question</label>
       <input class="chat-input" id="fab-chat-input" type="text" autocomplete="off"
-             placeholder="Ask about violations, places, your uploads…" maxlength="500" />
-      <button class="chat-send" id="fab-chat-send" type="submit">Send</button>
+             placeholder="{{ 'Ask about violations, places, plates…' if current_user.is_admin else 'Ask how reporting works…' }}" maxlength="500" />
+      <button class="chat-send" id="fab-chat-send" type="submit" aria-label="Send">{{ icon("send", 17) }}</button>
     </form>
+    <p class="chat-note">Don't share personal details. Questions are processed by Groq — see the <a href="{{ url_for('privacy') }}">Privacy Policy</a>.</p>
   </div>
 </div>
 <script id="chat-config" type="application/json">{{ {
   "key": "sp_chat_" ~ current_user.id,
-  "greeting": ("👋 Hi " ~ display_name ~ "! Ask me anything about the site — how many violations there are, where and when they happen, plates, fines, or how to use a page.")
+  "greeting": ("Hi " ~ display_name ~ ". Ask me anything about the site — reports waiting for review, where and when violations happen, plates, fines, or how to use a page.")
               if current_user.is_admin else
-              ("👋 Hi " ~ display_name ~ "! Ask me about your uploads, their results and fines, or how to use the site.")
+              ("Hi " ~ display_name ~ ". I can explain how to send a report, what happens next, and how your data is used.")
 } | tojson }}</script>
 {% endif %}
 
@@ -725,10 +763,14 @@ window.CSRF_TOKEN = "{{ csrf_token() }}";
 <script>
 /* ── Theme toggle ── */
 const themeBtn = document.getElementById('theme-btn');
-if (themeBtn) themeBtn.addEventListener('click', () => {
-  const isLight = document.body.classList.toggle('light');
-  try { localStorage.setItem('sp_theme', isLight ? 'light' : 'dark'); } catch (e) {}
-});
+if (themeBtn) {
+  themeBtn.setAttribute('aria-pressed', document.body.classList.contains('light'));
+  themeBtn.addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('light');
+    themeBtn.setAttribute('aria-pressed', isLight);
+    try { localStorage.setItem('sp_theme', isLight ? 'light' : 'dark'); } catch (e) {}
+  });
+}
 
 /* ── Mobile menu ── */
 const burger  = document.getElementById('nav-burger');
@@ -807,17 +849,25 @@ if (panel) {
     }
   }
 
-  function openChat() {
+  let chatOpener = null;
+  function openChat(from) {
+    chatOpener = from || null;
     panel.classList.add('open');
     document.body.classList.add('chat-open');
     if (navMenu) navMenu.classList.remove('open');
-    if (burger) burger.classList.remove('open');
-    if (isDesktop()) input.focus();
+    if (burger) { burger.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); }
+    input.focus();
   }
-  function closeChat() { panel.classList.remove('open'); document.body.classList.remove('chat-open'); }
+  function closeChat() {
+    if (!panel.classList.contains('open')) return;
+    panel.classList.remove('open');
+    document.body.classList.remove('chat-open');
+    if (chatOpener && chatOpener.offsetParent !== null) chatOpener.focus();
+    else document.getElementById('chat-fab').focus();
+  }
 
   document.querySelectorAll('[data-open-chat]').forEach(b => b.addEventListener('click', () =>
-    panel.classList.contains('open') ? closeChat() : openChat()));
+    panel.classList.contains('open') ? closeChat() : openChat(b)));
   document.getElementById('chat-panel-close').addEventListener('click', closeChat);
   document.getElementById('chat-clear').addEventListener('click', () => { history = []; save(); render(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeChat(); });
@@ -836,10 +886,19 @@ window.addEventListener('pageshow', hideSpinner);   // e.g. back button after a 
 /* ── GPS ── */
 let gpsReady = false;
 function refreshAnalyzeBtn() {
-  const btn  = document.getElementById('analyze-btn');
-  const file = document.getElementById('file-input');
-  if (btn) btn.disabled = !(gpsReady && file && file.files.length);
+  const btn     = document.getElementById('analyze-btn');
+  const file    = document.getElementById('file-input');
+  const consent = document.getElementById('consent');
+  const hint    = document.getElementById('analyze-hint');
+  if (!btn) return;
+  let msg = '';
+  if (!(file && file.files.length)) msg = 'Choose a photo to continue.';
+  else if (consent && !consent.checked) msg = 'Tick the box above to confirm the photo rules.';
+  else if (!gpsReady) msg = 'Getting your location…';
+  btn.disabled = !!msg;
+  if (hint) hint.textContent = msg;
 }
+document.addEventListener('change', e => { if (e.target && e.target.id === 'consent') refreshAnalyzeBtn(); });
 function initGPS() {
   const latField  = document.getElementById('lat-field');
   const lngField  = document.getElementById('lng-field');
@@ -851,14 +910,14 @@ function initGPS() {
     refreshAnalyzeBtn();
   };
   const fallback = msg => { latField.value = '31.9516'; lngField.value = '35.9342'; done(msg, 'err'); };
-  if (!navigator.geolocation) return fallback('⚠️ Geolocation not supported — using default Amman location.');
+  if (!navigator.geolocation) return fallback('Location is not available on this device, so a default location in Amman will be used.');
   navigator.geolocation.getCurrentPosition(
     pos => {
       latField.value = pos.coords.latitude;
       lngField.value = pos.coords.longitude;
-      done(`📍 Location acquired: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`, 'ok');
+      done(`Location found (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`, 'ok');
     },
-    () => fallback('⚠️ Location blocked — using default Amman location.'),
+    () => fallback('Location access was not allowed, so a default location in Amman will be used.'),
     { timeout: 8000, maximumAge: 60000 }
   );
 }
@@ -893,7 +952,7 @@ function initUploadPreview() {
   }
   if (form) form.addEventListener('submit', () => {
     document.getElementById('analyze-btn').disabled = true;
-    showSpinner('Analyzing image for violations…');
+    showSpinner(document.getElementById('consent') ? 'Sending your report…' : 'Analyzing image for violations…');
   });
 }
 

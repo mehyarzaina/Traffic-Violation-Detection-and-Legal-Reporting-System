@@ -1,15 +1,22 @@
 """
-SmartPath Jordan — Traffic Violation Detection System
+SmartPath Jordan — Traffic Violation Reporting (academic prototype)
 Run: python app.py
+
+Roles
+  * user  (reporter) — uploads photos of possible violations; only ever sees
+                       "report received" and the list of photos they sent.
+  * admin (officer)  — sees AI results and vehicle details, reviews reports
+                       (confirm / not a violation), history, analytics, users.
 
 Setup:
   1. Fill in .env (DB_*, GEMINI_API_KEY, GROQ_API_KEY, FLASK_SECRET_KEY,
-     ADMIN_USERNAME, ADMIN_PASSWORD)
+     ADMIN_USERNAME, ADMIN_PASSWORD, optional CONTACT_EMAIL)
   2. pip install -r requirements.txt
   3. python app.py   → http://localhost:5000
 """
 import os
 import io
+import json
 import time
 import uuid
 import hashlib
@@ -23,7 +30,7 @@ from flask import (
     Flask, render_template, request, jsonify, redirect, url_for,
     send_from_directory, send_file, Response, g, flash, abort,
 )
-from PIL import Image
+from PIL import Image, ImageOps
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 
@@ -39,6 +46,8 @@ from auth import login_required, admin_required, login_user, logout_user
 import crud
 from crud import UserError
 import chatbot
+import site_info
+import icons
 
 # ---------------------------------------------------------------------------
 # App setup
@@ -50,21 +59,66 @@ app.config.update(
     PERMANENT_SESSION_LIFETIME=timedelta(days=7),
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
+    TEMPLATES_AUTO_RELOAD=True,                     # template edits show without a restart
 )
 if not os.getenv("FLASK_SECRET_KEY"):
     print("[Auth] FLASK_SECRET_KEY not set — sessions will reset on every restart.")
 
 UPLOAD_FOLDER = "images"
 ALLOWED_EXT = {"jpg", "jpeg", "png", "webp"}
+MAX_IMAGE_SIDE = 1920            # uploads are downscaled to this for storage
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Pages a signed-in user can open before accepting the current Terms
+TERMS_EXEMPT = {"accept_terms", "logout", "privacy", "terms", "cookies", "static", "health"}
+
+app.jinja_env.globals.update(icon=icons.icon, logo_mark=icons.logo_mark)
 
 app.before_request(auth.load_current_user)
 app.before_request(auth.check_csrf)
 
 
+POLICIES_DATE = datetime.fromisoformat(site_info.SITE["policies_updated"])
+
+
+def _needs_terms(user) -> bool:
+    """No acceptance yet, or accepted before the current policies took effect."""
+    return user.accepted_terms_at is None or user.accepted_terms_at < POLICIES_DATE
+
+
+@app.before_request
+def require_terms():
+    if g.user and _needs_terms(g.user) and request.endpoint not in TERMS_EXEMPT:
+        if request.method == "GET":
+            return redirect(url_for("accept_terms", next=request.full_path.rstrip("?")))
+        return jsonify({"error": "Please accept the Terms first."}), 403
+
+
+@app.after_request
+def security_headers(resp):
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("X-Frame-Options", "DENY")
+    resp.headers.setdefault("Referrer-Policy", "same-origin")
+    resp.headers.setdefault("Permissions-Policy", "camera=(self), geolocation=(self), microphone=()")
+    return resp
+
+
 @app.context_processor
 def inject_globals():
-    return {"current_user": g.get("user"), "csrf_token": auth.csrf_token}
+    user = g.get("user")
+    pending = 0
+    if user and user.is_admin:
+        try:
+            pending = crud.report_counts()["pending"]
+        except Exception:
+            pending = 0
+    return {
+        "current_user": user,
+        "csrf_token": auth.csrf_token,
+        "site": site_info.SITE,
+        "current_year": datetime.now().year,
+        "pending_reviews": pending,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -83,12 +137,15 @@ def _fines_map() -> dict:
 
 
 def _result_from_upload(upload) -> dict:
+    """Full result for officers (never rendered for reporters)."""
     fines = _fines_map()
-    violations = [{"name": v, "fine": fines.get(v, 0)} for v in upload.violation_list]
+    shown = upload.confirmed_list if upload.review_status == "confirmed" else upload.violation_list
+    violations = [{"name": v, "fine": fines.get(v, 0)} for v in shown]
     return {
         "upload_id":  upload.id,
         "violations": violations,
-        "total_fine": upload.total_fine,
+        "ai_violations": upload.violation_list,
+        "total_fine": sum(v["fine"] for v in violations),
         "plate":      upload.plate_number or "Unreadable",
         "car_color":  upload.car_color or "Unknown",
         "car_type":   upload.car_type or "Unknown",
@@ -99,17 +156,41 @@ def _result_from_upload(upload) -> dict:
         "longitude":  upload.longitude,
         "timestamp":  upload.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
         "time_label": get_time_label(upload.uploaded_at.hour),
-        "image_url":  url_for("serve_image", filename=upload.image_filename),
-        "original_name": upload.original_name,
+        "image_url":  url_for("serve_image", filename=upload.officer_image),
+        "review_status": upload.review_status,
+        "review_note": upload.review_note,
     }
 
 
-def _can_view_upload(upload) -> bool:
-    return upload is not None and (g.user.is_admin or upload.user_id == g.user.id)
+def _delete_files(names):
+    for name in names or []:
+        path = os.path.join(UPLOAD_FOLDER, os.path.basename(name))
+        try:
+            if os.path.exists(path):
+                os.remove(path)
+        except OSError as exc:
+            print(f"[Files] Could not delete {name}: {exc}")
 
 
-def _dashboard_error(msg: str):
-    return render_template("dashboard.html", active="dashboard", result=None, error=msg), 400
+def _upload_error(msg: str):
+    template = "dashboard.html" if g.user.is_admin else "report.html"
+    return render_template(template, active="dashboard", result=None, error=msg), 400
+
+
+def _officer_auto_review(upload):
+    """An officer's own upload is decided immediately from the AI result."""
+    if upload.violation_list:
+        crud.review_report(upload.id, g.user.id, "confirm", upload.violation_list, "Uploaded by an officer")
+    else:
+        crud.review_report(upload.id, g.user.id, "reject", [], "Uploaded by an officer — no violation detected")
+
+
+def _prepare_image(raw: bytes) -> Image.Image:
+    """Open, apply phone rotation, drop metadata (EXIF/GPS) and downscale."""
+    img = Image.open(io.BytesIO(raw))
+    img = ImageOps.exif_transpose(img).convert("RGB")
+    img.thumbnail((MAX_IMAGE_SIDE, MAX_IMAGE_SIDE))
+    return img
 
 
 # ---------------------------------------------------------------------------
@@ -140,14 +221,17 @@ def register():
         form = request.form
         if form.get("password") != form.get("confirm"):
             error = "The two passwords don't match."
+        elif form.get("agree") != "on":
+            error = "Please confirm you are 18 or older and accept the Terms and Privacy Policy."
         else:
             try:
-                # Self sign-up always creates a normal user account.
+                # Self sign-up always creates a normal (reporter) account.
                 user = crud.create_user(
                     form.get("username", ""), form.get("password", ""),
                     full_name=form.get("full_name", ""), email=form.get("email", ""),
                     role="user",
                 )
+                crud.accept_terms(user.id)
                 login_user(user)
                 flash(f"Welcome, {user.full_name or user.username}! Your account is ready.", "success")
                 return redirect(url_for("index"))
@@ -156,15 +240,27 @@ def register():
     return render_template("register.html", error=error, form=form, auth_page=True)
 
 
+@app.route("/accept-terms", methods=["GET", "POST"])
+@login_required
+def accept_terms():
+    if request.method == "POST":
+        if request.form.get("agree") != "on":
+            flash("You need to accept the Terms and Privacy Policy to continue.", "error")
+        else:
+            crud.accept_terms(g.user.id)
+            return redirect(_safe_next(request.args.get("next", "")))
+    return render_template("accept_terms.html", auth_page=True)
+
+
 @app.route("/logout", methods=["POST"])
 def logout():
     logout_user()
     flash("You have been signed out.", "success")
-    return redirect(url_for("login"))
+    return redirect(url_for("index"))
 
 
 # ---------------------------------------------------------------------------
-# Pages
+# Public pages
 # ---------------------------------------------------------------------------
 
 @app.route("/api/health")
@@ -176,12 +272,37 @@ def health():
         return jsonify({"status": "error", "detail": str(e)}), 500
 
 
+def _legal(page: str):
+    lang = "ar" if request.args.get("lang") == "ar" else "en"
+    return render_template(f"legal/{page}.html", active=page, lang=lang, page=page)
+
+
+@app.route("/privacy")
+def privacy():
+    return _legal("privacy")
+
+
+@app.route("/terms")
+def terms():
+    return _legal("terms")
+
+
+@app.route("/cookies")
+def cookies():
+    return _legal("cookies")
+
+
 @app.route("/")
 def index():
+    """Public welcome page; signed-in people go straight to their workspace."""
     if not g.user:
-        return redirect(url_for("login"))
+        return render_template("welcome.html", active="welcome")
     return redirect(url_for("home" if g.user.is_admin else "dashboard"))
 
+
+# ---------------------------------------------------------------------------
+# Upload (reporters and officers)
+# ---------------------------------------------------------------------------
 
 @app.route("/home")
 @admin_required
@@ -192,55 +313,69 @@ def home():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html", active="dashboard", result=None, error=None)
+    template = "dashboard.html" if g.user.is_admin else "report.html"
+    return render_template(template, active="dashboard", result=None, error=None)
 
 
 @app.route("/analyze", methods=["POST"])
 @login_required
 def analyze():
-    # 1. Validate upload
+    is_officer = g.user.is_admin
+
+    # 1. Consent + validation
+    if not is_officer and request.form.get("consent") != "on":
+        return _upload_error("Please tick the box to confirm the photo rules before sending.")
     file = request.files.get("image")
     if not file or not file.filename:
-        return _dashboard_error("No image uploaded.")
+        return _upload_error("No image uploaded.")
     original = secure_filename(file.filename) or "image.jpg"
     ext = original.rsplit(".", 1)[-1].lower() if "." in original else ""
     if ext not in ALLOWED_EXT:
-        return _dashboard_error("Please upload a JPG, PNG or WEBP image.")
+        return _upload_error("Please upload a JPG, PNG or WEBP image.")
 
     raw = file.read()
     try:
-        image = Image.open(io.BytesIO(raw)).convert("RGB")
+        image = _prepare_image(raw)
     except Exception:
-        return _dashboard_error("Could not read the uploaded image.")
+        return _upload_error("Could not read the uploaded image.")
 
     # 2. GPS coordinates (fallback: Amman centre)
     try:
         latitude  = float(request.form.get("latitude", ""))
         longitude = float(request.form.get("longitude", ""))
+        if not (-90 <= latitude <= 90 and -180 <= longitude <= 180):
+            raise ValueError
     except (TypeError, ValueError):
         latitude, longitude = 31.9516, 35.9342
 
-    # 3. Same image analysed before? Reuse that result instead of calling the models again.
     image_hash = hashlib.sha256(raw).hexdigest()
+
+    # 3. Same image analysed before? Reuse that AI result instead of calling the models again.
     cached = crud.get_upload_by_hash(image_hash)
     if cached and os.path.exists(os.path.join(UPLOAD_FOLDER, cached.image_filename)):
         if cached.user_id == g.user.id:
-            flash("You already analysed this image — showing the saved result.", "info")
-            return redirect(url_for("view_upload", upload_id=cached.id))
-        copy = crud.create_upload(
-            user_id=g.user.id, image_filename=cached.image_filename, original_name=original,
-            image_hash=image_hash, plate_number=cached.plate_number, car_color=cached.car_color,
-            car_type=cached.car_type, city=cached.city, area=cached.area, street=cached.street,
+            if is_officer:
+                flash("You already analysed this image — showing the saved result.", "info")
+                return redirect(url_for("view_upload", upload_id=cached.id))
+            flash("You already sent this photo. Thank you — it is in your reports.", "info")
+            return redirect(url_for("report_received", upload_id=cached.id))
+        upload = crud.create_upload(
+            user_id=g.user.id, image_filename=cached.image_filename,
+            annotated_filename=cached.annotated_filename, image_hash=image_hash,
+            plate_number=cached.plate_number, car_color=cached.car_color, car_type=cached.car_type,
+            city=cached.city, area=cached.area, street=cached.street,
             latitude=cached.latitude, longitude=cached.longitude,
             violations=cached.violations, total_fine=cached.total_fine,
+            review_status="pending",
         )
-        flash("This image was analysed before — showing the saved result.", "info")
-        return redirect(url_for("view_upload", upload_id=copy.id))
+        if is_officer:
+            _officer_auto_review(upload)
+        return redirect(url_for("view_upload" if is_officer else "report_received", upload_id=upload.id))
 
-    # 4. Save with a unique name so different users' files never overwrite each other
-    filename  = f"{uuid.uuid4().hex[:12]}_{original}"
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
-    image.save(file_path)
+    # 4. Save the (metadata-free, downscaled) photo under a random name
+    stem = uuid.uuid4().hex
+    filename = f"{stem}.jpg"
+    image.save(os.path.join(UPLOAD_FOLDER, filename), "JPEG", quality=85, optimize=True)
     timestamp = datetime.now()
 
     # 5. Geocode + YOLO + Gemini in parallel
@@ -254,63 +389,155 @@ def analyze():
         vehicle = f_veh.result()
     print(f"[TIMER] Geocode + YOLO + Gemini (parallel): {time.time() - t0:.2f}s")
 
+    annotated_name = None
     if annotated:
-        annotated.save(file_path)
+        annotated_name = f"{stem}_ai.jpg"
+        annotated.save(os.path.join(UPLOAD_FOLDER, annotated_name), "JPEG", quality=85, optimize=True)
 
-    plate    = (vehicle.get("license_plate") or "Unreadable")[:20]
-    color    = vehicle.get("car_color") or "Unknown"
-    car_type = vehicle.get("car_type") or "Unknown"
-    fines    = _fines_map()
-    total    = sum(fines.get(v, 0) for v in violation_names)
-
-    for v_name in violation_names:
-        crud.save_violation(
-            violation_name=v_name, plate_number=plate, car_color=color, car_type=car_type,
-            city=geo["city"], area=geo["area"], street=geo["street"],
-            latitude=latitude, longitude=longitude, timestamp=timestamp,
-            image_filename=filename, user_id=g.user.id,
-        )
-
+    fines = _fines_map()
     upload = crud.create_upload(
-        user_id=g.user.id, image_filename=filename, original_name=original, image_hash=image_hash,
-        plate_number=plate, car_color=color, car_type=car_type,
+        user_id=g.user.id, image_filename=filename, annotated_filename=annotated_name,
+        image_hash=image_hash,
+        plate_number=(vehicle.get("license_plate") or "Unreadable")[:20],
+        car_color=vehicle.get("car_color") or "Unknown",
+        car_type=vehicle.get("car_type") or "Unknown",
         city=geo["city"], area=geo["area"], street=geo["street"],
         latitude=latitude, longitude=longitude,
-        violations=",".join(violation_names), total_fine=total, uploaded_at=timestamp,
+        violations=",".join(violation_names),
+        total_fine=sum(fines.get(v, 0) for v in violation_names),
+        uploaded_at=timestamp, review_status="pending",
     )
-    # Redirect (POST → GET) so refreshing the page doesn't re-upload the image
-    return redirect(url_for("view_upload", upload_id=upload.id))
 
+    # Officers are authorised: their own uploads count straight away.
+    if is_officer:
+        _officer_auto_review(upload)
+        return redirect(url_for("view_upload", upload_id=upload.id))
+
+    # Redirect (POST → GET) so refreshing doesn't send the photo twice
+    return redirect(url_for("report_received", upload_id=upload.id))
+
+
+# ── Reporter pages ──────────────────────────────────────────────────────────
+
+@app.route("/reports/<int:upload_id>/received")
+@login_required
+def report_received(upload_id):
+    upload = crud.get_upload(upload_id)
+    if not upload or upload.user_id != g.user.id:
+        abort(404)
+    return render_template("report_received.html", active="dashboard", upload=upload)
+
+
+@app.route("/my-reports")
+@login_required
+def my_reports():
+    if g.user.is_admin:
+        return redirect(url_for("admin_reports"))
+    return render_template("my_reports.html", active="my_reports",
+                           uploads=crud.get_uploads_for_user(g.user.id))
+
+
+@app.route("/my-uploads")
+def my_uploads_legacy():
+    return redirect(url_for("my_reports"))
+
+
+@app.route("/my-reports/<int:upload_id>/delete", methods=["POST"])
+@login_required
+def delete_my_report(upload_id):
+    files = crud.withdraw_report(upload_id, g.user.id)
+    if files is None:
+        flash("Report not found.", "error")
+    else:
+        _delete_files(files)
+        flash("The report was removed from your list.", "success")
+    return redirect(url_for("my_reports"))
+
+
+# ── Account (all users) ─────────────────────────────────────────────────────
+
+@app.route("/account")
+@login_required
+def account():
+    return render_template("account.html", active="account",
+                           n_reports=len(crud.get_uploads_for_user(g.user.id)))
+
+
+@app.route("/account/password", methods=["POST"])
+@login_required
+def account_password():
+    f = request.form
+    try:
+        if f.get("new_password") != f.get("confirm"):
+            raise UserError("The two new passwords don't match.")
+        crud.change_password(g.user.id, f.get("current_password", ""), f.get("new_password", ""))
+        flash("Your password was changed.", "success")
+    except UserError as e:
+        flash(str(e), "error")
+    return redirect(url_for("account"))
+
+
+@app.route("/account/export")
+@login_required
+def account_export():
+    data = json.dumps(crud.export_user_data(g.user.id), ensure_ascii=False, indent=2)
+    return send_file(io.BytesIO(data.encode("utf-8")), mimetype="application/json",
+                     as_attachment=True, download_name=f"smartpath_my_data_{datetime.now():%Y%m%d}.json")
+
+
+@app.route("/account/delete", methods=["POST"])
+@login_required
+def account_delete():
+    try:
+        files = crud.delete_own_account(g.user.id, request.form.get("password", ""))
+    except UserError as e:
+        flash(str(e), "error")
+        return redirect(url_for("account"))
+    _delete_files(files)
+    logout_user()
+    flash("Your account was deleted.", "success")
+    return redirect(url_for("login"))
+
+
+# ---------------------------------------------------------------------------
+# Officer pages
+# ---------------------------------------------------------------------------
 
 @app.route("/uploads/<int:upload_id>")
-@login_required
+@admin_required
 def view_upload(upload_id):
     upload = crud.get_upload(upload_id)
-    if not _can_view_upload(upload):
+    if not upload:
         abort(404)
     return render_template("dashboard.html", active="dashboard",
                            result=_result_from_upload(upload), error=None)
 
 
-@app.route("/my-uploads")
-@login_required
-def my_uploads():
-    uploads = crud.get_uploads_for_user(g.user.id)
-    n_violations = sum(1 for u in uploads if u.violation_list)
+@app.route("/admin/reports")
+@admin_required
+def admin_reports():
+    status = request.args.get("status", "pending")
+    if status not in ("pending", "confirmed", "rejected", "all"):
+        status = "pending"
     return render_template(
-        "my_uploads.html", active="my_uploads", uploads=uploads,
-        n_violations=n_violations, total_fines=sum(u.total_fine for u in uploads),
+        "admin_reports.html", active="reports", status=status,
+        reports=crud.get_reports(status), counts=crud.report_counts(),
+        fines=crud.get_all_fines(),
     )
 
 
-@app.route("/my-uploads/<int:upload_id>/delete", methods=["POST"])
-@login_required
-def delete_my_upload(upload_id):
-    if crud.delete_upload(upload_id, g.user.id):
-        flash("Upload removed from your history.", "success")
-    else:
-        flash("Upload not found.", "error")
-    return redirect(url_for("my_uploads"))
+@app.route("/admin/reports/<int:upload_id>/review", methods=["POST"])
+@admin_required
+def admin_review_report(upload_id):
+    decision = request.form.get("decision", "")
+    try:
+        crud.review_report(upload_id, g.user.id, decision,
+                           request.form.getlist("violations"), request.form.get("note", ""))
+        flash("Report confirmed as a violation." if decision == "confirm"
+              else "Report marked as not a violation.", "success")
+    except UserError as e:
+        flash(str(e), "error")
+    return redirect(url_for("admin_reports", status=request.args.get("status", "pending")))
 
 
 # ── Images ──────────────────────────────────────────────────────────────────
@@ -318,13 +545,15 @@ def delete_my_upload(upload_id):
 @app.route("/images/<filename>")
 @login_required
 def serve_image(filename):
-    # Admins see every image; users only the images they uploaded.
+    # Officers see every image; reporters only the original photos they sent.
     if not g.user.is_admin and not crud.user_owns_image(g.user.id, filename):
         abort(404)
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    resp = send_from_directory(UPLOAD_FOLDER, filename)
+    resp.headers["Cache-Control"] = "private, max-age=3600"
+    return resp
 
 
-# ── PDF reports ─────────────────────────────────────────────────────────────
+# ── PDF reports (officers) ──────────────────────────────────────────────────
 
 def _pdf_response(data: dict, plate: str):
     pdf = build_violation_pdf(data)
@@ -336,13 +565,15 @@ def _pdf_response(data: dict, plate: str):
 
 
 @app.route("/uploads/<int:upload_id>/pdf")
-@login_required
+@admin_required
 def upload_pdf(upload_id):
     upload = crud.get_upload(upload_id)
-    if not _can_view_upload(upload) or not upload.violation_list:
+    if not upload:
         abort(404)
     r = _result_from_upload(upload)
-    img = os.path.join(UPLOAD_FOLDER, upload.image_filename)
+    if not r["violations"]:
+        abort(404)
+    img = os.path.join(UPLOAD_FOLDER, upload.officer_image)
     r["image_path"] = img if os.path.exists(img) else None
     return _pdf_response(r, r["plate"])
 
@@ -380,7 +611,7 @@ def report_table_pdf():
     )
 
 
-# ── History & analytics (admin) ─────────────────────────────────────────────
+# ── History & analytics ─────────────────────────────────────────────────────
 
 @app.route("/history")
 @admin_required
@@ -409,6 +640,7 @@ def api_stats():
     return jsonify({
         "total_violations": len(records),
         "total_fines_jd":   sum(f.fine_amount for _, f in records),
+        "pending_reviews":  crud.report_counts()["pending"],
         "by_hour":  [{"hour": k, "count": v} for k, v in sorted(by_hour.items())],
         "by_city":  [{"city": k, "count": v} for k, v in sorted(by_city.items(), key=lambda x: -x[1])],
         "by_type":  [{"type": k, "count": v} for k, v in sorted(by_type.items(), key=lambda x: -x[1])],
@@ -432,7 +664,7 @@ def api_violations_map():
     return jsonify(pins)
 
 
-# ── User management (admin) ─────────────────────────────────────────────────
+# ── User management ─────────────────────────────────────────────────────────
 
 @app.route("/admin/users")
 @admin_required
@@ -452,7 +684,7 @@ def admin_create_user():
             full_name=f.get("full_name", ""), email=f.get("email", ""),
             role=f.get("role", "user"), is_active=f.get("is_active") == "on",
         )
-        flash(f"User '{user.username}' created.", "success")
+        flash(f"User '{user.username}' created. They will be asked to accept the Terms when they first sign in.", "success")
     except UserError as e:
         flash(str(e), "error")
     return redirect(url_for("admin_users"))
@@ -479,8 +711,8 @@ def admin_update_user(user_id):
 @admin_required
 def admin_delete_user(user_id):
     try:
-        crud.delete_user(user_id, g.user.id)
-        flash("User deleted. Their uploads and violation records were kept.", "success")
+        _delete_files(crud.delete_user(user_id, g.user.id))
+        flash("User deleted. Their unreviewed reports were deleted; reviewed reports were kept without their name.", "success")
     except UserError as e:
         flash(str(e), "error")
     return redirect(url_for("admin_users"))
@@ -509,7 +741,7 @@ def chatbot_route():
 @app.errorhandler(413)
 def too_large(_):
     if g.get("user"):
-        return _dashboard_error("That image is larger than 16 MB.")
+        return _upload_error("That image is larger than 16 MB.")
     return Response("File too large", status=413)
 
 
@@ -522,6 +754,12 @@ def not_found(_):
 def bad_request(e):
     return render_template("error.html", code=400,
                            message=getattr(e, "description", "Bad request.")), 400
+
+
+@app.errorhandler(500)
+def server_error(_):
+    return render_template("error.html", code=500,
+                           message="Something went wrong on our side. Please try again."), 500
 
 
 # ---------------------------------------------------------------------------

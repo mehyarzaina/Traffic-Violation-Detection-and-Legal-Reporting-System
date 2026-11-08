@@ -5,71 +5,57 @@
 <div class="page-header">
   <div>
     <h1 class="page-title">Traffic Violation Detection</h1>
-    <p class="page-sub">Upload a traffic camera image (or take a photo) to detect violations and extract vehicle info.</p>
+    <p class="page-sub">Upload a traffic camera image to detect violations and extract vehicle info. Officer uploads are recorded straight away.</p>
   </div>
-  {% if not current_user.is_admin %}
-  <div><a class="btn-outline" href="{{ url_for('my_uploads') }}">🗂️ My Uploads</a></div>
-  {% endif %}
+  <div><a class="btn-outline" href="{{ url_for('admin_reports') }}">{{ icon("inbox", 17) }} Reports to review{% if pending_reviews %} ({{ pending_reviews }}){% endif %}</a></div>
 </div>
 
 {% if error %}
-<div class="flash-error">⚠️ {{ error }}</div>
+<div class="flash flash-error" role="alert" style="margin-bottom:18px">{{ icon("alert", 18) }}<span class="flash-text">{{ error }}</span></div>
 {% endif %}
 
 <div class="detect-grid">
 
   <!-- Upload card -->
   <div class="card">
-    <div class="card-title">📷 Camera Image Upload</div>
-    <form id="upload-form" action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" id="lat-field" name="latitude">
-      <input type="hidden" id="lng-field" name="longitude">
-
-      <div class="upload-zone" id="upload-zone">
-        <div class="upload-icon">📡</div>
-        <strong>Tap to choose or take a photo</strong>
-        <p>or drag an image here · JPG, PNG, WEBP · max 16 MB</p>
-        <input type="file" id="file-input" name="image" accept="image/jpeg,image/png,image/webp" required>
-      </div>
-
-      <div id="preview-wrap" style="display:none;margin-top:14px;">
-        <img id="preview-img" src="" alt="Preview"
-             style="width:100%;border-radius:10px;border:1px solid var(--border);object-fit:cover;max-height:260px;">
-        <div id="file-name" style="font-family:var(--mono);font-size:.75rem;color:var(--muted);margin-top:6px;word-break:break-all"></div>
-      </div>
-
-      <div id="gps-status">📍 Locating your position…</div>
-
-      <button class="btn" type="submit" id="analyze-btn" disabled>🔍 Analyze for Violations</button>
-    </form>
+    <h2 class="card-title">Upload a camera frame</h2>
+    {% include "_upload_form.html" %}
   </div>
 
   <!-- Results column -->
   <div id="results-col">
     {% if result %}
 
+      <div class="review-line">
+        Review status:
+        {% if result.review_status == 'confirmed' %}<span class="badge badge-red">Confirmed violation</span>
+        {% elif result.review_status == 'rejected' %}<span class="badge badge-green">Not a violation</span>
+        {% else %}<span class="badge badge-amber">Waiting for review</span>
+          <a href="{{ url_for('admin_reports') }}">Review it</a>{% endif %}
+        {% if result.review_note %}<span class="upload-meta">· {{ result.review_note }}</span>{% endif %}
+      </div>
+
       {% if result.violations %}
       <div class="violation-alert">
-        <div class="alert-title red">🚨 Violation Detected</div>
+        <div class="alert-title red">{{ icon("alert", 18) }} Violation detected</div>
         {% for v in result.violations %}<span class="vtag">{{ v.name }}</span>{% endfor %}
       </div>
       {% else %}
       <div class="clear-alert">
-        <div class="alert-title green">✅ No Violation Detected</div>
+        <div class="alert-title green">{{ icon("check-circle", 18) }} No violation detected</div>
         <div style="color:var(--muted);font-size:.84rem;margin-top:6px;">No traffic violations were identified in this frame.</div>
       </div>
       {% endif %}
 
       <div class="card" style="margin-bottom:14px;padding:12px">
-        <img src="{{ result.image_url }}" alt="Analysed image" style="width:100%;border-radius:8px;display:block;max-height:420px;object-fit:contain;background:var(--bg2)">
+        <img src="{{ result.image_url }}" alt="Analysed photo{% if result.violations %} with the detected {{ result.violations|map(attribute='name')|join(' and ') }} marked{% endif %}" style="width:100%;border-radius:8px;display:block;max-height:420px;object-fit:contain;background:var(--bg2)">
       </div>
 
       <div class="card accent-red" style="margin-bottom:14px;">
         <div class="card-title-row">
-          <div class="card-title" style="margin:0">🚗 Vehicle &amp; Location</div>
+          <div class="card-title" style="margin:0">Vehicle and location</div>
           {% if result.violations %}
-          <a class="btn-sm" href="{{ url_for('upload_pdf', upload_id=result.upload_id) }}">⬇ Download Report PDF</a>
+          <a class="btn-sm" href="{{ url_for('upload_pdf', upload_id=result.upload_id) }}">{{ icon("download", 16) }} Download PDF</a>
           {% endif %}
         </div>
 
@@ -91,7 +77,7 @@
             <div class="lbl">Map</div>
             <div class="val">
               <a href="https://www.google.com/maps?q={{ result.latitude }},{{ result.longitude }}"
-                 target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;">📍 View on Map</a>
+                 target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;">View on map</a>
             </div>
           </div>
         </div>
@@ -99,7 +85,7 @@
 
       {% if result.violations %}
       <div class="card">
-        <div class="card-title">💰 Fine Breakdown</div>
+        <div class="card-title">Reference fines</div>
         {% for v in result.violations %}
         <div class="fine-row">
           <span style="font-weight:600;font-size:.85rem;">{{ v.name }}</span>
@@ -114,13 +100,13 @@
       {% endif %}
 
       <div class="card accent-blue" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between">
-        <div style="font-size:13px;color:var(--muted)">💬 Questions about this result or your other uploads?</div>
+        <div style="font-size:13px;color:var(--muted)">Questions about this result or other records?</div>
         <button class="btn-sm" type="button" data-open-chat style="background:var(--blue)">Ask the assistant</button>
       </div>
 
     {% else %}
     <div class="card empty-state">
-      <div class="empty-icon">📊</div>
+      <div class="empty-icon">{{ icon("search", 36) }}</div>
       <div class="empty-title">Analysis Results</div>
       <div class="empty-sub">Upload and analyze an image to see violation detection results and vehicle information here.</div>
     </div>

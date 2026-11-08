@@ -1,0 +1,104 @@
+{#
+  The animated night-city road scene (original design from the Home page).
+  Usage:
+    {% from "_car_scene.html" import car_scene %}
+    {% call car_scene("scene--tall") %} …overlay content… {% endcall %}
+  Buildings, lamps, stars and lane lines repeat so the scene fills any width.
+#}
+{% macro car_scene(cls="") %}
+<style>
+:root{--sky1:#0d1b2a;--sky2:#1a2f4a;--road:#1c1c24;--lane:#eab308;--building1:#1a1a28;--building2:#141420}
+body.light{--sky1:#bcd4f0;--sky2:#8ab4e0;--road:#555566;--lane:#f7c948;--building1:#c5cfe0;--building2:#b0bcd0}
+.hero{position:relative;overflow:hidden;height:280px;background:var(--sky1)}
+.hero.scene--tall{height:520px}
+.sky{position:absolute;inset:0;background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 70%,var(--road) 70%,var(--road) 100%)}
+.scene--tall .sky{background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 84%,var(--road) 84%,var(--road) 100%)}
+.star{position:absolute;width:2px;height:2px;border-radius:1px;background:#fff;opacity:.6}
+body.light .star{opacity:0}
+.celestial{position:absolute;top:20px;right:60px;width:28px;height:28px;border-radius:50%;transition:all .4s;background:#dce8ff;box-shadow:0 0 12px #dce8ff44}
+body.light .celestial{background:radial-gradient(circle,#ffe066 30%,#fbbf24 80%);box-shadow:0 0 16px #fbbf2488}
+.skyline{position:absolute;bottom:82px;left:0;display:flex;align-items:flex-end;z-index:1}
+.building{background:var(--building1);flex-shrink:0;position:relative}
+.b-window{position:absolute;width:4px;height:4px;border-radius:1px;background:var(--amber);opacity:.7}
+body.light .b-window{opacity:.5}
+.road{position:absolute;bottom:0;left:0;right:0;height:85px;background:var(--road)}
+.lane-line{position:absolute;bottom:42px;height:3px;border-radius:2px;background:var(--lane);animation:road-scroll 1.2s linear infinite}
+.road-edge{position:absolute;bottom:82px;left:0;right:0;height:4px;background:var(--amber);opacity:.5}
+@keyframes road-scroll{0%{transform:translateX(0)}100%{transform:translateX(-120px)}}
+.lamp{position:absolute;bottom:82px}
+.lamp-pole{width:3px;height:48px;background:#555;margin:0 auto}
+body.light .lamp-pole{background:#aaa}
+.lamp-head{width:22px;height:7px;border-radius:3px;background:#333;margin-left:-10px;position:relative}
+body.light .lamp-head{background:#888}
+.lamp-glow{width:10px;height:10px;border-radius:5px;background:var(--amber);position:absolute;bottom:0;left:6px;box-shadow:0 0 10px 3px var(--amber);opacity:.9}
+body.light .lamp-glow{opacity:.6}
+.car-track{position:absolute;bottom:44px;left:-160px;animation:drive 5s linear infinite}
+.scene--tall .car-track{animation-duration:7s}
+.car{position:relative;width:88px;height:38px}
+.car-body{position:absolute;bottom:0;left:3px;right:3px;height:26px;background:#ef4444;border-radius:5px}
+.car-roof{position:absolute;bottom:20px;left:16px;right:18px;height:18px;background:#c0392b;border-radius:4px 4px 2px 2px}
+.win-front{position:absolute;bottom:23px;right:19px;width:16px;height:13px;background:#b8d4ee;border-radius:2px 3px 0 0;opacity:.85}
+body.light .win-front{background:#5a8fbb}
+.win-rear{position:absolute;bottom:23px;left:17px;width:13px;height:11px;background:#b8d4ee;border-radius:2px 2px 0 0;opacity:.7}
+body.light .win-rear{background:#5a8fbb}
+.headlight{position:absolute;right:2px;bottom:6px;width:8px;height:6px;background:#fef08a;border-radius:2px;box-shadow:0 0 14px 5px rgba(254,240,138,.4)}
+.taillight{position:absolute;left:2px;bottom:6px;width:7px;height:6px;background:#f97316;border-radius:2px}
+.wheel{position:absolute;bottom:-4px;width:15px;height:15px;border-radius:8px;background:#1f1f2e;border:2px solid #555;animation:spin 0.5s linear infinite}
+body.light .wheel{border-color:#888}
+.wheel-f{right:10px}.wheel-r{left:10px}
+.exhaust{position:absolute;left:-2px;bottom:5px}
+.puff{width:5px;height:5px;border-radius:3px;background:#aaa;position:absolute;animation:puff 0.9s ease-out infinite;opacity:0}
+body.light .puff{background:#999}
+.p2{animation-delay:.3s}.p3{animation-delay:.6s}
+.speed-line{position:absolute;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);border-radius:1px;animation:speedline 0.7s linear infinite;opacity:0}
+body.light .speed-line{background:linear-gradient(90deg,transparent,rgba(0,0,0,.1),transparent)}
+.sl1{bottom:56px;width:100px;animation-delay:0s}.sl2{bottom:50px;width:65px;animation-delay:.2s}.sl3{bottom:64px;width:50px;animation-delay:.4s}
+.scan-beam{position:absolute;bottom:44px;width:50px;height:32px;background:linear-gradient(180deg,rgba(59,130,246,.18) 0%,transparent 100%);transform-origin:bottom center;border-radius:0 0 25px 25px;animation:scan-sweep 3s ease-in-out infinite;pointer-events:none}
+@keyframes drive{0%{left:-160px}100%{left:110%}}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(-360deg)}}
+@keyframes puff{0%{transform:translateX(0) scale(1);opacity:.5}100%{transform:translateX(-20px) scale(2.5);opacity:0}}
+@keyframes speedline{0%{left:70%;opacity:0}20%{opacity:1}80%{opacity:1}100%{left:-5%;opacity:0}}
+@keyframes scan-sweep{0%,100%{transform:rotate(-14deg);opacity:.4}50%{transform:rotate(14deg);opacity:.8}}
+.scene-overlay{position:absolute;inset:0 0 120px;z-index:5;display:flex;flex-direction:column;justify-content:center;padding:24px 32px}
+@media (max-width:600px){.hero{height:240px}.hero.scene--tall{height:560px}.celestial{right:20px}.scene-overlay{padding:20px 16px;justify-content:flex-start;padding-top:44px}}
+</style>
+
+
+{% set skyline = [
+  (44,72,2,[(11,7),(11,18),(23,7,0.3),(35,18)]), (32,52,1,[(10,6),(22,6,0.4)]),
+  (56,96,2,[(9,7),(9,19),(21,7,0.3),(21,19),(33,7),(45,19,0.3)]), (40,64,1,[(10,7),(24,7,0.4)]),
+  (72,80,2,[(9,7),(9,21),(9,35),(23,21,0.3)]), (36,60,1,[(10,7),(24,7,0.5)]),
+  (52,88,2,[(9,7),(9,19),(23,7,0.3),(37,19)]), (64,70,1,[(10,7),(10,19),(24,7,0.4),(38,19)]),
+  (80,104,2,[(9,7),(9,21),(9,35),(23,21,0.3),(37,7),(37,35)]), (160,48,2,[]),
+] %}
+<div class="hero {{ cls }}">
+  <div aria-hidden="true">
+    <div class="sky"></div>
+    {% for k in range(4) %}{% for t, l in [(16,50),(28,140),(10,240),(36,340),(14,440),(44,540),(22,640)] %}
+    <div class="star" style="top:{{ t + (k % 2) * 6 }}px;left:{{ l + k * 700 }}px"></div>{% endfor %}{% endfor %}
+    <div class="celestial"></div>
+    <div class="skyline">
+      {% for rep in range(4) %}{% for w, h, shade, wins in skyline %}
+      <div class="building" style="width:{{ w }}px;height:{{ h }}px;background:var(--building{{ shade }})">{% for win in wins %}<div class="b-window" style="top:{{ win[0] }}px;left:{{ win[1] }}px{% if win|length > 2 %};opacity:{{ win[2] }}{% endif %}"></div>{% endfor %}</div>
+      {% endfor %}{% endfor %}
+    </div>
+    <div class="road">
+      <div class="road-edge"></div>
+      {% for i in range(24) %}<div class="lane-line" style="width:64px;left:{{ i * 120 }}px;animation-delay:-{{ (i % 3) * 0.4 }}s"></div>{% endfor %}
+    </div>
+    {% for i in range(14) %}<div class="lamp" style="left:{{ 100 + i * 200 }}px"><div class="lamp-head"><div class="lamp-glow"></div></div><div class="lamp-pole"></div></div>{% endfor %}
+    <div class="speed-line sl1"></div><div class="speed-line sl2"></div><div class="speed-line sl3"></div>
+    <div class="car-track" style="z-index:4">
+      <div class="car">
+        <div class="car-body"></div><div class="car-roof"></div>
+        <div class="win-front"></div><div class="win-rear"></div>
+        <div class="headlight"></div><div class="taillight"></div>
+        <div class="wheel wheel-f"></div><div class="wheel wheel-r"></div>
+        <div class="exhaust"><div class="puff"></div><div class="puff p2"></div><div class="puff p3"></div></div>
+      </div>
+    </div>
+    <div class="scan-beam" style="left:220px;z-index:6"></div>
+  </div>
+  <div class="scene-overlay">{{ caller() }}</div>
+</div>
+{% endmacro %}

@@ -1,0 +1,133 @@
+{% extends "legal/_layout.html" %}
+{% block title %}{{ 'سياسة الخصوصية' if lang == 'ar' else 'Privacy Policy' }} — SmartPath Jordan{% endblock %}
+
+{% block en %}
+<h1>Privacy Policy</h1>
+<p class="legal-lead">SmartPath Jordan is a university capstone prototype run by {{ site.operator }} at {{ site.university }}.
+It is <strong>not</strong> run by, or connected to, the Public Security Directorate, the police or any government body.
+This page explains what personal data the site collects, why, who can see it, and your rights under Jordan's
+Personal Data Protection Law No. 24 of 2023.</p>
+
+<h2>1. What we collect</h2>
+<ul>
+  <li><strong>Account:</strong> username, password (stored only as a secure hash), and — only if you choose to give them — your full name and email. We also store your role, when the account was created, your last sign-in, and when you accepted these policies.</li>
+  <li><strong>Reports you send:</strong> the photo, the time you sent it, and your device location at that moment (only if you allow location access; otherwise a default point in central Amman is used). The location is turned into a city, area and street using OpenStreetMap. Before storing a photo we remove its hidden metadata (EXIF, which can include GPS and device details) and reduce its size.</li>
+  <li><strong>Analysis of the photo:</strong> AI estimates the violation type and the licence plate, colour and type of the photographed vehicle. Reviewers then record a decision and an optional note. This information is about the vehicle in the photo, not about you, and you cannot see it.</li>
+  <li><strong>Assistant chats:</strong> questions you type into the assistant are sent to process the answer (see section 4). The conversation is kept in your browser tab only and disappears when you close it.</li>
+  <li><strong>Technical data:</strong> a sign-in cookie (see the <a href="{{ url_for('cookies') }}">Cookie Policy</a>) and server logs that record IP addresses and pages requested, used for security and fixing errors.</li>
+</ul>
+<p>We do not use advertising, analytics or tracking tools, and we do not sell personal data.</p>
+
+<h2>2. Why we use it</h2>
+<ul>
+  <li>To create and protect your account.</li>
+  <li>To receive, analyse and review the reports you send.</li>
+  <li>To demonstrate and evaluate the project for academic purposes (statistics shown to reviewers are aggregated).</li>
+  <li>To keep the site secure and working.</li>
+</ul>
+<p>We rely on your consent, which you give when you create an account and each time you send a photo. You can withdraw it at any time (section 7); this does not affect processing already done.</p>
+
+<h2>3. Who can see it</h2>
+<ul>
+  <li><strong>You:</strong> your account details and the photos you sent, with the time sent.</li>
+  <li><strong>Authorised reviewers</strong> (project members given an admin account): reports, photos, locations, the AI analysis and your username as the reporter.</li>
+  <li>We do <strong>not</strong> send reports to the police or any authority, and other users can never see your reports.</li>
+</ul>
+
+<h2>4. Services that process data for us</h2>
+<ul>
+  <li><strong>Google (Gemini API)</strong> receives each photo to read the plate and describe the vehicle.</li>
+  <li><strong>Groq</strong> receives assistant questions together with a summary of the data you are allowed to see, to write the answer.</li>
+  <li><strong>OpenStreetMap Foundation</strong> (Nominatim) receives report coordinates to look up the address; reviewers' map pages load map images from OpenStreetMap.</li>
+  <li><strong>Google Fonts, jsDelivr and unpkg</strong> deliver fonts and code libraries and therefore receive your IP address when pages load.</li>
+</ul>
+<p>These providers may process data outside Jordan (for example in the United States) under their own terms and privacy policies.</p>
+
+<h2>5. People in photos</h2>
+<p>Photos may show other people's vehicles, plates or faces. They are used only to review the report. Please avoid photographing people.
+If you are shown in a photo or own a vehicle in one and want it removed, contact us (below).</p>
+
+<h2>6. How long we keep it</h2>
+<ul>
+  <li>Reports not yet reviewed are deleted when you remove them or delete your account.</li>
+  <li>Reviewed reports are kept for reviewers but are no longer linked to you once you remove them or delete your account.</li>
+  <li>All project data will be deleted when the academic project ends.</li>
+</ul>
+
+<h2>7. Your rights</h2>
+<p>You can ask to access, correct or delete your data, withdraw consent, or object to processing. On the <a href="{{ url_for('account') }}">Account</a> page you can download your data, change your password and delete your account yourself. For anything else, contact us. You may also complain to the competent data protection authority in Jordan.</p>
+
+<h2>8. Security</h2>
+<p>Passwords are hashed, pages are protected by role-based access and forms are protected against forged requests. No system is perfectly secure; if we learn of a breach affecting you we will tell you.</p>
+
+<h2>9. Age</h2>
+<p>The site is for people aged 18 or over.</p>
+
+<h2>10. Changes</h2>
+<p>If we change this policy we will update the date below and ask you to accept the new version when you next sign in.</p>
+{% endblock %}
+
+{% block ar %}
+<h1>سياسة الخصوصية</h1>
+<p class="legal-lead">SmartPath Jordan نموذج أولي لمشروع تخرّج جامعي يديره {{ site.operator_ar }} في {{ site.university_ar }}.
+الموقع <strong>ليس</strong> تابعًا لمديرية الأمن العام أو الشرطة أو أي جهة حكومية ولا يرتبط بها.
+توضّح هذه الصفحة البيانات الشخصية التي نجمعها، وسبب جمعها، ومن يمكنه الاطلاع عليها، وحقوقك بموجب قانون حماية البيانات الشخصية الأردني رقم 24 لسنة 2023.</p>
+
+<h2>1. البيانات التي نجمعها</h2>
+<ul>
+  <li><strong>الحساب:</strong> اسم المستخدم، وكلمة المرور (تُخزَّن بصيغة مشفّرة غير قابلة للاسترجاع)، والاسم الكامل والبريد الإلكتروني فقط إذا اخترت إدخالهما. كما نحفظ نوع الحساب وتاريخ إنشائه وآخر تسجيل دخول وتاريخ موافقتك على هذه السياسات.</li>
+  <li><strong>البلاغات التي ترسلها:</strong> الصورة، ووقت الإرسال، وموقع جهازك لحظة الإرسال (فقط إذا سمحت بالوصول إلى الموقع، وإلا يُستخدم موقع افتراضي في وسط عمّان). يُحوَّل الموقع إلى مدينة ومنطقة وشارع باستخدام OpenStreetMap. قبل حفظ الصورة نحذف بياناتها المخفية (EXIF التي قد تتضمن الموقع ومعلومات الجهاز) ونصغّر حجمها.</li>
+  <li><strong>تحليل الصورة:</strong> يقدّر الذكاء الاصطناعي نوع المخالفة ورقم اللوحة ولون المركبة الظاهرة في الصورة ونوعها، ثم يسجّل المراجعون قرارهم وملاحظة اختيارية. هذه المعلومات تخص المركبة في الصورة وليس أنت، ولا يمكنك الاطلاع عليها.</li>
+  <li><strong>محادثات المساعد:</strong> تُرسَل الأسئلة التي تكتبها للمساعد لمعالجتها وإعداد الإجابة (انظر البند 4). تُحفظ المحادثة في تبويب المتصفح فقط وتختفي عند إغلاقه.</li>
+  <li><strong>بيانات تقنية:</strong> ملف تعريف ارتباط لتسجيل الدخول (انظر <a href="{{ url_for('cookies', lang='ar') }}">سياسة ملفات تعريف الارتباط</a>) وسجلات الخادم التي تحفظ عناوين IP والصفحات المطلوبة لأغراض الأمان وإصلاح الأخطاء.</li>
+</ul>
+<p>لا نستخدم أدوات إعلانات أو تحليلات أو تتبّع، ولا نبيع البيانات الشخصية.</p>
+
+<h2>2. لماذا نستخدمها</h2>
+<ul>
+  <li>لإنشاء حسابك وحمايته.</li>
+  <li>لاستلام البلاغات التي ترسلها وتحليلها ومراجعتها.</li>
+  <li>لعرض المشروع وتقييمه لأغراض أكاديمية (الإحصاءات المعروضة للمراجعين إجمالية).</li>
+  <li>للحفاظ على أمان الموقع وعمله.</li>
+</ul>
+<p>نعتمد على موافقتك التي تمنحها عند إنشاء الحساب وعند إرسال كل صورة. يمكنك سحب موافقتك في أي وقت (البند 7)، ولا يؤثر ذلك على المعالجة التي تمّت قبل السحب.</p>
+
+<h2>3. من يمكنه الاطلاع عليها</h2>
+<ul>
+  <li><strong>أنت:</strong> بيانات حسابك والصور التي أرسلتها مع وقت إرسالها.</li>
+  <li><strong>المراجعون المخوّلون</strong> (أعضاء في المشروع لديهم حساب مسؤول): البلاغات والصور والمواقع وتحليل الذكاء الاصطناعي واسم المستخدم الخاص بك بصفتك مُرسل البلاغ.</li>
+  <li><strong>لا</strong> نرسل البلاغات إلى الشرطة أو أي جهة رسمية، ولا يمكن للمستخدمين الآخرين رؤية بلاغاتك أبدًا.</li>
+</ul>
+
+<h2>4. الخدمات التي تعالج البيانات لصالحنا</h2>
+<ul>
+  <li><strong>Google (واجهة Gemini)</strong> تستلم كل صورة لقراءة اللوحة ووصف المركبة.</li>
+  <li><strong>Groq</strong> تستلم أسئلة المساعد مع ملخص للبيانات المسموح لك برؤيتها لكتابة الإجابة.</li>
+  <li><strong>مؤسسة OpenStreetMap</strong> (خدمة Nominatim) تستلم إحداثيات البلاغ لتحديد العنوان، وتُحمَّل صور الخرائط في صفحات المراجعين من OpenStreetMap.</li>
+  <li><strong>Google Fonts وjsDelivr وunpkg</strong> توفّر الخطوط والمكتبات البرمجية، لذلك تستلم عنوان IP الخاص بك عند تحميل الصفحات.</li>
+</ul>
+<p>قد يعالج هؤلاء المزوّدون البيانات خارج الأردن (مثلًا في الولايات المتحدة) وفق شروطهم وسياسات الخصوصية الخاصة بهم.</p>
+
+<h2>5. الأشخاص في الصور</h2>
+<p>قد تُظهر الصور مركبات أو لوحات أو وجوه أشخاص آخرين، وتُستخدم فقط لمراجعة البلاغ. يُرجى تجنّب تصوير الأشخاص.
+إذا ظهرت في صورة أو كنت مالك مركبة ظاهرة فيها وتريد حذفها، تواصل معنا (أدناه).</p>
+
+<h2>6. مدة الاحتفاظ</h2>
+<ul>
+  <li>تُحذف البلاغات التي لم تتم مراجعتها عند إزالتها أو عند حذف حسابك.</li>
+  <li>تبقى البلاغات التي تمت مراجعتها لدى المراجعين، لكنها لا تبقى مرتبطة بك بعد إزالتها أو حذف حسابك.</li>
+  <li>تُحذف جميع بيانات المشروع عند انتهاء المشروع الأكاديمي.</li>
+</ul>
+
+<h2>7. حقوقك</h2>
+<p>يحق لك طلب الاطلاع على بياناتك أو تصحيحها أو حذفها، وسحب موافقتك، والاعتراض على المعالجة. من صفحة <a href="{{ url_for('account') }}">الحساب</a> يمكنك تنزيل بياناتك وتغيير كلمة المرور وحذف حسابك بنفسك. لأي طلب آخر تواصل معنا. كما يحق لك تقديم شكوى إلى الجهة المختصة بحماية البيانات في الأردن.</p>
+
+<h2>8. الأمان</h2>
+<p>كلمات المرور مشفّرة، والصفحات محمية بصلاحيات حسب نوع الحساب، والنماذج محمية من الطلبات المزوّرة. لا يوجد نظام آمن تمامًا؛ وإذا علمنا باختراق يؤثر عليك فسنبلغك.</p>
+
+<h2>9. العمر</h2>
+<p>الموقع مخصّص لمن هم في سن 18 عامًا فأكثر.</p>
+
+<h2>10. التعديلات</h2>
+<p>إذا عدّلنا هذه السياسة فسنحدّث التاريخ أدناه ونطلب منك الموافقة على النسخة الجديدة عند تسجيل دخولك التالي.</p>
+{% endblock %}

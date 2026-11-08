@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}My account — SmartPath Jordan{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My account</h1>
+    <p class="page-sub">Your details, password and privacy controls.</p>
+  </div>
+</div>
+
+<div class="grid-2">
+  <section class="card" aria-labelledby="details-h">
+    <h2 class="card-title" id="details-h">Your details</h2>
+    <dl class="review-facts">
+      <div><dt>Username</dt><dd class="mono">@{{ current_user.username }}</dd></div>
+      <div><dt>Name</dt><dd>{{ current_user.full_name or '—' }}</dd></div>
+      <div><dt>Email</dt><dd>{{ current_user.email or '—' }}</dd></div>
+      <div><dt>Account type</dt><dd>{{ 'Officer (admin)' if current_user.is_admin else 'Reporter' }}</dd></div>
+      <div><dt>Joined</dt><dd>{{ current_user.created_at.strftime('%Y-%m-%d') }}</dd></div>
+      {% if not current_user.is_admin %}<div><dt>Reports sent</dt><dd>{{ n_reports }}</dd></div>{% endif %}
+      <div><dt>Policies accepted</dt><dd>{{ current_user.accepted_terms_at.strftime('%Y-%m-%d') if current_user.accepted_terms_at else '—' }}</dd></div>
+    </dl>
+    <p class="form-hint">To change your name or email, contact an administrator.</p>
+  </section>
+
+  <section class="card" aria-labelledby="pw-h">
+    <h2 class="card-title" id="pw-h">Change password</h2>
+    <form method="POST" action="{{ url_for('account_password') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="field"><label for="current_password">Current password</label>
+        <input class="input" id="current_password" name="current_password" type="password" autocomplete="current-password" required></div>
+      <div class="field"><label for="new_password">New password (at least 6 characters)</label>
+        <input class="input" id="new_password" name="new_password" type="password" autocomplete="new-password" minlength="6" required></div>
+      <div class="field"><label for="confirm_pw">Repeat new password</label>
+        <input class="input" id="confirm_pw" name="confirm" type="password" autocomplete="new-password" minlength="6" required></div>
+      <button class="btn btn-inline" type="submit">Change password</button>
+    </form>
+  </section>
+
+  <section class="card" aria-labelledby="data-h">
+    <h2 class="card-title" id="data-h">Your data</h2>
+    <p class="form-hint" style="margin-bottom:14px">Download a copy of everything we store about you (JSON file). See the <a href="{{ url_for('privacy') }}">Privacy Policy</a> for details.</p>
+    <a class="btn-outline" href="{{ url_for('account_export') }}">{{ icon("download", 17) }} Download my data</a>
+  </section>
+
+  <section class="card danger-zone" aria-labelledby="del-h">
+    <h2 class="card-title" id="del-h">Delete my account</h2>
+    <p class="form-hint" style="margin-bottom:14px">This can't be undone. Reports that haven't been reviewed are deleted; reviewed reports stay with reviewers without your name.</p>
+    <form method="POST" action="{{ url_for('account_delete') }}"
+          onsubmit="return confirm('Permanently delete your account? This cannot be undone.')">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="field"><label for="del_password">Type your password to confirm</label>
+        <input class="input" id="del_password" name="password" type="password" autocomplete="current-password" required></div>
+      <button class="btn btn-inline btn-danger" type="submit">Delete my account</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

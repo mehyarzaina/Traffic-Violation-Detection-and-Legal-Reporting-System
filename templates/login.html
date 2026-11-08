@@ -3,10 +3,11 @@
 
 {% block content %}
 <div class="auth-card">
-  <div class="auth-brand"><span class="logo-icon">🚔</span> SmartPath <em style="color:var(--red);font-style:normal">Jordan</em></div>
-  <p class="auth-sub">Sign in to detect traffic violations</p>
+  <a class="auth-brand" href="{{ url_for('index') }}">{{ logo_mark(34) }}<span>SmartPath <span class="logo-sub">Jordan</span></span></a>
+  <h1 class="auth-title">Sign in</h1>
+  <p class="auth-sub">Report traffic violations and help keep Jordan's roads safe</p>
 
-  {% if error %}<div class="flash flash-error" style="margin-bottom:16px">{{ error }}</div>{% endif %}
+  {% if error %}<div class="flash flash-error" role="alert" style="margin-bottom:16px">{{ error }}</div>{% endif %}
 
   <form method="POST" action="{{ url_for('login', next=request.args.get('next', '')) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

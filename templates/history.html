@@ -1,32 +1,32 @@
 {% extends "base.html" %}
-{% block title %}History — SmartPath Jordan{% endblock %}
+{% block title %}Violation records — SmartPath Jordan{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <div>
-    <h1 class="page-title">Violation History</h1>
-    <p class="page-sub">All recorded violations. Search, open images, and download PDF reports.</p>
+    <h1 class="page-title">Violation records</h1>
+    <p class="page-sub">Official records: officer uploads and citizen reports confirmed by an officer.</p>
   </div>
   <div style="display:flex;gap:10px;align-items:center">
-    <a href="/report/table/pdf" class="btn-outline">⬇ Export Full Table PDF</a>
+    <a href="/report/table/pdf" class="btn-outline">{{ icon("download", 16) }} Export PDF</a>
   </div>
 </div>
 
 <!-- Stats Row -->
 <div class="stats-grid" style="margin-bottom:24px">
   <div class="stat-card stat-card--red">
-    <div class="stat-icon">🚨</div>
+    <div class="stat-icon">{{ icon("alert", 20) }}</div>
     <div class="num red">{{ stats.total_violations }}</div>
     <div class="stat-lbl">Total Violations</div>
   </div>
   <div class="stat-card stat-card--amber">
-    <div class="stat-icon">💰</div>
+    <div class="stat-icon">{{ icon("coins", 20) }}</div>
     <div class="num amber">{{ stats.total_fines_jd }} JD</div>
-    <div class="stat-lbl">Total Fines Issued</div>
+    <div class="stat-lbl">Reference fines</div>
   </div>
   {% for name, count in stats.breakdown.items() %}
   <div class="stat-card stat-card--blue">
-    <div class="stat-icon">📋</div>
+    <div class="stat-icon">{{ icon("file", 20) }}</div>
     <div class="num blue">{{ count }}</div>
     <div class="stat-lbl">{{ name }}</div>
   </div>
@@ -38,11 +38,12 @@
   <!-- Table -->
   <div class="card" style="overflow:hidden">
     <div class="card-title-row" style="margin-bottom:14px">
-      <div class="card-title" style="margin:0">📂 All Violation Records</div>
+      <h2 class="card-title" style="margin:0">All violation records</h2>
       {% if records %}
       <div class="table-search">
+        <label for="tbl-filter" class="sr-only">Filter records</label>
         <input class="input" type="search" id="tbl-filter" placeholder="Filter by plate, city, type…">
-        <span class="record-count" id="tbl-count" style="align-self:center">{{ records|length }} records</span>
+        <span class="record-count" id="tbl-count" role="status" style="align-self:center">{{ records|length }} records</span>
       </div>
       {% endif %}
     </div>
@@ -50,13 +51,14 @@
     {% if records %}
     <div class="tbl-wrap">
       <table id="history-table">
+        <caption class="sr-only">Confirmed violation records, newest first</caption>
         <thead>
           <tr>
             <th>#</th>
             <th>Image</th>
             <th>Timestamp</th>
             <th>Violation</th>
-            <th>Fine</th>
+            <th>Ref. fine</th>
             <th>Plate</th>
             <th>Color</th>
             <th>Type</th>
@@ -75,12 +77,12 @@
 
             <td>
               {% if rec.image_filename %}
-                <img src="{{ url_for('serve_image', filename=rec.image_filename) }}"
-                     alt="Violation image"
-                     style="width:80px;height:54px;object-fit:cover;border-radius:6px;
-                            cursor:pointer;border:1px solid rgba(255,255,255,0.1);"
-                     onclick="openLightbox(this.src)"
-                     title="Click to enlarge">
+                <button type="button" class="img-btn" style="width:80px" data-lightbox="{{ url_for('serve_image', filename=rec.image_filename) }}"
+                        aria-label="Enlarge photo of record {{ rec.id }}">
+                  <img src="{{ url_for('serve_image', filename=rec.image_filename) }}" loading="lazy"
+                       alt="Violation photo, record {{ rec.id }}"
+                       style="width:80px;height:54px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">
+                </button>
               {% else %}
                 <span class="muted">—</span>
               {% endif %}
@@ -119,7 +121,7 @@
             <td>
               {% if fine %}
               <a href="/report/pdf?plate={{ rec.plate_number | urlencode }}&ts={{ rec.timestamp.strftime('%Y-%m-%d %H:%M:%S') | urlencode }}"
-                 class="btn-xs btn-pdf" title="Download PDF Report">⬇ PDF</a>
+                 class="btn-xs btn-pdf" aria-label="Download PDF for record {{ rec.id }}">{{ icon("download", 14) }} PDF</a>
               {% else %}
               <span class="muted">—</span>
               {% endif %}
@@ -131,7 +133,7 @@
     </div>
     {% else %}
     <div class="empty-state">
-      <div class="empty-icon">🗂️</div>
+      <div class="empty-icon">{{ icon("folder", 36) }}</div>
       <div class="empty-title">No violations recorded yet</div>
       <div class="empty-sub">Analyzed images with violations will appear here.</div>
     </div>
@@ -140,26 +142,9 @@
 
 </div>
 
-<!-- Lightbox overlay -->
-<div id="lightbox"
-     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);
-            z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;padding:16px;"
-     onclick="closeLightbox()">
-  <img id="lightbox-img"
-       style="max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 0 60px rgba(0,0,0,.8);">
-</div>
+{% include "_lightbox.html" %}
 
 <script>
-/* Lightbox */
-function openLightbox(src) {
-  document.getElementById("lightbox-img").src = src;
-  document.getElementById("lightbox").style.display = "flex";
-}
-function closeLightbox() {
-  document.getElementById("lightbox").style.display = "none";
-}
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
-
 /* Table filter */
 const filterInput = document.getElementById("tbl-filter");
 if (filterInput) filterInput.addEventListener("input", () => {
