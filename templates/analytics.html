@@ -193,7 +193,9 @@ async function loadAnalytics() {
   const validPins = pins.filter(p => p.latitude && p.longitude);
 
   /* ── Leaflet ────────────────────────────────────── */
-  const map = L.map("violation-map", { zoomControl: true })
+  // fadeAnimation off: tiles appear immediately instead of relying on an
+  // animation frame loop (which some embedded/background views never run).
+  const map = L.map("violation-map", { zoomControl: true, fadeAnimation: false })
                .setView([31.9516, 35.9342], 11);
 
   // OpenStreetMap tiles need no API key; dark mode darkens them with a CSS filter.
@@ -201,6 +203,8 @@ async function loadAnalytics() {
     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
     className: "osm-tiles",
+    // OSM's tile usage policy requires a Referer header on tile requests.
+    referrerPolicy: "strict-origin-when-cross-origin",
   }).addTo(map);
 
   const cells  = groupByCell(validPins);

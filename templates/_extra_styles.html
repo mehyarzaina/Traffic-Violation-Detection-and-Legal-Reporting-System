@@ -337,8 +337,13 @@ body.light .theme-btn .theme-light { display: inline; }
 .button, .btn-sm, .btn-outline { white-space: nowrap; }
 .public-link:hover { color: var(--text); background: var(--bg2); }
 
-/* Page scaffolding */
-.main-content { max-width: 1280px; padding: 32px 28px 72px; }
+/* Page scaffolding — content uses the full window width, aligned with the
+   header, and the footer stays at the bottom on short pages. */
+body { display: flex; flex-direction: column; min-height: 100vh; }
+main.main-content { flex: 1 0 auto; }
+.main-content { width: 100%; max-width: none; margin: 0; padding: 32px 28px 72px; }
+.detect-grid { grid-template-columns: minmax(340px, 460px) 1fr; gap: 24px; }
+.page-sub { max-width: 900px; }
 .main-full { max-width: none; padding: 0; }
 .main-flush-top { padding-top: 0; }
 .bleed { margin: 0 -28px 28px; border-bottom: 1px solid var(--border); }
@@ -505,7 +510,7 @@ body.light .wl-step, body.light .wl-card { box-shadow: var(--shadow); }
   .main-flush-top { padding-top: 0; }
   .bleed { margin: 0 -16px 22px; }
   .nav-link { padding: 12px; }
-  .wl-steps, .wl-cards, .wl-split { grid-template-columns: 1fr; }
+  .wl-steps, .wl-cards, .wl-split, .detect-grid { grid-template-columns: 1fr; }
   .wl-split { gap: 28px; }
   .wl-section { padding: 56px 18px; }
 }

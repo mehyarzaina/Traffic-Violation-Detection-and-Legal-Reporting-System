@@ -98,7 +98,9 @@ def require_terms():
 def security_headers(resp):
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
     resp.headers.setdefault("X-Frame-Options", "DENY")
-    resp.headers.setdefault("Referrer-Policy", "same-origin")
+    # Other sites get only our origin (never the page path). OpenStreetMap's tile
+    # servers require a Referer, so "same-origin" (no Referer) gets map tiles blocked.
+    resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     resp.headers.setdefault("Permissions-Policy", "camera=(self), geolocation=(self), microphone=()")
     return resp
 
