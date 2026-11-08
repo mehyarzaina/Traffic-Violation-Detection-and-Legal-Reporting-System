@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Users — SmartPath Jordan{% endblock %}
+
+{% macro edit_form(u) %}
+<form method="POST" action="{{ url_for('admin_update_user', user_id=u.id, q=q) }}" class="form-grid" style="margin-top:12px">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field"><label>Full name</label><input class="input" name="full_name" value="{{ u.full_name or '' }}"></div>
+  <div class="field"><label>Email</label><input class="input" name="email" type="email" value="{{ u.email or '' }}"></div>
+  <div class="field"><label>Role</label>
+    <select class="input" name="role" {% if u.id == current_user.id %}disabled{% endif %}>
+      <option value="user"  {% if u.role == 'user'  %}selected{% endif %}>User</option>
+      <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>Admin</option>
+    </select>
+    {% if u.id == current_user.id %}<input type="hidden" name="role" value="{{ u.role }}">{% endif %}
+  </div>
+  <div class="field"><label>New password (leave blank to keep)</label><input class="input" name="password" type="password" minlength="6" autocomplete="new-password"></div>
+  <label class="check">
+    <input type="checkbox" name="is_active" {% if u.is_active %}checked{% endif %} {% if u.id == current_user.id %}disabled{% endif %}> Active
+    {% if u.id == current_user.id %}<input type="hidden" name="is_active" value="on">{% endif %}
+  </label>
+  <div style="display:flex;gap:8px;align-items:end;flex-wrap:wrap">
+    <button class="btn btn-inline" type="submit">Save changes</button>
+  </div>
+</form>
+{% if u.id != current_user.id %}
+<form method="POST" action="{{ url_for('admin_delete_user', user_id=u.id) }}" style="margin-top:10px"
+      onsubmit="return confirm('Delete user {{ u.username }}? Their uploads and violation records are kept. This cannot be undone.')">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button class="btn btn-inline btn-danger" type="submit">🗑 Delete user</button>
+</form>
+{% endif %}
+{% endmacro %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">User Management</h1>
+    <p class="page-sub">Add, edit, deactivate or remove accounts and choose who is an admin.</p>
+  </div>
+  <div><button class="btn btn-inline" type="button" onclick="document.getElementById('new-user').toggleAttribute('open');document.getElementById('new-user').scrollIntoView({behavior:'smooth'})">＋ Add user</button></div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card stat-card--blue"><div class="stat-icon">👥</div><div class="num blue">{{ counts.total }}</div><div class="stat-lbl">Total accounts</div></div>
+  <div class="stat-card stat-card--red"><div class="stat-icon">🛡️</div><div class="num red">{{ counts.admins }}</div><div class="stat-lbl">Admins</div></div>
+  <div class="stat-card stat-card--green"><div class="stat-icon">🙋</div><div class="num green">{{ counts.users }}</div><div class="stat-lbl">Users</div></div>
+  <div class="stat-card stat-card--amber"><div class="stat-icon">✅</div><div class="num amber">{{ counts.active }}</div><div class="stat-lbl">Active</div></div>
+</div>
+
+<details class="card accent-blue" id="new-user" {% if not users %}open{% endif %}>
+  <summary class="card-title" style="cursor:pointer;margin:0">＋ Add a new user</summary>
+  <form method="POST" action="{{ url_for('admin_create_user') }}" class="form-grid" style="margin-top:16px">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field"><label>Username *</label><input class="input" name="username" required minlength="3" maxlength="50" autocapitalize="none" pattern="[A-Za-z0-9._\-]+"></div>
+    <div class="field"><label>Full name</label><input class="input" name="full_name"></div>
+    <div class="field"><label>Email</label><input class="input" name="email" type="email"></div>
+    <div class="field"><label>Password *</label><input class="input" name="password" type="password" required minlength="6" autocomplete="new-password"></div>
+    <div class="field"><label>Role</label>
+      <select class="input" name="role"><option value="user" selected>User</option><option value="admin">Admin</option></select>
+    </div>
+    <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" name="is_active" checked> Active</label>
+    <div style="align-self:end"><button class="btn btn-inline" type="submit">Create user</button></div>
+  </form>
+</details>
+
+<div class="card">
+  <div class="card-title-row">
+    <div class="card-title" style="margin:0">All accounts</div>
+    <form class="table-search" method="GET" action="{{ url_for('admin_users') }}">
+      <input class="input" type="search" name="q" value="{{ q }}" placeholder="Search name, username, email">
+      <button class="btn-outline" type="submit">Search</button>
+      {% if q %}<a class="btn-outline" href="{{ url_for('admin_users') }}">Clear</a>{% endif %}
+    </form>
+  </div>
+
+  {% if users %}
+  <!-- Desktop / tablet: table -->
+  <div class="tbl-wrap users-table-wrap">
+    <table class="users-table">
+      <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Uploads</th><th>Joined</th><th>Last login</th><th></th></tr></thead>
+      <tbody>
+      {% for u, n in users %}
+      <tr>
+        <td><strong>{{ u.full_name or '—' }}</strong><div class="mono small muted">@{{ u.username }}{% if u.id == current_user.id %} · you{% endif %}</div></td>
+        <td class="small">{{ u.email or '—' }}</td>
+        <td><span class="badge {{ 'badge-red' if u.is_admin else 'badge-blue' }}">{{ u.role }}</span></td>
+        <td><span class="badge {{ 'badge-green' if u.is_active else 'badge-amber' }}">{{ 'Active' if u.is_active else 'Disabled' }}</span></td>
+        <td class="mono">{{ n }}</td>
+        <td class="small nowrap">{{ u.created_at.strftime('%Y-%m-%d') }}</td>
+        <td class="small nowrap">{{ u.last_login.strftime('%Y-%m-%d %H:%M') if u.last_login else '—' }}</td>
+        <td><button class="btn-sm" type="button" onclick="toggleEdit({{ u.id }})">Edit</button></td>
+      </tr>
+      <tr id="edit-{{ u.id }}" style="display:none"><td colspan="8" style="background:var(--bg2)">{{ edit_form(u) }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Phones: cards -->
+  <div class="user-cards">
+    {% for u, n in users %}
+    <details class="upload-card user-edit" style="padding:14px">
+      <summary>
+        <div class="upload-top">
+          <div><strong>{{ u.full_name or u.username }}</strong><div class="mono small muted">@{{ u.username }}{% if u.id == current_user.id %} · you{% endif %}</div></div>
+          <span class="badge {{ 'badge-red' if u.is_admin else 'badge-blue' }}">{{ u.role }}</span>
+        </div>
+        <div class="upload-meta" style="margin-top:6px">
+          <span class="badge {{ 'badge-green' if u.is_active else 'badge-amber' }}">{{ 'Active' if u.is_active else 'Disabled' }}</span>
+          · {{ n }} uploads · joined {{ u.created_at.strftime('%Y-%m-%d') }} · <span style="color:var(--blue)">tap to edit</span>
+        </div>
+      </summary>
+      {{ edit_form(u) }}
+    </details>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No users found</div></div>
+  {% endif %}
+</div>
+
+<script>
+function toggleEdit(id) {
+  const row = document.getElementById('edit-' + id);
+  row.style.display = row.style.display === 'none' ? '' : 'none';
+}
+</script>
+{% endblock %}

@@ -4,6 +4,7 @@ Returns detected violation names AND an annotated PIL image with bounding boxes.
 """
 
 import io
+import threading
 from PIL import Image, ImageDraw, ImageFont
 from typing import List, Tuple, Optional
 
@@ -32,18 +33,44 @@ def _load_model(path: str):
         return None
 
 
+_model_lock = threading.Lock()
+
+
 def _get_wrong_way_model():
+    """
+    Returns the wrong-way driving detection model.
+    Loads it from disk on first call and caches it globally for subsequent calls.
+    The lock stops the warm-up thread and a request from loading it twice.
+    """
     global _wrong_way_model
     if _wrong_way_model is None:
-        _wrong_way_model = _load_model(WRONG_WAY_MODEL_PATH)
+        with _model_lock:
+            if _wrong_way_model is None:
+                _wrong_way_model = _load_model(WRONG_WAY_MODEL_PATH)
     return _wrong_way_model
 
 
 def _get_wrong_parking_model():
     global _wrong_parking_model
     if _wrong_parking_model is None:
-        _wrong_parking_model = _load_model(WRONG_PARKING_MODEL_PATH)
+        with _model_lock:
+            if _wrong_parking_model is None:
+                _wrong_parking_model = _load_model(WRONG_PARKING_MODEL_PATH)
     return _wrong_parking_model
+
+
+def warm_up():
+    """
+    Load both YOLO models and run one tiny dummy inference so the first real
+    upload doesn't pay the model-loading / first-inference cost.
+    """
+    dummy = Image.new("RGB", (64, 64))
+    for model in (_get_wrong_way_model(), _get_wrong_parking_model()):
+        if model is not None:
+            try:
+                model(dummy, verbose=False)
+            except Exception as e:
+                print(f"[Detector] Warm-up inference failed: {e}")
 
 
 def _run_model(model, image: Image.Image, label: str) -> Tuple[bool, list]:
@@ -54,7 +81,7 @@ def _run_model(model, image: Image.Image, label: str) -> Tuple[bool, list]:
         print(f"[Detector] {label} model unavailable — skipping.")
         return False, []
     try:
-        results = model(image, verbose=False)
+        results = model(image, verbose=False) # detection
         boxes = []
         detected = False
         for result in results:
