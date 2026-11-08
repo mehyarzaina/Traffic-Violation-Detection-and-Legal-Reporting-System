@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% from "_car_scene.html" import car_scene %}
+{% block title %}SmartPath Jordan — Report traffic violations{% endblock %}
+{% block main_class %}main-full{% endblock %}
+
+{% block content %}
+{% call car_scene("scene--tall") %}
+  <div class="wl-hero">
+    <p class="eyebrow eyebrow--onscene">Academic prototype · {{ site.university.split(',')[0] }}</p>
+    <h1 class="wl-title">Report traffic violations.<br>Help keep Jordan's roads safe.</h1>
+    <p class="wl-lead">Send a photo of a car driving the wrong way or parked illegally. AI flags it, and an authorised reviewer checks every report.</p>
+    <div class="wl-actions">
+      <a class="button button--primary button--lg" href="{{ url_for('register') }}">Create a free account {{ icon('arrow-right', 18) }}</a>
+      <a class="button button--ghost button--lg" href="{{ url_for('login') }}">Sign in</a>
+    </div>
+  </div>
+{% endcall %}
+
+<section class="wl-section" id="how" aria-labelledby="how-h">
+  <div class="wl-container">
+    <p class="eyebrow">How it works</p>
+    <h2 class="wl-h2" id="how-h">Three steps from photo to record</h2>
+    <ol class="wl-steps">
+      <li class="wl-step">
+        <span class="wl-step-icon">{{ icon('camera', 22) }}</span>
+        <h3>Send a photo</h3>
+        <p>Take or choose a photo of a possible violation. Your location is attached so reviewers know where it happened.</p>
+      </li>
+      <li class="wl-step">
+        <span class="wl-step-icon">{{ icon('shield-check', 22) }}</span>
+        <h3>AI and a reviewer check it</h3>
+        <p>Computer vision flags the violation and reads the vehicle details. An authorised reviewer then confirms or rejects it.</p>
+      </li>
+      <li class="wl-step">
+        <span class="wl-step-icon">{{ icon('file', 22) }}</span>
+        <h3>Confirmed reports are recorded</h3>
+        <p>Only reports a reviewer confirms become violation records, used for statistics and hotspot maps.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="wl-section wl-section--alt" aria-labelledby="types-h">
+  <div class="wl-container">
+    <p class="eyebrow">What you can report</p>
+    <h2 class="wl-h2" id="types-h">Two violation types, detected automatically</h2>
+    <div class="wl-cards">
+      <article class="wl-card">
+        <span class="wl-card-icon wl-card-icon--red">{{ icon('no-entry', 22) }}</span>
+        <h3>Wrong-way driving</h3>
+        <p>Vehicles travelling against the designated direction of traffic, one of the most dangerous behaviours on the road.</p>
+      </article>
+      <article class="wl-card">
+        <span class="wl-card-icon wl-card-icon--amber">{{ icon('parking', 22) }}</span>
+        <h3>Illegal parking</h3>
+        <p>Vehicles parked where they block traffic, pavements, junctions or no-parking zones.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="wl-section" id="privacy-section" aria-labelledby="priv-h">
+  <div class="wl-container wl-split">
+    <div>
+      <p class="eyebrow">Privacy by design</p>
+      <h2 class="wl-h2" id="priv-h">Your report stays between you and the reviewer</h2>
+      <p class="wl-text">We collect only what is needed to review a report, and you stay in control of your data.</p>
+      <a class="text-link" href="{{ url_for('privacy') }}">Read the Privacy Policy {{ icon('arrow-right', 16) }}</a>
+    </div>
+    <ul class="wl-checklist">
+      <li>{{ icon('lock', 20) }}<span><strong>Hidden photo data removed.</strong> Location and device details stored inside photos are stripped before saving.</span></li>
+      <li>{{ icon('eye', 20) }}<span><strong>Results stay with reviewers.</strong> Plates, vehicle details and decisions are never shown to other users.</span></li>
+      <li>{{ icon('user', 20) }}<span><strong>You're in control.</strong> Download your data or delete your account at any time.</span></li>
+      <li>{{ icon('shield', 20) }}<span><strong>No tracking.</strong> No advertising or analytics cookies.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="wl-notice" aria-label="Safety notice">
+  <div class="wl-container wl-notice-inner">
+    {{ icon('alert', 22) }}
+    <p><strong>Never use your phone while driving.</strong> SmartPath Jordan is a university prototype and not an official police service.
+      In an emergency call <a href="tel:911">911</a>.</p>
+  </div>
+</section>
+
+<section class="wl-section wl-cta" aria-labelledby="cta-h">
+  <div class="wl-container">
+    <h2 class="wl-h2" id="cta-h">Ready to send your first report?</h2>
+    <p class="wl-text">It's free and takes less than a minute.</p>
+    <div class="wl-actions wl-actions--center">
+      <a class="button button--primary button--lg" href="{{ url_for('register') }}">Create a free account</a>
+      <a class="button button--secondary button--lg" href="{{ url_for('login') }}">I already have an account</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

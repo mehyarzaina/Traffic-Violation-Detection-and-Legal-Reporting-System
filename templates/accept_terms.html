@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Please review our policies — SmartPath Jordan{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <a class="auth-brand" href="{{ url_for('index') }}">{{ logo_mark(34) }}<span>SmartPath <span class="logo-sub">Jordan</span></span></a>
+  <h1 class="auth-title">Please review our policies</h1>
+  <p class="auth-sub">Before you continue, please read and accept the
+    <a href="{{ url_for('terms') }}" target="_blank" rel="noopener">Terms and Conditions</a> and the
+    <a href="{{ url_for('privacy') }}" target="_blank" rel="noopener">Privacy Policy</a>
+    (<a href="{{ url_for('terms', lang='ar') }}" target="_blank" rel="noopener" lang="ar">بالعربية</a>).</p>
+
+  <form method="POST" action="{{ url_for('accept_terms', next=request.args.get('next', '')) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="check check-top" for="agree">
+      <input type="checkbox" id="agree" name="agree" required>
+      <span>I am 18 or older and I accept the Terms and Conditions and the Privacy Policy.</span>
+    </label>
+    <button class="btn" type="submit">Accept and continue</button>
+  </form>
+  <form method="POST" action="{{ url_for('logout') }}" class="auth-foot">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="link-btn">Don't accept — sign out</button>
+  </form>
+</div>
+{% endblock %}

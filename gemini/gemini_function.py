@@ -74,6 +74,11 @@ def extract_vehicle_info(image: Image.Image) -> dict:
             raw = raw.strip()
 
         result = json.loads(raw)
+        # Gemini sometimes wraps the object in a list (e.g. one entry per car)
+        if isinstance(result, list):
+            result = next((r for r in result if isinstance(r, dict)), {})
+        if not isinstance(result, dict):
+            result = {}
         return {
             "license_plate": result.get("license_plate"),
             "car_color": result.get("car_color"),

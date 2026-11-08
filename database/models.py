@@ -35,6 +35,8 @@ class ViolationRecord(SQLModel, table=True):
 
     # Who uploaded the image (NULL for records created before accounts existed)
     user_id: Optional[int] = Field(default=None, foreign_key="users.id", nullable=True)
+    # The report this official record came from (set when an officer confirms it)
+    upload_id: Optional[int] = Field(default=None, foreign_key="uploads.id", nullable=True)
 
     fine: Optional[Fine] = Relationship(back_populates="violations")
 
@@ -52,6 +54,8 @@ class User(SQLModel, table=True):
     is_active: bool = Field(default=True)
     created_at: datetime = Field(default_factory=datetime.now)
     last_login: Optional[datetime] = None
+    # When the user accepted the Terms + Privacy Policy (consent record)
+    accepted_terms_at: Optional[datetime] = None
 
     @property
     def is_admin(self) -> bool:
@@ -77,10 +81,28 @@ class Upload(SQLModel, table=True):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 
-    violations: str = Field(default="", max_length=255)  # comma-separated names
+    violations: str = Field(default="", max_length=255)  # AI result, comma-separated names
     total_fine: int = Field(default=0)
     uploaded_at: datetime = Field(default_factory=datetime.now)
+
+    # Image with the AI bounding boxes — shown to officers only
+    annotated_filename: Optional[str] = Field(default=None, max_length=255)
+
+    # Officer review: "pending" → "confirmed" | "rejected"
+    review_status: str = Field(default="pending", max_length=12, index=True)
+    confirmed_violations: str = Field(default="", max_length=255)
+    reviewed_by: Optional[int] = Field(default=None, foreign_key="users.id")
+    reviewed_at: Optional[datetime] = None
+    review_note: Optional[str] = Field(default=None, max_length=500)
 
     @property
     def violation_list(self) -> list:
         return [v for v in (self.violations or "").split(",") if v]
+
+    @property
+    def confirmed_list(self) -> list:
+        return [v for v in (self.confirmed_violations or "").split(",") if v]
+
+    @property
+    def officer_image(self) -> str:
+        return self.annotated_filename or self.image_filename

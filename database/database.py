@@ -26,11 +26,21 @@ def migrate_db():
     create_all() never adds columns to tables that already exist, so new
     columns on old tables are added here (idempotent).
     """
+    statements = [
+        "ALTER TABLE violation_records ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE SET NULL",
+        "ALTER TABLE violation_records ADD COLUMN IF NOT EXISTS upload_id INTEGER REFERENCES uploads(id) ON DELETE SET NULL",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS accepted_terms_at TIMESTAMP",
+        "ALTER TABLE uploads ADD COLUMN IF NOT EXISTS annotated_filename VARCHAR(255)",
+        "ALTER TABLE uploads ADD COLUMN IF NOT EXISTS review_status VARCHAR(12) NOT NULL DEFAULT 'pending'",
+        "ALTER TABLE uploads ADD COLUMN IF NOT EXISTS confirmed_violations VARCHAR(255) NOT NULL DEFAULT ''",
+        "ALTER TABLE uploads ADD COLUMN IF NOT EXISTS reviewed_by INTEGER REFERENCES users(id) ON DELETE SET NULL",
+        "ALTER TABLE uploads ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP",
+        "ALTER TABLE uploads ADD COLUMN IF NOT EXISTS review_note VARCHAR(500)",
+        "CREATE INDEX IF NOT EXISTS ix_uploads_review_status ON uploads (review_status)",
+    ]
     with engine.begin() as conn:
-        conn.execute(text(
-            "ALTER TABLE violation_records "
-            "ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE SET NULL"
-        ))
+        for sql in statements:
+            conn.execute(text(sql))
 
 
 def seed_fines():

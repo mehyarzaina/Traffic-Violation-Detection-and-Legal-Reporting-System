@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Reports to review — SmartPath Jordan{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Citizen reports</h1>
+    <p class="page-sub">Check each report and decide. Only confirmed reports become official violation records.</p>
+  </div>
+</div>
+
+<nav class="filter-tabs" aria-label="Filter reports by status" style="margin-bottom:18px">
+  {% for key, label in [('pending', 'To review'), ('confirmed', 'Confirmed'), ('rejected', 'Not a violation'), ('all', 'All')] %}
+  <a class="filter-tab {% if status == key %}active{% endif %}" href="{{ url_for('admin_reports', status=key) }}"
+     {% if status == key %}aria-current="page"{% endif %}>{{ label }} ({{ counts[key] }})</a>
+  {% endfor %}
+</nav>
+
+{% if reports %}
+<ul class="review-list" role="list">
+  {% for u, reporter in reports %}
+  <li class="card review-card">
+    <button type="button" class="img-btn review-img" data-lightbox="{{ url_for('serve_image', filename=u.officer_image) }}"
+            aria-label="Enlarge photo of report {{ u.id }}">
+      <img src="{{ url_for('serve_image', filename=u.officer_image) }}" loading="lazy"
+           alt="Report {{ u.id }} photo{% if u.annotated_filename %} with AI detections marked{% endif %}">
+    </button>
+
+    <div class="review-body">
+      <div class="upload-top">
+        <h2 class="card-title" style="margin:0">Report #{{ u.id }}</h2>
+        {% if u.review_status == 'confirmed' %}<span class="badge badge-red">Confirmed: {{ u.confirmed_list|join(', ') }}</span>
+        {% elif u.review_status == 'rejected' %}<span class="badge badge-green">Not a violation</span>
+        {% else %}<span class="badge badge-amber">Waiting for review</span>{% endif %}
+      </div>
+
+      <dl class="review-facts">
+        <div><dt>AI result</dt><dd>{% if u.violation_list %}{% for v in u.violation_list %}<span class="badge badge-red">{{ v }}</span> {% endfor %}{% else %}<span class="badge badge-green">No violation detected</span>{% endif %}</dd></div>
+        <div><dt>Plate</dt><dd class="mono amber-text bold">{{ u.plate_number or 'Unreadable' }}</dd></div>
+        <div><dt>Vehicle</dt><dd>{{ u.car_color or '?' }} {{ u.car_type or '' }}</dd></div>
+        <div><dt>Place</dt><dd>{{ u.street or '—' }}, {{ u.area or '—' }}, {{ u.city or '—' }}
+          {% if u.latitude is not none %}· <a href="https://www.google.com/maps?q={{ u.latitude }},{{ u.longitude }}" target="_blank" rel="noopener">map<span class="sr-only"> (opens in a new tab)</span></a>{% endif %}</dd></div>
+        <div><dt>Sent</dt><dd>{{ u.uploaded_at.strftime('%Y-%m-%d %H:%M') }} by {{ ('@' ~ reporter.username) if reporter else 'deleted account' }}</dd></div>
+        {% if u.reviewed_at %}<div><dt>Decided</dt><dd>{{ u.reviewed_at.strftime('%Y-%m-%d %H:%M') }}{% if u.review_note %} · “{{ u.review_note }}”{% endif %}</dd></div>{% endif %}
+      </dl>
+
+      <form method="POST" action="{{ url_for('admin_review_report', upload_id=u.id, status=status) }}" class="review-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <fieldset>
+          <legend>Violation type</legend>
+          {% set ticked = u.confirmed_list if u.review_status == 'confirmed' else u.violation_list %}
+          {% for f in fines %}
+          <label class="check"><input type="checkbox" name="violations" value="{{ f.violation_name }}"
+                 {% if f.violation_name in ticked %}checked{% endif %}> {{ f.violation_name }} ({{ f.fine_amount }} JD)</label>
+          {% endfor %}
+        </fieldset>
+        <div class="field">
+          <label for="note-{{ u.id }}">Note (optional, officers only)</label>
+          <input class="input" id="note-{{ u.id }}" name="note" maxlength="500" value="{{ u.review_note or '' }}">
+        </div>
+        <div class="review-actions">
+          <button class="btn btn-inline" type="submit" name="decision" value="confirm">{{ icon("check", 17) }} Confirm violation</button>
+          <button class="btn-outline" type="submit" name="decision" value="reject">{{ icon("x", 17) }} Not a violation</button>
+          <a class="btn-outline" href="{{ url_for('view_upload', upload_id=u.id) }}">Full details</a>
+        </div>
+      </form>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="card empty-state">
+  <div class="empty-icon">{{ icon('check-circle' if status == 'pending' else 'inbox', 36) }}</div>
+  <h2 class="empty-title">{{ 'Nothing to review' if status == 'pending' else 'No reports here' }}</h2>
+  <div class="empty-sub">{{ 'All citizen reports have been reviewed.' if status == 'pending' else 'Reports with this status will appear here.' }}</div>
+</div>
+{% endif %}
+{% include "_lightbox.html" %}
+{% endblock %}

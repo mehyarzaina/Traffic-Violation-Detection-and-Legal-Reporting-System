@@ -13,7 +13,7 @@ import os
 from collections import Counter
 from datetime import datetime, timedelta
 
-from crud import get_violations_only, get_all_fines, get_uploads_for_user, user_counts
+from crud import get_violations_only, get_all_fines, get_uploads_for_user, user_counts, report_counts
 from times import get_time_label
 
 # Tried in order; a model Groq has retired is skipped. Override with GROQ_MODEL in .env.
@@ -38,19 +38,23 @@ def _get_groq():
 
 # ── Site guide ───────────────────────────────────────────────────────────────
 
-ADMIN_GUIDE = """Pages available to this admin:
-- Home: overview with live stats.
-- Detect: upload a traffic camera image; YOLO detects Wrong Way Driving / Wrong Parking, Gemini reads the plate, colour and car type, and the GPS location is reverse-geocoded. A PDF report can be downloaded.
+ADMIN_GUIDE = """This person is an ADMIN (authorised officer). Pages available:
+- Home: overview with stats.
+- Reports: the review queue of citizen reports. Each shows the photo with AI boxes, AI result, plate, vehicle, place and reporter. Tick the violation type(s) and press "Confirm violation", or press "Not a violation". Only confirmed reports become official violation records (History, Analytics, stats). Decisions can be changed later.
+- Detect: an officer's own upload is recorded immediately. Upload a traffic camera image; YOLO detects Wrong Way Driving / Wrong Parking, Gemini reads the plate, colour and car type, and the GPS location is reverse-geocoded. A PDF report can be downloaded.
 - History: table of every violation with image, plate, location, fine and PDF download; the whole table can be exported as PDF.
 - Analytics: charts by hour, city, type and day, plus a map of all violations.
 - Users: click "+ Add user" (top right) or open "+ Add a new user", fill in username, password, optional name/email, pick the role (User/Admin) and press "Create user". Click "Edit" on a row to change name, email, role, active status or set a new password, then "Save changes"; "Delete user" removes the account but keeps its uploads and violation records. Search filters by name, username or email. People can also sign themselves up from the login page; those accounts are always normal users.
 - The chat assistant (this chat) is on every page."""
 
-USER_GUIDE = """Pages available to this user:
-- Detect: upload a traffic image (or take a photo on a phone). The system detects Wrong Way Driving / Wrong Parking, reads the plate, colour and car type, and saves the result.
-- My Uploads: every image this user uploaded, with results, a PDF report for violations, and a delete button.
-- The chat assistant (this chat) is on every page.
-Users cannot see other people's uploads, the full violation history, analytics or user management — those are admin-only."""
+USER_GUIDE = """This person is a REPORTER (a member of the public). How the site works for them:
+- Report: choose or take a photo of a possible violation (car driving the wrong way, or parked illegally), tick the photo-rules box, and press "Send report". Their location is attached so reviewers know where it happened.
+- After sending they see "Report received". An authorised reviewer (officer) checks every report.
+- My reports: the list of photos they sent and when. "Remove report" deletes a report that hasn't been reviewed yet; reviewed reports stay with the reviewers but disappear from their list.
+- Account: change password, download their data, or delete their account.
+- Privacy Policy, Terms and Cookie Policy are linked in the footer.
+- Safety rules: never use the phone while driving; only photograph public roads; no false reports. This is a university prototype, not an official police service; in an emergency call 911.
+STRICT PRIVACY RULE: reporters are NOT told the outcome of reports. Never say whether a report was a violation, confirmed, rejected or pending, and never reveal plates, car details, fines or AI results — not even for their own reports. If asked, explain kindly that results are only visible to authorised reviewers."""
 
 
 # ── Context builders ─────────────────────────────────────────────────────────
@@ -101,10 +105,12 @@ def _admin_context() -> str:
         for rec, fine in records[:MAX_ROWS]
     ) or "- none"
     users = user_counts()
+    rc = report_counts()
     recent_days = sorted(by_day.items())[-30:]
 
     return f"""DATABASE SUMMARY (as of {now:%Y-%m-%d %H:%M}):
-Total violations: {len(records)} | total fines: {total_fine} JD
+Official (confirmed) violations: {len(records)} | total reference fines: {total_fine} JD
+Citizen reports: {rc['pending']} waiting for review, {rc['confirmed']} confirmed, {rc['rejected']} not a violation
 Today: {today} | last 7 days: {last7} | last 30 days: {last30}
 Fines table: {_fines_text()}
 By violation type: {_top(by_type)}
@@ -123,26 +129,21 @@ MOST RECENT {min(MAX_ROWS, len(records))} VIOLATIONS (newest first):
 
 
 def _user_context(user) -> str:
+    # Deliberately ONLY when/where they reported — no AI result, review
+    # status, plates or fines ever reach the model for a reporter.
     uploads = get_uploads_for_user(user.id)
-    with_v = [u for u in uploads if u.violation_list]
-    by_type = Counter(v for u in with_v for v in u.violation_list)
-    by_city = Counter(u.city or "Unknown" for u in with_v)
     rows = "\n".join(
-        f"- upload #{u.id} | {u.uploaded_at:%Y-%m-%d %H:%M} | file {u.original_name or u.image_filename} | "
-        f"violations: {', '.join(u.violation_list) or 'none'} | fine {u.total_fine} JD | "
-        f"plate {u.plate_number or '?'} | {u.car_color or '?'} {u.car_type or '?'} | "
-        f"{u.street}, {u.area}, {u.city}"
+        f"- report sent {u.uploaded_at:%Y-%m-%d %H:%M} near {u.area}, {u.city}"
         for u in uploads[:MAX_ROWS]
     ) or "- none yet"
-    return f"""THIS USER'S DATA (as of {datetime.now():%Y-%m-%d %H:%M}):
-Uploads: {len(uploads)} | with a violation: {len(with_v)} | clean: {len(uploads) - len(with_v)}
-Total fines from their uploads: {sum(u.total_fine for u in uploads)} JD
-Fines table: {_fines_text()}
-Their violations by type: {_top(by_type)}
-Their violations by city: {_top(by_city)}
+    return f"""THIS REPORTER'S DATA (as of {datetime.now():%Y-%m-%d %H:%M}):
+Reports sent: {len(uploads)}
+First report: {uploads[-1].uploaded_at:%Y-%m-%d} | latest: {uploads[0].uploaded_at:%Y-%m-%d}
+Violation types the site can detect: Wrong Way Driving, Wrong Parking
 
-THEIR MOST RECENT UPLOADS (newest first):
-{rows}"""
+THEIR REPORTS (newest first):
+{rows}""" if uploads else f"""THIS REPORTER'S DATA: no reports sent yet.
+Violation types the site can detect: Wrong Way Driving, Wrong Parking"""
 
 
 def _system_prompt(user) -> str:
@@ -157,7 +158,8 @@ Rules:
 - If the answer isn't in the data, say so and suggest the page where they can find it.
 - A {user.role} may only see what is listed below; never reveal other users' data.
 - Reply in the same language the user writes in (Arabic or English).
-- Use plain text with simple "-" bullet lists when listing things. You may use **bold** for key numbers. No headings, no tables.
+- Use plain text with simple "-" bullet lists when listing things. You may use **bold** for key numbers. No headings, no tables, no emojis.
+- Keep a calm, professional tone.
 - "Unknown" means the location could not be identified; mention that when it matters.
 
 {guide}
@@ -175,9 +177,8 @@ def _fallback_answer(user, question: str) -> str:
                 f"{len(records)} violations recorded ({_top(types)}). "
                 f"Top locations: {_top(cities, 5)}. See History and Analytics for details.")
     uploads = get_uploads_for_user(user.id)
-    n_v = sum(1 for u in uploads if u.violation_list)
-    return (f"The AI assistant is unavailable right now. You have {len(uploads)} uploads, "
-            f"{n_v} with a violation. Open My Uploads to see them.")
+    return (f"The AI assistant is unavailable right now. You have sent {len(uploads)} "
+            f"report{'' if len(uploads) == 1 else 's'} — open My reports to see them.")
 
 
 def ask(user, question: str, history=None) -> str:
