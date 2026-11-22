@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Report received — SmartPath Jordan{% endblock %}
+
+{% block content %}
+<div class="card received-card">
+  <div class="received-icon">{{ icon("check-circle", 44) }}</div>
+  <h1 class="page-title" style="font-size:24px">Report received</h1>
+  <p class="page-sub" style="margin:8px auto 20px;max-width:420px">
+    Thank you for helping keep Jordan's roads safe. An authorised reviewer will check your photo.
+  </p>
+  <img src="{{ url_for('serve_image', filename=upload.image_filename) }}"
+       alt="The photo you sent on {{ upload.uploaded_at.strftime('%Y-%m-%d at %H:%M') }}"
+       class="received-img">
+  <p class="upload-meta" style="margin-top:10px">Sent {{ upload.uploaded_at.strftime('%Y-%m-%d at %H:%M') }}</p>
+  <div class="received-actions">
+    <a class="btn btn-inline" href="{{ url_for('dashboard') }}">{{ icon("camera", 17) }} Send another report</a>
+    <a class="btn-outline" href="{{ url_for('my_reports') }}">{{ icon("folder", 17) }} My reports</a>
+  </div>
+</div>
+{% endblock %}

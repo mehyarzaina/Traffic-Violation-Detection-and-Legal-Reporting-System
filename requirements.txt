@@ -10,7 +10,6 @@ python-dotenv
 google-generativeai
 psycopg2-binary
 Pillow
-# RAG dependencies
-chromadb
-sentence-transformers
+reportlab
+# Website assistant chatbot (LLM)
 groq

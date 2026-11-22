@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}My reports — SmartPath Jordan{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My reports</h1>
+    <p class="page-sub">
+      {% if uploads %}You have sent {{ uploads|length }} report{{ '' if uploads|length == 1 else 's' }}. Thank you!{% else %}Photos you send will appear here.{% endif %}
+    </p>
+  </div>
+  <div><a class="btn btn-inline" href="{{ url_for('dashboard') }}">{{ icon("camera", 17) }} New report</a></div>
+</div>
+
+{% if uploads %}
+<ul class="upload-grid" role="list">
+  {% for u in uploads %}
+  <li class="upload-card">
+    <button type="button" class="img-btn" data-lightbox="{{ url_for('serve_image', filename=u.image_filename) }}"
+            aria-label="Enlarge the photo sent on {{ u.uploaded_at.strftime('%Y-%m-%d %H:%M') }}">
+      <img src="{{ url_for('serve_image', filename=u.image_filename) }}" loading="lazy"
+           alt="Photo you sent on {{ u.uploaded_at.strftime('%Y-%m-%d at %H:%M') }}">
+    </button>
+    <div class="upload-body">
+      <div class="upload-top">
+        <span class="badge badge-blue">Report received</span>
+        <span class="upload-meta">{{ u.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</span>
+      </div>
+      <div class="upload-actions">
+        <form method="POST" action="{{ url_for('delete_my_report', upload_id=u.id) }}"
+              onsubmit="return confirm('Remove this report from your list? If it has not been reviewed yet it will be deleted.')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn-outline btn-small" type="submit">{{ icon("trash", 15) }} Remove</button>
+        </form>
+      </div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="card empty-state">
+  <div class="empty-icon">{{ icon("folder", 36) }}</div>
+  <h2 class="empty-title">No reports yet</h2>
+  <div class="empty-sub" style="margin-bottom:18px">Seen a car driving the wrong way or parked illegally? Send a photo.</div>
+  <a class="btn btn-inline" href="{{ url_for('dashboard') }}">{{ icon("camera", 17) }} Send a report</a>
+</div>
+{% endif %}
+{% include "_lightbox.html" %}
+{% endblock %}

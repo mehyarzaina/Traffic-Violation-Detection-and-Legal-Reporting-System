@@ -1,0 +1,38 @@
+<form id="upload-form" action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" id="lat-field" name="latitude">
+  <input type="hidden" id="lng-field" name="longitude">
+
+  <div class="upload-zone" id="upload-zone">
+    <div class="upload-icon">{{ icon("camera", 30) }}</div>
+    <label for="file-input"><strong>Tap to choose or take a photo</strong></label>
+    <p id="file-help">or drag an image here · JPG, PNG or WEBP · max 16 MB</p>
+    <input type="file" id="file-input" name="image" accept="image/jpeg,image/png,image/webp"
+           aria-describedby="file-help" required>
+  </div>
+
+  <div id="preview-wrap" style="display:none;margin-top:14px;">
+    <img id="preview-img" src="" alt="Preview of the photo you selected"
+         style="width:100%;border-radius:10px;border:1px solid var(--border);object-fit:cover;max-height:260px;">
+    <div id="file-name" style="font-family:var(--mono);font-size:.75rem;color:var(--muted);margin-top:6px;word-break:break-all"></div>
+  </div>
+
+  <div id="gps-status" role="status">Asking for your location…</div>
+
+  {% if not current_user.is_admin %}
+  <div class="consent-box">
+    <label class="check check-top" for="consent">
+      <input type="checkbox" id="consent" name="consent" required>
+      <span>I took this photo myself in a public place, I was <strong>not driving</strong> when I took it,
+        and I agree that the photo and its location are processed as described in the
+        <a href="{{ url_for('privacy') }}" target="_blank" rel="noopener">Privacy Policy</a>
+        (including AI analysis by Google Gemini).</span>
+    </label>
+  </div>
+  {% endif %}
+
+  <button class="btn" type="submit" id="analyze-btn" disabled>
+    {% if current_user.is_admin %}{{ icon('search', 18) }} Analyze image{% else %}{{ icon('send', 18) }} Send report{% endif %}
+  </button>
+  <p class="form-hint" id="analyze-hint">Choose a photo to continue.</p>
+</form>

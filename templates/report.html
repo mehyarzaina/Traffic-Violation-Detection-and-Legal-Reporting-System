@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Report a violation — SmartPath Jordan{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Report a traffic violation</h1>
+    <p class="page-sub">Send a photo of a possible violation. An authorised reviewer checks every report.</p>
+  </div>
+  <div><a class="btn-outline" href="{{ url_for('my_reports') }}">{{ icon("folder", 17) }} My reports</a></div>
+</div>
+
+{% if error %}
+<div class="flash flash-error" role="alert" style="margin-bottom:18px">{{ icon("alert", 18) }}<span class="flash-text">{{ error }}</span></div>
+{% endif %}
+
+<div class="detect-grid">
+  <div class="card">
+    <h2 class="card-title">Your photo</h2>
+    {% include "_upload_form.html" %}
+  </div>
+
+  <div>
+    <div class="card accent-blue">
+      <h2 class="card-title">How reporting works</h2>
+      <ol class="steps-list">
+        <li><strong>Take or choose a photo</strong> of a car driving the wrong way or parked illegally.</li>
+        <li><strong>Send it.</strong> We attach the place where you are, so the reviewer knows where it happened.</li>
+        <li><strong>A reviewer checks it.</strong> Only authorised reviewers see the result. You will see your report in <a href="{{ url_for('my_reports') }}">My reports</a>.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2 class="card-title">Stay safe and fair</h2>
+      <ul class="rules-list">
+        <li>Never use your phone while you are driving.</li>
+        <li>Only photograph public roads. Avoid people's faces where you can.</li>
+        <li>Don't send false or malicious reports.</li>
+        <li>This is a university prototype, not an official police service. In an emergency call <a href="tel:911">911</a>.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

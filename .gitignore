@@ -7,3 +7,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# Uploaded photos contain personal data (plates, people) — never commit them.
+# The app creates this folder on startup.
+images/

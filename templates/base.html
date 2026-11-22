@@ -1,40 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang|default('en') }}">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}SmartPath Jordan{% endblock %}</title>
+<meta name="description" content="{% block description %}SmartPath Jordan — a university prototype where people report traffic violations with a photo and authorised reviewers check them with AI assistance.{% endblock %}">
+<meta name="theme-color" content="#0a0a10">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M11 25 14.6 7h2.8L21 25' fill='none' stroke='white' stroke-width='2.2' stroke-linejoin='round'/%3E%3Cpath d='M16 10v2.4M16 15.2v2.6M16 20.8v3' stroke='white' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
 
 /* ── Reset & Root ─────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:      #0a0a10;
-  --bg2:     #111118;
-  --card:    #16161f;
-  --text:    #f0f2f8;
-  --muted:   #888;
-  --border:  #2a2a38;
-  --red:     #ef4444;
-  --amber:   #eab308;
-  --blue:    #3b82f6;
-  --green:   #22c55e;
-  --mono:    'JetBrains Mono', monospace;
-  --font-body: 'Inter', sans-serif;
-  --font-head: 'Syne', sans-serif;
+  --bg:      #0b0e14;
+  --bg2:     #10141c;
+  --card:    #141924;
+  --text:    #e7eaf0;
+  --muted:   #9aa3b2;
+  --border:  #242b38;
+  --red:     #f87171;
+  --amber:   #fbbf24;
+  --blue:    #60a5fa;
+  --green:   #4ade80;
+  --brand:   #2563eb;
+  --brand-hover: #1d4ed8;
+  --brand-soft: rgba(37,99,235,.14);
+  --shadow:  0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.18);
+  --radius:  12px;
+  --mono:    'JetBrains Mono', ui-monospace, monospace;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-head: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 /* ── Light mode overrides ─────────────────────────────────────────────── */
 body.light {
-  --bg:        #f0f2f5;
-  --bg2:       #e8eaed;
+  --bg:        #f6f7f9;
+  --bg2:       #eef1f5;
   --card:      #ffffff;
-  --text:      #0f0f1a;
-  --muted:     #666;
-  --border:    #dde0e8;
+  --text:      #111827;
+  --muted:     #4b5563;
+  --border:    #e2e6ec;
+  --shadow:    0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.06);
 }
 
 html, body {
@@ -388,22 +398,6 @@ body.light .toggle-track::after { transform: translateX(18px); }
 .total-row   { font-weight: 700; }
 .fine-total  { color: var(--red); font-size: 16px; font-family: var(--mono); }
 
-/* ── RAG report ───────────────────────────────────────────────────────── */
-.rag-report {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--blue);
-  border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 14px;
-}
-.rag-title   { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
-.rag-meta    { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
-.rag-badge   { background: rgba(59,130,246,.2); color: #93c5fd; border-radius: 5px; padding: 2px 8px; font-size: 11px; font-family: var(--mono); font-weight: 600; }
-.rag-law-title { font-size: 12px; color: var(--muted); }
-.rag-penalty   { font-size: 12px; color: var(--red); font-weight: 600; margin-bottom: 8px; }
-.rag-body      { font-size: 12px; color: var(--muted); line-height: 1.7; }
-
 /* ── Chat ─────────────────────────────────────────────────────────────── */
 .chat-wrap    { display: flex; flex-direction: column; gap: 10px; }
 .chat-messages {
@@ -607,78 +601,157 @@ table.data-table tr:hover td { background: rgba(255,255,255,.03); }
 #gps-status.ok  { color: var(--green); }
 #gps-status.err { color: var(--amber); }
 
-/* ── Responsive ───────────────────────────────────────────────────────── */
-@media (max-width: 900px) {
-  .detect-grid { grid-template-columns: 1fr; }
-  .info-grid-3 { grid-template-columns: 1fr 1fr; }
-  .nav-inner   { padding: 0 16px; gap: 12px; }
-  .main-content { padding: 20px 16px 48px; }
-}
-@media (max-width: 600px) {
-  .nav-links .nav-link span.nav-icon + * { display: none; }
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-}
+{% include '_extra_styles.html' %}
 </style>
 {% block head %}{% endblock %}
 </head>
 <body>
+<script>
+/* Apply the saved theme before the page paints */
+try { if (localStorage.getItem('sp_theme') === 'light') document.body.classList.add('light'); } catch (e) {}
+window.CSRF_TOKEN = "{{ csrf_token() }}";
+</script>
+<a class="skip-link" href="#main">Skip to main content</a>
 
-<nav class="navbar">
+{% if not auth_page %}
+<header class="navbar">
   <div class="nav-inner">
-    <a href="{{ url_for('home') }}" class="nav-logo">
-      <span class="logo-icon">🚔</span>
-      <span class="logo-text">SmartPath <em>Jordan</em></span>
+    <a href="{{ url_for('index') }}" class="nav-logo" aria-label="SmartPath Jordan — home">
+      {{ logo_mark(30) }}
+      <span class="logo-text">SmartPath <span class="logo-sub">Jordan</span></span>
     </a>
-    <div class="nav-links">
-      <a href="{{ url_for('home') }}"      class="nav-link {% if active == 'home'      %}active{% endif %}"><span class="nav-icon">⬡</span> Home</a>
-      <a href="{{ url_for('dashboard') }}" class="nav-link {% if active == 'dashboard' %}active{% endif %}"><span class="nav-icon">📷</span> Detect</a>
-      <a href="{{ url_for('history') }}"   class="nav-link {% if active == 'history'   %}active{% endif %}"><span class="nav-icon">📂</span> History</a>
-      <a href="{{ url_for('analytics') }}" class="nav-link {% if active == 'analytics' %}active{% endif %}"><span class="nav-icon">📊</span> Analytics</a>
-    </div>
-    <div class="nav-right">
-      <div class="nav-status">
-        <span class="pulse-dot"></span>
-        <span class="status-text">System Online</span>
-      </div>
-      <!-- ── Theme toggle ── -->
-      <div class="theme-toggle">
-        <span class="theme-icon">🌙</span>
-        <button class="toggle-track" id="theme-btn" aria-label="Toggle dark/light mode"></button>
-        <span class="theme-icon">☀️</span>
-      </div>
-    </div>
-  </div>
-</nav>
 
-<main class="main-content">
+    {% if current_user %}
+    <button class="nav-burger" id="nav-burger" aria-label="Menu" aria-controls="nav-menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="nav-menu" id="nav-menu">
+      <nav class="nav-links" aria-label="Main">
+        {% macro navlink(endpoint, key, ico, label, badge=0) %}
+        <a href="{{ url_for(endpoint) }}" class="nav-link {% if active == key %}active{% endif %}"
+           {% if active == key %}aria-current="page"{% endif %}>{{ icon(ico, 17) }}<span>{{ label }}</span>{% if badge %}<span class="nav-badge"><span class="sr-only">, </span>{{ badge }}<span class="sr-only"> waiting</span></span>{% endif %}</a>
+        {% endmacro %}
+        {% if current_user.is_admin %}
+        {{ navlink('home', 'home', 'home', 'Overview') }}
+        {{ navlink('admin_reports', 'reports', 'inbox', 'Reports', pending_reviews) }}
+        {{ navlink('dashboard', 'dashboard', 'upload', 'Upload') }}
+        {{ navlink('history', 'history', 'list', 'Records') }}
+        {{ navlink('analytics', 'analytics', 'chart', 'Analytics') }}
+        {{ navlink('admin_users', 'users', 'users', 'Users') }}
+        {% else %}
+        {{ navlink('dashboard', 'dashboard', 'camera', 'New report') }}
+        {{ navlink('my_reports', 'my_reports', 'folder', 'My reports') }}
+        {% endif %}
+        <button type="button" class="nav-link nav-chat-link" data-open-chat aria-controls="chat-panel">{{ icon('chat', 17) }}<span>Assistant</span></button>
+      </nav>
+
+      <div class="nav-right">
+        <button class="icon-btn theme-btn" id="theme-btn" type="button" aria-label="Light mode" aria-pressed="false">
+          <span class="theme-dark">{{ icon('sun', 18) }}</span><span class="theme-light">{{ icon('moon', 18) }}</span>
+        </button>
+        <div class="nav-user">
+          <a class="nav-account {% if active == 'account' %}active{% endif %}" href="{{ url_for('account') }}" aria-label="My account">
+            <span class="user-avatar" aria-hidden="true">{{ (current_user.full_name or current_user.username)[:1]|upper }}</span>
+            <span class="user-meta">
+              <span class="user-name">{{ current_user.full_name or current_user.username }}</span>
+              <span class="role-pill role-{{ current_user.role }}">{{ 'officer' if current_user.is_admin else 'reporter' }}</span>
+            </span>
+          </a>
+          <form action="{{ url_for('logout') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="icon-btn" type="submit" aria-label="Sign out" title="Sign out">{{ icon('log-out', 18) }}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <nav class="public-nav" aria-label="Main">
+      <a class="public-link hide-sm" href="{{ url_for('index') }}#how">How it works</a>
+      <a class="public-link hide-sm" href="{{ url_for('privacy') }}">Privacy</a>
+      <a class="public-link" href="{{ url_for('login') }}">Sign in</a>
+      <a class="button button--primary button--sm" href="{{ url_for('register') }}">Create account</a>
+    </nav>
+    {% endif %}
+  </div>
+</header>
+{% endif %}
+
+<main class="main-content {% if auth_page %}auth-main{% endif %} {% block main_class %}{% endblock %}" id="main" tabindex="-1">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-stack">
+    {% for cat, msg in messages %}
+    <div class="flash flash-{{ cat }}" role="{{ 'alert' if cat == 'error' else 'status' }}">{{ icon({'success': 'check-circle', 'error': 'alert', 'info': 'info'}.get(cat, 'info'), 18) }}<span class="flash-text">{{ msg }}</span><button class="flash-close" aria-label="Dismiss message" onclick="this.parentElement.remove()">{{ icon('x', 16) }}</button></div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
   {% block content %}{% endblock %}
 </main>
 
-<!-- ── Floating chatbot ── -->
-<button class="chat-fab" id="chat-fab" title="Traffic Law Assistant">
-  <span class="fab-icon">💬</span>
-  <span class="badge-dot"></span>
+<footer class="site-footer">
+  <nav aria-label="Legal and information">
+    <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+    <a href="{{ url_for('terms') }}">Terms</a>
+    <a href="{{ url_for('cookies') }}">Cookies</a>
+    <a href="{{ url_for('privacy', lang='ar') }}" lang="ar">الخصوصية والشروط بالعربية</a>
+    {% if site.contact_email %}<a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>{% endif %}
+  </nav>
+  <p>© {{ current_year }} {{ site.name }} — a student capstone project at {{ site.university }}.
+     An academic prototype; not affiliated with the Public Security Directorate or any government body.
+     Emergency: <a href="tel:911">911</a>.</p>
+</footer>
+
+{% if current_user and not auth_page %}
+{% set display_name = current_user.full_name or current_user.username %}
+<!-- ── Website assistant ── -->
+<button class="chat-fab" id="chat-fab" aria-label="Open assistant" aria-controls="chat-panel" data-open-chat>
+  {{ icon("chat", 24) }}
 </button>
 
-<div class="chat-panel" id="chat-panel">
+<div class="chat-panel" id="chat-panel" role="dialog" aria-labelledby="chat-title">
   <div class="chat-panel-header">
-    <div class="avatar">👮</div>
+    <div class="avatar" aria-hidden="true">{{ icon("bot", 18) }}</div>
     <div class="info">
-      <div class="name">Traffic Law Assistant</div>
-      <div class="status">● Online · RAG-powered</div>
+      <h2 class="name" id="chat-title">SmartPath Assistant</h2>
+      <div class="status">{{ 'Knows all site data' if current_user.is_admin else 'Helps with reporting' }} · answers by AI (Groq)</div>
     </div>
-    <button class="close-btn" id="chat-panel-close">✕</button>
+    <button class="icon-btn" id="chat-clear" aria-label="Start a new chat" title="New chat">{{ icon("refresh", 17) }}</button>
+    <button class="icon-btn" id="chat-panel-close" aria-label="Close assistant">{{ icon("x", 18) }}</button>
   </div>
   <div class="chat-wrap">
-    <div class="chat-messages" id="fab-chat-messages">
-      <div class="chat-bubble bot">👋 Hello! Ask me anything about Jordan's traffic laws, fines, or violations.</div>
+    <div class="chat-messages" id="fab-chat-messages" role="log" aria-live="polite" aria-label="Conversation"></div>
+    <div class="chat-suggestions" id="chat-suggestions">
+      {% if current_user.is_admin %}
+      <button type="button" class="chip">How many reports are waiting for review?</button>
+      <button type="button" class="chip">Where do most violations happen?</button>
+      <button type="button" class="chip">Which plates are repeat offenders?</button>
+      <button type="button" class="chip">What time of day is worst?</button>
+      <button type="button" class="chip">What is the legal penalty for wrong-way driving?</button>
+      {% else %}
+      <button type="button" class="chip">How do I send a report?</button>
+      <button type="button" class="chip">What happens after I send a photo?</button>
+      <button type="button" class="chip">What is the fine for parking on the sidewalk?</button>
+      <button type="button" class="chip">How is my data used?</button>
+      {% endif %}
     </div>
-    <div class="chat-input-row">
-      <input class="chat-input" id="fab-chat-input" type="text" placeholder="e.g. Fine for wrong-way driving?" />
-      <button class="chat-send" id="fab-chat-send">Send</button>
-    </div>
+    <form class="chat-input-row" id="fab-chat-form">
+      <label for="fab-chat-input" class="sr-only">Your question</label>
+      <input class="chat-input" id="fab-chat-input" type="text" autocomplete="off"
+             placeholder="{{ 'Ask about violations, places, plates…' if current_user.is_admin else 'Ask how reporting works…' }}" maxlength="500" />
+      <button class="chat-send" id="fab-chat-send" type="submit" aria-label="Send">{{ icon("send", 17) }}</button>
+    </form>
+    <p class="chat-note">Law answers come from an unofficial summary and are not legal advice. Don't share personal details. Questions are processed by Groq — see the <a href="{{ url_for('privacy') }}">Privacy Policy</a>.</p>
   </div>
 </div>
+<script id="chat-config" type="application/json">{{ {
+  "key": "sp_chat_" ~ current_user.id,
+  "greeting": ("Hi " ~ display_name ~ ". Ask me anything about the site — reports waiting for review, where and when violations happen, plates, fines, Jordan's traffic law, or how to use a page.")
+              if current_user.is_admin else
+              ("Hi " ~ display_name ~ ". I can explain how to send a report, what happens next, how your data is used, and Jordan's traffic rules.")
+} | tojson }}</script>
+{% endif %}
 
 <!-- ── Spinner ── -->
 <div id="spinner" class="spinner-overlay">
@@ -689,189 +762,212 @@ table.data-table tr:hover td { background: rgba(255,255,255,.03); }
 </div>
 
 <script>
-/* ── Theme toggle — runs on every page ── */
+/* ── Theme toggle ── */
 const themeBtn = document.getElementById('theme-btn');
-
-/* Apply saved theme immediately (before paint) */
-if (localStorage.getItem('sp_theme') === 'light') {
-  document.body.classList.add('light');
+if (themeBtn) {
+  themeBtn.setAttribute('aria-pressed', document.body.classList.contains('light'));
+  themeBtn.addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('light');
+    themeBtn.setAttribute('aria-pressed', isLight);
+    try { localStorage.setItem('sp_theme', isLight ? 'light' : 'dark'); } catch (e) {}
+  });
 }
 
-themeBtn.addEventListener('click', () => {
-  const isLight = document.body.classList.toggle('light');
-  localStorage.setItem('sp_theme', isLight ? 'light' : 'dark');
-});
-
-/* ── Floating chatbot ── */
-const fab       = document.getElementById('chat-fab');
-const panel     = document.getElementById('chat-panel');
-const closeBtn  = document.getElementById('chat-panel-close');
-const fabInput  = document.getElementById('fab-chat-input');
-const fabSend   = document.getElementById('fab-chat-send');
-const fabMsgs   = document.getElementById('fab-chat-messages');
-
-fab.addEventListener('click', () => panel.classList.toggle('open'));
-closeBtn.addEventListener('click', () => panel.classList.remove('open'));
-
-function fabAppend(text, role) {
-  const d = document.createElement('div');
-  d.className = 'chat-bubble ' + role;
-  d.textContent = text;
-  fabMsgs.appendChild(d);
-  fabMsgs.scrollTop = fabMsgs.scrollHeight;
+/* ── Mobile menu ── */
+const burger  = document.getElementById('nav-burger');
+const navMenu = document.getElementById('nav-menu');
+if (burger && navMenu) {
+  burger.addEventListener('click', () => {
+    const open = navMenu.classList.toggle('open');
+    burger.classList.toggle('open', open);
+    burger.setAttribute('aria-expanded', open);
+  });
 }
 
-async function fabAsk() {
-  const q = fabInput.value.trim();
-  if (!q) return;
-  fabAppend(q, 'user');
-  fabInput.value = '';
-  fabAppend('…', 'bot');
-  try {
-    const r = await fetch('/chatbot', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({question: q}),
-    });
-    const data = await r.json();
-    fabMsgs.lastChild.textContent = data.answer || 'No answer received.';
-  } catch {
-    fabMsgs.lastChild.textContent = 'Connection error.';
+/* ── Flash auto-dismiss ── */
+setTimeout(() => document.querySelectorAll('.flash-success, .flash-info').forEach(el => el.remove()), 6000);
+
+/* ── Website assistant ── */
+const panel = document.getElementById('chat-panel');
+if (panel) {
+  const cfg   = JSON.parse(document.getElementById('chat-config').textContent);
+  const msgs  = document.getElementById('fab-chat-messages');
+  const form  = document.getElementById('fab-chat-form');
+  const input = document.getElementById('fab-chat-input');
+  const send  = document.getElementById('fab-chat-send');
+  const chips = document.getElementById('chat-suggestions');
+  const isDesktop = () => window.matchMedia('(min-width: 601px)').matches;
+  let history = [];
+  try { history = JSON.parse(sessionStorage.getItem(cfg.key) || '[]'); } catch (e) { history = []; }
+
+  // Escape everything, then turn **x** into bold — the only formatting allowed.
+  function setText(el, text) {
+    const esc = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    el.innerHTML = esc.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
   }
-  fabMsgs.scrollTop = fabMsgs.scrollHeight;
-}
+  function bubble(text, role) {
+    const d = document.createElement('div');
+    d.className = 'chat-bubble ' + (role === 'user' ? 'user' : 'bot');
+    if (role === 'user') d.textContent = text; else setText(d, text);
+    msgs.appendChild(d);
+    msgs.scrollTop = msgs.scrollHeight;
+    return d;
+  }
+  // "Sources" line listing the traffic-law entries an answer is based on.
+  function addSources(el, sources) {
+    if (!sources || !sources.length) return;
+    const s = document.createElement('span');
+    s.className = 'chat-sources';
+    s.textContent = 'Sources: ' + sources.map(x => x.title + ' (' + x.id + ')').join(' · ') +
+                    '. Unofficial summary, not legal advice.';
+    el.appendChild(s);
+  }
+  function render() {
+    msgs.innerHTML = '';
+    bubble(cfg.greeting, 'bot');
+    history.forEach(t => addSources(bubble(t.content, t.role), t.sources));
+    chips.style.display = history.length ? 'none' : 'flex';
+  }
+  function save() { try { sessionStorage.setItem(cfg.key, JSON.stringify(history.slice(-20))); } catch (e) {} }
 
-fabSend.addEventListener('click', fabAsk);
-fabInput.addEventListener('keydown', e => { if (e.key === 'Enter') fabAsk(); });
+  async function ask(q) {
+    q = (q || '').trim();
+    if (!q || send.disabled) return;
+    chips.style.display = 'none';
+    bubble(q, 'user');
+    input.value = '';
+    send.disabled = true;
+    const thinking = bubble('Thinking…', 'bot');
+    thinking.classList.add('typing');
+    try {
+      const r = await fetch('/chatbot', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': window.CSRF_TOKEN},
+        body: JSON.stringify({question: q, history: history.slice(-8)}),
+      });
+      const data = await r.json();
+      const answer = data.answer || data.error || 'No answer received.';
+      setText(thinking, answer);
+      addSources(thinking, data.sources);
+      if (r.ok) { history.push({role: 'user', content: q}, {role: 'assistant', content: answer, sources: data.sources || []}); save(); }
+    } catch (e) {
+      thinking.textContent = 'Connection error. Please try again.';
+    } finally {
+      thinking.classList.remove('typing');
+      send.disabled = false;
+      msgs.scrollTop = msgs.scrollHeight;
+      if (isDesktop()) input.focus();
+    }
+  }
+
+  let chatOpener = null;
+  function openChat(from) {
+    chatOpener = from || null;
+    panel.classList.add('open');
+    document.body.classList.add('chat-open');
+    if (navMenu) navMenu.classList.remove('open');
+    if (burger) { burger.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); }
+    input.focus();
+  }
+  function closeChat() {
+    if (!panel.classList.contains('open')) return;
+    panel.classList.remove('open');
+    document.body.classList.remove('chat-open');
+    if (chatOpener && chatOpener.offsetParent !== null) chatOpener.focus();
+    else document.getElementById('chat-fab').focus();
+  }
+
+  document.querySelectorAll('[data-open-chat]').forEach(b => b.addEventListener('click', () =>
+    panel.classList.contains('open') ? closeChat() : openChat(b)));
+  document.getElementById('chat-panel-close').addEventListener('click', closeChat);
+  document.getElementById('chat-clear').addEventListener('click', () => { history = []; save(); render(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeChat(); });
+  form.addEventListener('submit', e => { e.preventDefault(); ask(input.value); });
+  chips.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => ask(c.textContent)));
+  render();
+}
 
 /* ── Spinner ── */
 const spinner    = document.getElementById('spinner');
 const spinnerMsg = document.getElementById('spinner-msg');
-
-function showSpinner(msg) {
-  spinnerMsg.textContent = msg || 'Loading...';
-  spinner.classList.add('active');
-}
+function showSpinner(msg) { spinnerMsg.textContent = msg || 'Loading...'; spinner.classList.add('active'); }
 function hideSpinner() { spinner.classList.remove('active'); }
+window.addEventListener('pageshow', hideSpinner);   // e.g. back button after a submit
 
 /* ── GPS ── */
+let gpsReady = false;
+function refreshAnalyzeBtn() {
+  const btn     = document.getElementById('analyze-btn');
+  const file    = document.getElementById('file-input');
+  const consent = document.getElementById('consent');
+  const hint    = document.getElementById('analyze-hint');
+  if (!btn) return;
+  let msg = '';
+  if (!(file && file.files.length)) msg = 'Choose a photo to continue.';
+  else if (consent && !consent.checked) msg = 'Tick the box above to confirm the photo rules.';
+  else if (!gpsReady) msg = 'Getting your location…';
+  btn.disabled = !!msg;
+  if (hint) hint.textContent = msg;
+}
+document.addEventListener('change', e => { if (e.target && e.target.id === 'consent') refreshAnalyzeBtn(); });
 function initGPS() {
   const latField  = document.getElementById('lat-field');
   const lngField  = document.getElementById('lng-field');
   const gpsStatus = document.getElementById('gps-status');
   if (!latField || !lngField) return;
-
-  if (!navigator.geolocation) {
-    if (gpsStatus) { gpsStatus.textContent = '⚠️ Geolocation not supported — using default Amman coords.'; gpsStatus.className = 'err'; }
-    latField.value = '31.9516';
-    lngField.value = '35.9342';
-    enableAnalyzeBtn();
-    return;
-  }
-
+  const done = (msg, cls) => {
+    if (gpsStatus) { gpsStatus.textContent = msg; gpsStatus.className = cls; }
+    gpsReady = true;
+    refreshAnalyzeBtn();
+  };
+  const fallback = msg => { latField.value = '31.9516'; lngField.value = '35.9342'; done(msg, 'err'); };
+  if (!navigator.geolocation) return fallback('Location is not available on this device, so a default location in Amman will be used.');
   navigator.geolocation.getCurrentPosition(
     pos => {
       latField.value = pos.coords.latitude;
       lngField.value = pos.coords.longitude;
-      if (gpsStatus) {
-        gpsStatus.textContent = `📍 Location acquired: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
-        gpsStatus.className = 'ok';
-      }
-      enableAnalyzeBtn();
+      done(`Location found (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`, 'ok');
     },
-    err => {
-      console.warn('[GPS]', err.message);
-      latField.value = '31.9516';
-      lngField.value = '35.9342';
-      if (gpsStatus) {
-        gpsStatus.textContent = '⚠️ Location blocked — using default Amman coords.';
-        gpsStatus.className = 'err';
-      }
-      enableAnalyzeBtn();
-    },
+    () => fallback('Location access was not allowed, so a default location in Amman will be used.'),
     { timeout: 8000, maximumAge: 60000 }
   );
 }
 
-function enableAnalyzeBtn() {
-  const btn = document.getElementById('analyze-btn');
-  if (btn) btn.disabled = false;
-}
-
-/* ── Upload preview ── */
+/* ── Upload preview + drag & drop ── */
 function initUploadPreview() {
   const fileInput   = document.getElementById('file-input');
+  const zone        = document.getElementById('upload-zone');
   const previewWrap = document.getElementById('preview-wrap');
   const previewImg  = document.getElementById('preview-img');
   const fileNameEl  = document.getElementById('file-name');
   const form        = document.getElementById('upload-form');
-
   if (!fileInput) return;
 
   fileInput.addEventListener('change', () => {
     const file = fileInput.files[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    previewImg.src = url;
-    previewWrap.style.display = 'block';
-    if (fileNameEl) fileNameEl.textContent = file.name;
-  });
-
-  if (form) {
-    form.addEventListener('submit', () => {
-      showSpinner('Analyzing image for violations…');
-    });
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  initGPS();
-  initUploadPreview();
-});
-
-/* ── Inline violation chat ── */
-const inlineInput = document.getElementById('chat-input');
-const inlineSend  = document.getElementById('chat-send');
-const inlineMsgs  = document.getElementById('chat-messages');
-
-if (inlineInput && inlineSend && inlineMsgs) {
-  async function inlineAsk() {
-    const q = inlineInput.value.trim();
-    if (!q) return;
-    const ctx      = inlineInput.dataset.context  || '';
-    const plate    = inlineInput.dataset.plate    || '';
-    const location = inlineInput.dataset.location || '';
-    const full = `Context — Violation: ${ctx}, Plate: ${plate}, Location: ${location}. Question: ${q}`;
-
-    const userBubble = document.createElement('div');
-    userBubble.className = 'chat-bubble user';
-    userBubble.textContent = q;
-    inlineMsgs.appendChild(userBubble);
-    inlineInput.value = '';
-
-    const botBubble = document.createElement('div');
-    botBubble.className = 'chat-bubble bot';
-    botBubble.textContent = '…';
-    inlineMsgs.appendChild(botBubble);
-    inlineMsgs.scrollTop = inlineMsgs.scrollHeight;
-
-    try {
-      const r = await fetch('/chatbot', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: full}),
-      });
-      const data = await r.json();
-      botBubble.textContent = data.answer || 'No answer.';
-    } catch {
-      botBubble.textContent = 'Connection error.';
+    if (file && file.size > 16 * 1024 * 1024) {
+      alert('That image is larger than 16 MB.');
+      fileInput.value = '';
     }
-    inlineMsgs.scrollTop = inlineMsgs.scrollHeight;
+    if (fileInput.files[0]) {
+      const f = fileInput.files[0];
+      previewImg.src = URL.createObjectURL(f);
+      previewWrap.style.display = 'block';
+      if (fileNameEl) fileNameEl.textContent = f.name + ' · ' + (f.size / 1024 / 1024).toFixed(1) + ' MB';
+    }
+    refreshAnalyzeBtn();
+  });
+  if (zone) {
+    ['dragenter', 'dragover'].forEach(ev => zone.addEventListener(ev, () => zone.classList.add('drag')));
+    ['dragleave', 'drop'].forEach(ev => zone.addEventListener(ev, () => zone.classList.remove('drag')));
   }
-
-  inlineSend.addEventListener('click', inlineAsk);
-  inlineInput.addEventListener('keydown', e => { if (e.key === 'Enter') inlineAsk(); });
+  if (form) form.addEventListener('submit', () => {
+    document.getElementById('analyze-btn').disabled = true;
+    showSpinner(document.getElementById('consent') ? 'Sending your report…' : 'Analyzing image for violations…');
+  });
 }
+
+document.addEventListener('DOMContentLoaded', () => { initGPS(); initUploadPreview(); });
 </script>
 
 {% block scripts %}{% endblock %}

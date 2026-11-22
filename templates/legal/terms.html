@@ -1,0 +1,100 @@
+{% extends "legal/_layout.html" %}
+{% block title %}{{ 'الشروط والأحكام' if lang == 'ar' else 'Terms and Conditions' }} — SmartPath Jordan{% endblock %}
+
+{% block en %}
+<h1>Terms and Conditions</h1>
+<p class="legal-lead">These terms apply when you use SmartPath Jordan. By creating an account you agree to them and to the
+<a href="{{ url_for('privacy') }}">Privacy Policy</a>.</p>
+
+<h2>1. What this site is — and is not</h2>
+<ul>
+  <li>SmartPath Jordan is an <strong>academic prototype</strong> built by {{ site.operator }} at {{ site.university }}.</li>
+  <li>It is <strong>not</strong> an official service and is not affiliated with the Public Security Directorate, the police or any government body.</li>
+  <li>Reports sent here have <strong>no legal effect</strong>: they are not police complaints, and the site does not issue fines. Fine amounts shown to reviewers are reference values configured for the demo; actual penalties are set by Jordanian law and the competent authorities.</li>
+  <li>In an emergency, or to make an official complaint, contact the police directly (emergency number <a href="tel:911">911</a>).</li>
+</ul>
+
+<h2>2. Who can use it</h2>
+<p>You must be 18 or older. Keep your password secret; you are responsible for activity on your account.</p>
+
+<h2>3. Rules for reports</h2>
+<ul>
+  <li>Send only photos <strong>you took yourself</strong>, of public roads or places.</li>
+  <li><strong>Never use your phone while driving.</strong> Stop safely first or let a passenger take the photo.</li>
+  <li>Do not send false, misleading or malicious reports, or use the site to harass, follow or target anyone.</li>
+  <li>Avoid photographing people's faces, children, homes or private property.</li>
+  <li>Do not upload illegal, offensive or copyrighted material you don't have the right to share.</li>
+  <li>Do not try to break, overload or get around the site's security.</li>
+</ul>
+<p>We may remove reports and suspend or delete accounts that break these rules.</p>
+
+<h2>4. Your photos</h2>
+<p>You keep ownership of your photos. By sending one you allow the project to store, analyse (including with the AI services named in the Privacy Policy) and review it for the purposes of this project, and you confirm you have the right to do so.</p>
+
+<h2>5. AI results</h2>
+<p>AI detection and plate reading can be wrong. Every citizen report is checked by a person before it is treated as a violation, and reporters are not told the outcome.</p>
+
+<h2>6. Cost, payments and refunds</h2>
+<p>The site is free. We never ask for payment, so there is nothing to refund. Be careful of anyone asking you to pay in our name.</p>
+
+<h2>7. Availability and liability</h2>
+<p>As a student project the site is provided "as is" and may change, be unavailable or be shut down at any time without notice. To the extent permitted by law, the project team and the university are not liable for losses arising from use of the site.</p>
+
+<h2>8. Ending your use</h2>
+<p>You can delete your account at any time from the <a href="{{ url_for('account') }}">Account</a> page.</p>
+
+<h2>9. Law</h2>
+<p>These terms are governed by the laws of the Hashemite Kingdom of Jordan.</p>
+
+<h2>10. Changes</h2>
+<p>We will update the date below when these terms change and ask you to accept the new version.</p>
+{% endblock %}
+
+{% block ar %}
+<h1>الشروط والأحكام</h1>
+<p class="legal-lead">تنطبق هذه الشروط عند استخدامك SmartPath Jordan. بإنشائك حسابًا فإنك توافق عليها وعلى
+<a href="{{ url_for('privacy', lang='ar') }}">سياسة الخصوصية</a>.</p>
+
+<h2>1. ما هو هذا الموقع وما ليس هو</h2>
+<ul>
+  <li>SmartPath Jordan <strong>نموذج أولي أكاديمي</strong> طوّره {{ site.operator_ar }} في {{ site.university_ar }}.</li>
+  <li>الموقع <strong>ليس</strong> خدمة رسمية، وليس تابعًا لمديرية الأمن العام أو الشرطة أو أي جهة حكومية.</li>
+  <li>البلاغات المرسلة هنا <strong>ليس لها أي أثر قانوني</strong>: فهي ليست شكاوى رسمية للشرطة، والموقع لا يصدر مخالفات. قيم الغرامات المعروضة للمراجعين قيم مرجعية مُعدّة للعرض التجريبي، أما العقوبات الفعلية فيحددها القانون الأردني والجهات المختصة.</li>
+  <li>في حالات الطوارئ أو لتقديم شكوى رسمية، تواصل مع الشرطة مباشرة (رقم الطوارئ <a href="tel:911">911</a>).</li>
+</ul>
+
+<h2>2. من يمكنه الاستخدام</h2>
+<p>يجب أن يكون عمرك 18 عامًا فأكثر. حافظ على سرية كلمة المرور، فأنت مسؤول عن أي نشاط يتم من خلال حسابك.</p>
+
+<h2>3. قواعد البلاغات</h2>
+<ul>
+  <li>أرسل فقط صورًا <strong>التقطتها بنفسك</strong> لطرق أو أماكن عامة.</li>
+  <li><strong>لا تستخدم هاتفك أبدًا أثناء القيادة.</strong> توقّف بأمان أولًا أو اطلب من أحد الركاب التقاط الصورة.</li>
+  <li>لا ترسل بلاغات كاذبة أو مضللة أو كيدية، ولا تستخدم الموقع لمضايقة أي شخص أو تتبّعه أو استهدافه.</li>
+  <li>تجنّب تصوير وجوه الأشخاص أو الأطفال أو المنازل أو الممتلكات الخاصة.</li>
+  <li>لا ترفع محتوى غير قانوني أو مسيئًا أو محميًا بحقوق نشر لا تملك حق مشاركته.</li>
+  <li>لا تحاول اختراق الموقع أو إغراقه بالطلبات أو تجاوز وسائل الحماية فيه.</li>
+</ul>
+<p>يحق لنا حذف البلاغات وتعليق الحسابات أو حذفها عند مخالفة هذه القواعد.</p>
+
+<h2>4. صورك</h2>
+<p>تبقى ملكية صورك لك. بإرسالك صورة فإنك تسمح للمشروع بحفظها وتحليلها (بما في ذلك عبر خدمات الذكاء الاصطناعي المذكورة في سياسة الخصوصية) ومراجعتها لأغراض هذا المشروع، وتؤكد أنك تملك الحق في ذلك.</p>
+
+<h2>5. نتائج الذكاء الاصطناعي</h2>
+<p>قد يخطئ كشف المخالفات وقراءة اللوحات بالذكاء الاصطناعي. يراجع شخص مختص كل بلاغ قبل اعتباره مخالفة، ولا يتم إبلاغ مُرسل البلاغ بالنتيجة.</p>
+
+<h2>6. التكلفة والدفع والاسترداد</h2>
+<p>الموقع مجاني. لا نطلب أي دفعات أبدًا، لذلك لا يوجد ما يُسترد. احذر من أي شخص يطلب منك الدفع باسمنا.</p>
+
+<h2>7. التوفر والمسؤولية</h2>
+<p>بصفته مشروعًا طلابيًا، يُقدَّم الموقع "كما هو" وقد يتغير أو يتوقف أو يُغلق في أي وقت دون إشعار. وبالقدر الذي يسمح به القانون، لا يتحمل فريق المشروع ولا الجامعة مسؤولية أي خسائر ناتجة عن استخدام الموقع.</p>
+
+<h2>8. إنهاء الاستخدام</h2>
+<p>يمكنك حذف حسابك في أي وقت من صفحة <a href="{{ url_for('account') }}">الحساب</a>.</p>
+
+<h2>9. القانون المطبّق</h2>
+<p>تخضع هذه الشروط لقوانين المملكة الأردنية الهاشمية.</p>
+
+<h2>10. التعديلات</h2>
+<p>سنحدّث التاريخ أدناه عند تعديل هذه الشروط ونطلب منك الموافقة على النسخة الجديدة.</p>
+{% endblock %}

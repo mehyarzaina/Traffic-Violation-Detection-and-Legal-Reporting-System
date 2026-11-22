@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="legal-wrap">
+  <nav class="legal-nav" aria-label="Legal pages">
+    <a href="{{ url_for('privacy', lang=lang) }}" {% if page == 'privacy' %}aria-current="page"{% endif %}>{{ 'سياسة الخصوصية' if lang == 'ar' else 'Privacy' }}</a>
+    <a href="{{ url_for('terms', lang=lang) }}" {% if page == 'terms' %}aria-current="page"{% endif %}>{{ 'الشروط والأحكام' if lang == 'ar' else 'Terms' }}</a>
+    <a href="{{ url_for('cookies', lang=lang) }}" {% if page == 'cookies' %}aria-current="page"{% endif %}>{{ 'ملفات تعريف الارتباط' if lang == 'ar' else 'Cookies' }}</a>
+    <span class="legal-lang">
+      {% if lang == 'ar' %}<a href="{{ url_for(page) }}" lang="en" hreflang="en">English</a>
+      {% else %}<a href="{{ url_for(page, lang='ar') }}" lang="ar" hreflang="ar">العربية</a>{% endif %}
+    </span>
+  </nav>
+
+  <article class="card legal" lang="{{ lang }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+    {% if lang == 'ar' %}{% block ar %}{% endblock %}{% else %}{% block en %}{% endblock %}{% endif %}
+
+    <hr>
+    <p class="legal-meta">
+      {% if lang == 'ar' %}
+        آخر تحديث: {{ site.policies_updated }}. للتواصل:
+        {% if site.contact_email %}<a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>{% else %}عبر المشرف الأكاديمي للمشروع في {{ site.university_ar }}{% endif %}.
+      {% else %}
+        Last updated: {{ site.policies_updated }}. Contact:
+        {% if site.contact_email %}<a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>{% else %}through the project's academic supervisor at {{ site.university }}{% endif %}.
+      {% endif %}
+    </p>
+  </article>
+</div>
+{% endblock %}

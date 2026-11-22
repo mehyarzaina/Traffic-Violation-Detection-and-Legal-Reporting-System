@@ -4,6 +4,7 @@ Returns detected violation names AND an annotated PIL image with bounding boxes.
 """
 
 import io
+import threading
 from PIL import Image, ImageDraw, ImageFont
 from typing import List, Tuple, Optional
 
@@ -11,6 +12,13 @@ WRONG_WAY_MODEL_PATH     = "models/wrong_way_driving.pt"
 WRONG_PARKING_MODEL_PATH = "models/wrong_parking.pt"
 
 CONFIDENCE_THRESHOLD = 0.75
+
+# Each model also detects the CORRECT behaviour (right-side driving, proper
+# parking). Only these classes are violations; the others must be ignored.
+VIOLATION_CLASSES = {
+    "Wrong Way Driving": {"wrong-side"},
+    "Wrong Parking":     {"improper"},
+}
 
 # Colours for each violation type (BGR-style hex for consistency with web)
 VIOLATION_COLORS = {
@@ -32,18 +40,46 @@ def _load_model(path: str):
         return None
 
 
+_model_lock = threading.Lock()
+_infer_lock = threading.Lock()
+
+
 def _get_wrong_way_model():
+    """
+    Returns the wrong-way driving detection model.
+    Loads it from disk on first call and caches it globally for subsequent calls.
+    The lock stops the warm-up thread and a request from loading it twice.
+    """
     global _wrong_way_model
     if _wrong_way_model is None:
-        _wrong_way_model = _load_model(WRONG_WAY_MODEL_PATH)
+        with _model_lock:
+            if _wrong_way_model is None:
+                _wrong_way_model = _load_model(WRONG_WAY_MODEL_PATH)
     return _wrong_way_model
 
 
 def _get_wrong_parking_model():
     global _wrong_parking_model
     if _wrong_parking_model is None:
-        _wrong_parking_model = _load_model(WRONG_PARKING_MODEL_PATH)
+        with _model_lock:
+            if _wrong_parking_model is None:
+                _wrong_parking_model = _load_model(WRONG_PARKING_MODEL_PATH)
     return _wrong_parking_model
+
+
+def warm_up():
+    """
+    Load both YOLO models and run one tiny dummy inference so the first real
+    upload doesn't pay the model-loading / first-inference cost.
+    """
+    dummy = Image.new("RGB", (64, 64))
+    for model in (_get_wrong_way_model(), _get_wrong_parking_model()):
+        if model is not None:
+            try:
+                with _infer_lock:
+                    model(dummy, verbose=False)
+            except Exception as e:
+                print(f"[Detector] Warm-up inference failed: {e}")
 
 
 def _run_model(model, image: Image.Image, label: str) -> Tuple[bool, list]:
@@ -54,14 +90,23 @@ def _run_model(model, image: Image.Image, label: str) -> Tuple[bool, list]:
         print(f"[Detector] {label} model unavailable — skipping.")
         return False, []
     try:
-        results = model(image, verbose=False)
+        # Ultralytics models are not thread-safe (the first call fuses layers),
+        # so the warm-up thread and requests must not run them at the same time.
+        with _infer_lock:
+            results = model(image, verbose=False)  # detection
+        names = model.names or {}
+        wanted = VIOLATION_CLASSES.get(label, set())
+        violation_ids = {i for i, n in names.items() if str(n).lower() in wanted}
+        if not violation_ids:
+            print(f"[Detector] {label}: none of {sorted(wanted)} in model classes {names} — skipping.")
+            return False, []
         boxes = []
         detected = False
         for result in results:
             if result.boxes is not None:
                 for box in result.boxes:
                     conf = float(box.conf[0])
-                    if conf >= CONFIDENCE_THRESHOLD:
+                    if int(box.cls[0]) in violation_ids and conf >= CONFIDENCE_THRESHOLD:
                         detected = True
                         x1, y1, x2, y2 = [float(v) for v in box.xyxy[0]]
                         boxes.append({

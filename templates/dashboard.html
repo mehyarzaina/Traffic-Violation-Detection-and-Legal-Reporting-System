@@ -5,225 +5,113 @@
 <div class="page-header">
   <div>
     <h1 class="page-title">Traffic Violation Detection</h1>
-    <p class="page-sub">Upload a traffic camera image to detect violations, extract vehicle info, and generate a legal report.</p>
+    <p class="page-sub">Upload a traffic camera image to detect violations and extract vehicle info. Officer uploads are recorded straight away.</p>
   </div>
+  <div><a class="btn-outline" href="{{ url_for('admin_reports') }}">{{ icon("inbox", 17) }} Reports to review{% if pending_reviews %} ({{ pending_reviews }}){% endif %}</a></div>
 </div>
 
 {% if error %}
-<div class="flash-error">⚠️ {{ error }}</div>
+<div class="flash flash-error" role="alert" style="margin-bottom:18px">{{ icon("alert", 18) }}<span class="flash-text">{{ error }}</span></div>
 {% endif %}
 
 <div class="detect-grid">
 
   <!-- Upload card -->
   <div class="card">
-    <div class="card-title">📷 Camera Image Upload</div>
-    <form id="upload-form" action="/analyze" method="POST" enctype="multipart/form-data">
-
-      <input type="hidden" id="lat-field" name="latitude">
-      <input type="hidden" id="lng-field" name="longitude">
-
-      <div class="upload-zone" id="upload-zone">
-        <div class="upload-icon">📡</div>
-        <strong>Click or drag to upload</strong>
-        <p>JPG, JPEG or PNG · max 16 MB</p>
-        <input type="file" id="file-input" name="image" accept=".jpg,.jpeg,.png" required>
-      </div>
-
-      <div id="preview-wrap" style="display:none;margin-top:14px;">
-        <img id="preview-img" src="" alt="Preview"
-             style="width:100%;border-radius:10px;border:1px solid var(--border);object-fit:cover;max-height:260px;">
-        <div id="file-name" style="font-family:var(--mono);font-size:.75rem;color:var(--muted);margin-top:6px;"></div>
-      </div>
-
-      <div id="gps-status">📍 Locating your position…</div>
-
-      <button class="btn" type="submit" id="analyze-btn" disabled>🔍 Analyze for Violations</button>
-    </form>
-
+    <h2 class="card-title">Upload a camera frame</h2>
+    {% include "_upload_form.html" %}
   </div>
 
   <!-- Results column -->
   <div id="results-col">
     {% if result %}
 
+      <div class="review-line">
+        Review status:
+        {% if result.review_status == 'confirmed' %}<span class="badge badge-red">Confirmed violation</span>
+        {% elif result.review_status == 'rejected' %}<span class="badge badge-green">Not a violation</span>
+        {% else %}<span class="badge badge-amber">Waiting for review</span>
+          <a href="{{ url_for('admin_reports') }}">Review it</a>{% endif %}
+        {% if result.review_note %}<span class="upload-meta">· {{ result.review_note }}</span>{% endif %}
+      </div>
+
       {% if result.violations %}
       <div class="violation-alert">
-        <div class="alert-title red">🚨 Violation Detected</div>
-        {% for v in result.violations %}
-          <span class="vtag">{{ v.name }}</span>
-        {% endfor %}
+        <div class="alert-title red">{{ icon("alert", 18) }} Violation detected</div>
+        {% for v in result.violations %}<span class="vtag">{{ v.name }}</span>{% endfor %}
       </div>
       {% else %}
       <div class="clear-alert">
-        <div class="alert-title green">✅ No Violation Detected</div>
+        <div class="alert-title green">{{ icon("check-circle", 18) }} No violation detected</div>
         <div style="color:var(--muted);font-size:.84rem;margin-top:6px;">No traffic violations were identified in this frame.</div>
       </div>
       {% endif %}
 
+      <div class="card" style="margin-bottom:14px;padding:12px">
+        <img src="{{ result.image_url }}" alt="Analysed photo{% if result.violations %} with the detected {{ result.violations|map(attribute='name')|join(' and ') }} marked{% endif %}" style="width:100%;border-radius:8px;display:block;max-height:420px;object-fit:contain;background:var(--bg2)">
+      </div>
+
       <div class="card accent-red" style="margin-bottom:14px;">
         <div class="card-title-row">
-          <div class="card-title">🚗 Vehicle &amp; Location</div>
+          <div class="card-title" style="margin:0">Vehicle and location</div>
           {% if result.violations %}
-          <button class="btn-sm btn-pdf" id="download-pdf-btn">⬇ Download Report PDF</button>
+          <a class="btn-sm" href="{{ url_for('upload_pdf', upload_id=result.upload_id) }}">{{ icon("download", 16) }} Download PDF</a>
           {% endif %}
         </div>
 
         <div class="info-grid-3" style="margin-bottom:10px;">
-          <div class="info-tile">
-            <div class="lbl">License Plate</div>
-            <div class="val plate">{{ result.plate }}</div>
-          </div>
-          <div class="info-tile">
-            <div class="lbl">Color</div>
-            <div class="val">{{ result.car_color }}</div>
-          </div>
-          <div class="info-tile">
-            <div class="lbl">Type</div>
-            <div class="val">{{ result.car_type }}</div>
-          </div>
+          <div class="info-tile"><div class="lbl">License Plate</div><div class="val plate">{{ result.plate }}</div></div>
+          <div class="info-tile"><div class="lbl">Color</div><div class="val">{{ result.car_color }}</div></div>
+          <div class="info-tile"><div class="lbl">Type</div><div class="val">{{ result.car_type }}</div></div>
         </div>
 
         <div class="info-grid-auto">
-          <div class="info-tile">
-            <div class="lbl">City</div>
-            <div class="val loc">{{ result.city }}</div>
-          </div>
-          <div class="info-tile">
-            <div class="lbl">Area</div>
-            <div class="val loc">{{ result.area }}</div>
-          </div>
-          <div class="info-tile">
-            <div class="lbl">Street</div>
-            <div class="val">{{ result.street }}</div>
-          </div>
-          <div class="info-tile">
-            <div class="lbl">Timestamp</div>
-            <div class="val" style="font-size:.76rem;">{{ result.timestamp }}</div>
-          </div>
-          <div class="info-tile">
-            <div class="lbl">Period</div>
-            <div class="val" style="color:var(--amber);">{{ result.time_label }}</div>
-          </div>
-          <div class="info-tile">
-            <div class="lbl">Latitude</div>
-            <div class="val">{{ result.latitude }}</div>
-          </div>
-          <div class="info-tile">
-            <div class="lbl">Longitude</div>
-            <div class="val">{{ result.longitude }}</div>
-          </div>
+          <div class="info-tile"><div class="lbl">City</div><div class="val loc">{{ result.city }}</div></div>
+          <div class="info-tile"><div class="lbl">Area</div><div class="val loc">{{ result.area }}</div></div>
+          <div class="info-tile"><div class="lbl">Street</div><div class="val">{{ result.street }}</div></div>
+          <div class="info-tile"><div class="lbl">Timestamp</div><div class="val" style="font-size:.76rem;">{{ result.timestamp }}</div></div>
+          <div class="info-tile"><div class="lbl">Period</div><div class="val" style="color:var(--amber);">{{ result.time_label }}</div></div>
+          <div class="info-tile"><div class="lbl">Latitude</div><div class="val">{{ result.latitude }}</div></div>
+          <div class="info-tile"><div class="lbl">Longitude</div><div class="val">{{ result.longitude }}</div></div>
           <div class="info-tile">
             <div class="lbl">Map</div>
             <div class="val">
               <a href="https://www.google.com/maps?q={{ result.latitude }},{{ result.longitude }}"
-                 target="_blank" style="color:var(--blue);font-weight:600;">📍 View on Map</a>
+                 target="_blank" rel="noopener" style="color:var(--blue);font-weight:600;">View on map</a>
             </div>
           </div>
         </div>
       </div>
 
       {% if result.violations %}
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-        <div class="card">
-          <div class="card-title">💰 Fine Breakdown</div>
-          {% for v in result.violations %}
-          <div class="fine-row">
-            <span style="font-weight:600;font-size:.85rem;">{{ v.name }}</span>
-            <span class="fine-amount">{{ v.fine }} JD</span>
-          </div>
-          {% endfor %}
-          <div class="fine-row total-row">
-            <span>Total</span>
-            <span class="fine-total">{{ result.total_fine }} JD</span>
-          </div>
+      <div class="card">
+        <div class="card-title">Reference fines</div>
+        {% for v in result.violations %}
+        <div class="fine-row">
+          <span style="font-weight:600;font-size:.85rem;">{{ v.name }}</span>
+          <span class="fine-amount">{{ v.fine }} JD</span>
         </div>
-
-        {% if result.rag_reports %}
-        <div class="rag-report" style="margin-bottom:0;">
-          {% set rr = result.rag_reports[0] %}
-          <div class="rag-title">📜 Legal Reference</div>
-          <div class="rag-meta">
-            <span class="rag-badge">{{ rr.article_id }}</span>
-            <span class="rag-law-title">{{ rr.title }}</span>
-          </div>
-          <div class="rag-penalty">⚖️ {{ rr.penalty }}</div>
-        </div>
-        {% endif %}
-      </div>
-      {% endif %}
-
-      {% if result.rag_reports %}
-      {% for rr in result.rag_reports %}
-      <div class="rag-report" style="margin-bottom:14px;">
-        <div class="rag-title">📄 Official Violation Report — {{ rr.violation_type }}</div>
-        <div class="rag-meta">
-          <span class="rag-badge">{{ rr.article_id }}</span>
-          <span class="rag-law-title">{{ rr.title }}</span>
-        </div>
-        <div class="rag-penalty">⚖️ {{ rr.penalty }}</div>
-        <div class="rag-body">{{ rr.report }}</div>
-      </div>
-      {% endfor %}
-      {% endif %}
-
-      {% if result.violations %}
-      <div class="card accent-blue">
-        <div class="card-title">💬 Ask About This Violation</div>
-        <div class="chat-wrap">
-          <div class="chat-messages" id="chat-messages">
-            <div class="chat-bubble bot">
-              👮 I've reviewed the case for plate <strong>{{ result.plate }}</strong>. Ask me about the law, fine, consequences, or appeal process.
-            </div>
-          </div>
-          <div class="chat-input-row">
-            <input class="chat-input" id="chat-input" type="text"
-              placeholder="e.g. Can this fine be appealed?"
-              data-context="{{ result.violations|map(attribute='name')|join(', ') }}"
-              data-plate="{{ result.plate }}"
-              data-location="{{ result.city }}, {{ result.area }}"/>
-            <button class="chat-send" id="chat-send">Send</button>
-          </div>
+        {% endfor %}
+        <div class="fine-row total-row">
+          <span>Total</span>
+          <span class="fine-total">{{ result.total_fine }} JD</span>
         </div>
       </div>
       {% endif %}
+
+      <div class="card accent-blue" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between">
+        <div style="font-size:13px;color:var(--muted)">Questions about this result or other records?</div>
+        <button class="btn-sm" type="button" data-open-chat style="background:var(--blue)">Ask the assistant</button>
+      </div>
 
     {% else %}
     <div class="card empty-state">
-      <div class="empty-icon">📊</div>
+      <div class="empty-icon">{{ icon("search", 36) }}</div>
       <div class="empty-title">Analysis Results</div>
-      <div class="empty-sub">Upload and analyze an image to see violation detection results, vehicle information, and a legal report here.</div>
+      <div class="empty-sub">Upload and analyze an image to see violation detection results and vehicle information here.</div>
     </div>
     {% endif %}
   </div>
 
 </div>
-
-{% if result and result.violations %}
-<script id="report-data" type="application/json">
-{
-  "plate":       "{{ result.plate | e }}",
-  "car_color":   "{{ result.car_color | e }}",
-  "car_type":    "{{ result.car_type | e }}",
-  "city":        "{{ result.city | e }}",
-  "area":        "{{ result.area | e }}",
-  "street":      "{{ result.street | e }}",
-  "timestamp":   "{{ result.timestamp | e }}",
-  "time_label":  "{{ result.time_label | e }}",
-  "latitude":    "{{ result.latitude }}",
-  "longitude":   "{{ result.longitude }}",
-  "total_fine":  "{{ result.total_fine }}",
-  "image_url":   "{{ result.image_url | e }}",
-  "violations":  {{ result.violations | tojson }},
-  "rag_reports": {{ result.rag_reports | tojson }}
-}
-</script>
-<script>
-document.getElementById("download-pdf-btn")?.addEventListener("click", function() {
-  const data = JSON.parse(document.getElementById("report-data").textContent);
-  window.open("/report/pdf?plate=" + encodeURIComponent(data.plate) +
-              "&ts=" + encodeURIComponent(data.timestamp), "_blank");
-});
-</script>
-{% endif %}
 {% endblock %}
