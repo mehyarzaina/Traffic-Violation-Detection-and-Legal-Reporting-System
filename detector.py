@@ -13,6 +13,13 @@ WRONG_PARKING_MODEL_PATH = "models/wrong_parking.pt"
 
 CONFIDENCE_THRESHOLD = 0.75
 
+# Each model also detects the CORRECT behaviour (right-side driving, proper
+# parking). Only these classes are violations; the others must be ignored.
+VIOLATION_CLASSES = {
+    "Wrong Way Driving": {"wrong-side"},
+    "Wrong Parking":     {"improper"},
+}
+
 # Colours for each violation type (BGR-style hex for consistency with web)
 VIOLATION_COLORS = {
     "Wrong Way Driving": "#ef4444",   # red
@@ -87,13 +94,19 @@ def _run_model(model, image: Image.Image, label: str) -> Tuple[bool, list]:
         # so the warm-up thread and requests must not run them at the same time.
         with _infer_lock:
             results = model(image, verbose=False)  # detection
+        names = model.names or {}
+        wanted = VIOLATION_CLASSES.get(label, set())
+        violation_ids = {i for i, n in names.items() if str(n).lower() in wanted}
+        if not violation_ids:
+            print(f"[Detector] {label}: none of {sorted(wanted)} in model classes {names} — skipping.")
+            return False, []
         boxes = []
         detected = False
         for result in results:
             if result.boxes is not None:
                 for box in result.boxes:
                     conf = float(box.conf[0])
-                    if conf >= CONFIDENCE_THRESHOLD:
+                    if int(box.cls[0]) in violation_ids and conf >= CONFIDENCE_THRESHOLD:
                         detected = True
                         x1, y1, x2, y2 = [float(v) for v in box.xyxy[0]]
                         boxes.append({

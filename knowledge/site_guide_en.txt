@@ -1,0 +1,73 @@
+# SmartPath Jordan — how the website works (written for this project).
+# Same format as traffic_law_en.txt. Keep it in line with the real pages.
+
+===
+ID: SITE-001
+CATEGORY: Website — About
+TITLE: What SmartPath Jordan is
+SOURCE: SmartPath Jordan website
+TEXT:
+SmartPath Jordan is a university capstone prototype built at Al Hussein Technical University (HTU), Amman. It lets members of the public send photos of possible traffic violations, and lets authorised reviewers (officers) check them.
+
+It is not an official Public Security Directorate (PSD) service and does not issue real fines. In an emergency call 911.
+
+Two violation types are detected by the AI models: wrong-way driving and wrong (illegal) parking. The AI only suggests a result; a human reviewer always decides.
+PENALTY: Not applicable
+KEYWORDS: about, what is smartpath, prototype, university, capstone, HTU, official, police, real fine, emergency, 911, detect, violation types
+===
+ID: SITE-002
+CATEGORY: Website — Reporting
+TITLE: How to send a report
+SOURCE: SmartPath Jordan website
+TEXT:
+1. Sign in (or create an account) and open "New report".
+2. Choose or take a photo of the vehicle. Only photograph public roads, and never use your phone while driving.
+3. Allow location access so reviewers know where it happened.
+4. Tick the box confirming the photo rules, then press "Send report".
+5. You will see "Report received". An authorised reviewer checks every report.
+
+Reporters are not told the outcome of a report, and they do not see plate numbers, car details or fines. This protects the privacy of the people in the photos.
+PENALTY: Not applicable
+KEYWORDS: report, upload, photo, send report, how to report, location, gps, consent, report received, outcome, result, status
+===
+ID: SITE-003
+CATEGORY: Website — Reporting
+TITLE: My reports, withdrawing a report and account options
+SOURCE: SmartPath Jordan website
+TEXT:
+"My reports" lists the photos you sent and when. "Remove report" deletes a report that has not been reviewed yet; reports that were already reviewed stay with the reviewers but disappear from your list.
+
+On the Account page you can change your password, download your data (JSON) or delete your account.
+PENALTY: Not applicable
+KEYWORDS: my reports, delete report, remove report, withdraw, account, password, download data, export, delete account
+===
+ID: SITE-004
+CATEGORY: Website — Officers
+TITLE: How officers review citizen reports
+SOURCE: SmartPath Jordan website
+TEXT:
+Officers open "Reports" to see the review queue. Each report shows the photo with the AI boxes, the AI result, plate, vehicle, place and reporter. The officer ticks the violation type(s) and presses "Confirm violation", or presses "Not a violation". Only confirmed reports become official violation records (Records, Analytics, statistics). Decisions can be changed later.
+
+Photos uploaded by an officer on the Upload page are recorded immediately.
+PENALTY: Not applicable
+KEYWORDS: review, officer, confirm, reject, not a violation, queue, pending, admin, approve, decision
+===
+ID: SITE-005
+CATEGORY: Website — Fines
+TITLE: Reference fines shown on the website
+SOURCE: SmartPath Jordan website
+TEXT:
+The fines stored in the website (wrong-way driving 250 JD, wrong parking 30 JD) are demo reference values used for statistics and PDF reports. They are not official penalties. The legal penalty depends on the exact circumstances described in the traffic law (for example, whether the road is divided) and is decided by the authorities.
+PENALTY: Not applicable
+KEYWORDS: fine, reference fine, demo, 250, 30, JD, JOD, official penalty, how much
+===
+ID: SITE-006
+CATEGORY: Website — Privacy
+TITLE: Privacy, data kept and policies
+SOURCE: SmartPath Jordan website
+TEXT:
+The site keeps only what it needs: the account details, the photo (location metadata is removed from the file), the GPS position you allow, and the review result. Photos are processed by an AI model on the server and may be sent to Google Gemini to read the plate; chat questions are sent to Groq. Map tiles come from OpenStreetMap.
+
+The Privacy Policy, Terms and Cookie Policy are linked in the footer, in English and Arabic. They were written with Jordan's Personal Data Protection Law No. 24 of 2023 in mind, but have not been reviewed by a lawyer, so the site does not claim legal compliance. The site only uses essential cookies (sign-in session) and a theme preference, so there are no tracking or advertising cookies.
+PENALTY: Not applicable
+KEYWORDS: privacy, data, personal data, cookies, gemini, groq, third party, delete, policy, terms, PDPL, law 24 2023

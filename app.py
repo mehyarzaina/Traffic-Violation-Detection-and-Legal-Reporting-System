@@ -730,12 +730,13 @@ def chatbot_route():
     if not question:
         return jsonify({"answer": "Please ask a question."})
     history = data.get("history") if isinstance(data.get("history"), list) else []
+    sources = []
     try:
-        answer = chatbot.ask(g.user, question, history)
+        answer, sources = chatbot.ask_with_sources(g.user, question, history)
     except Exception as exc:
         print(f"[Chatbot] {exc}")
         answer = "Sorry, the assistant ran into an error. Please try again."
-    return jsonify({"answer": answer})
+    return jsonify({"answer": answer, "sources": sources})
 
 
 # ── Errors ──────────────────────────────────────────────────────────────────

@@ -728,10 +728,11 @@ window.CSRF_TOKEN = "{{ csrf_token() }}";
       <button type="button" class="chip">Where do most violations happen?</button>
       <button type="button" class="chip">Which plates are repeat offenders?</button>
       <button type="button" class="chip">What time of day is worst?</button>
+      <button type="button" class="chip">What is the legal penalty for wrong-way driving?</button>
       {% else %}
       <button type="button" class="chip">How do I send a report?</button>
-      <button type="button" class="chip">How many reports have I sent?</button>
       <button type="button" class="chip">What happens after I send a photo?</button>
+      <button type="button" class="chip">What is the fine for parking on the sidewalk?</button>
       <button type="button" class="chip">How is my data used?</button>
       {% endif %}
     </div>
@@ -741,14 +742,14 @@ window.CSRF_TOKEN = "{{ csrf_token() }}";
              placeholder="{{ 'Ask about violations, places, plates…' if current_user.is_admin else 'Ask how reporting works…' }}" maxlength="500" />
       <button class="chat-send" id="fab-chat-send" type="submit" aria-label="Send">{{ icon("send", 17) }}</button>
     </form>
-    <p class="chat-note">Don't share personal details. Questions are processed by Groq — see the <a href="{{ url_for('privacy') }}">Privacy Policy</a>.</p>
+    <p class="chat-note">Law answers come from an unofficial summary and are not legal advice. Don't share personal details. Questions are processed by Groq — see the <a href="{{ url_for('privacy') }}">Privacy Policy</a>.</p>
   </div>
 </div>
 <script id="chat-config" type="application/json">{{ {
   "key": "sp_chat_" ~ current_user.id,
-  "greeting": ("Hi " ~ display_name ~ ". Ask me anything about the site — reports waiting for review, where and when violations happen, plates, fines, or how to use a page.")
+  "greeting": ("Hi " ~ display_name ~ ". Ask me anything about the site — reports waiting for review, where and when violations happen, plates, fines, Jordan's traffic law, or how to use a page.")
               if current_user.is_admin else
-              ("Hi " ~ display_name ~ ". I can explain how to send a report, what happens next, and how your data is used.")
+              ("Hi " ~ display_name ~ ". I can explain how to send a report, what happens next, how your data is used, and Jordan's traffic rules.")
 } | tojson }}</script>
 {% endif %}
 
@@ -812,10 +813,19 @@ if (panel) {
     msgs.scrollTop = msgs.scrollHeight;
     return d;
   }
+  // "Sources" line listing the traffic-law entries an answer is based on.
+  function addSources(el, sources) {
+    if (!sources || !sources.length) return;
+    const s = document.createElement('span');
+    s.className = 'chat-sources';
+    s.textContent = 'Sources: ' + sources.map(x => x.title + ' (' + x.id + ')').join(' · ') +
+                    '. Unofficial summary, not legal advice.';
+    el.appendChild(s);
+  }
   function render() {
     msgs.innerHTML = '';
     bubble(cfg.greeting, 'bot');
-    history.forEach(t => bubble(t.content, t.role));
+    history.forEach(t => addSources(bubble(t.content, t.role), t.sources));
     chips.style.display = history.length ? 'none' : 'flex';
   }
   function save() { try { sessionStorage.setItem(cfg.key, JSON.stringify(history.slice(-20))); } catch (e) {} }
@@ -838,7 +848,8 @@ if (panel) {
       const data = await r.json();
       const answer = data.answer || data.error || 'No answer received.';
       setText(thinking, answer);
-      if (r.ok) { history.push({role: 'user', content: q}, {role: 'assistant', content: answer}); save(); }
+      addSources(thinking, data.sources);
+      if (r.ok) { history.push({role: 'user', content: q}, {role: 'assistant', content: answer, sources: data.sources || []}); save(); }
     } catch (e) {
       thinking.textContent = 'Connection error. Please try again.';
     } finally {
